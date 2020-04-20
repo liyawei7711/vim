@@ -17,20 +17,18 @@ import com.bumptech.glide.request.RequestOptions;
 import com.huaiye.cmf.sdp.SdpMessageCmProcessIMRsp;
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.core.SdkCallback;
+import com.huaiye.sdk.sdpmsgs.social.SendUserBean;
 
 import java.util.ArrayList;
 
-import butterknife.BindView;
 import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.utils.ChatUtil;
 import huaiye.com.vim.common.utils.WeiXinDateFormat;
-import huaiye.com.vim.common.views.CheckableLinearLayout;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.ContentBean;
-import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.VimMessageListBean;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -98,8 +96,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.time.setText(WeiXinDateFormat.getChatTime(bean.time));
 
         if (TextUtils.isEmpty(bean.sessionName)) {
-            if (ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(bean.groupID + "") != null) {
-                bean.sessionName = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(bean.groupID).strGroupName;
+            if (bean.sessionUserList != null && !bean.sessionUserList.isEmpty()) {
+                StringBuilder sb = new StringBuilder("");
+                for (SendUserBean temp : bean.sessionUserList) {
+                    sb.append(temp.strUserName + "、");
+                }
+                if (null != sb && sb.indexOf("、") >= 0) {
+                    sb.deleteCharAt(sb.lastIndexOf("、"));
+                }
+                bean.sessionName = sb.toString();
+                viewHolder.item_name.setText(bean.sessionName);
             } else {
                 ModelApis.Contacts().requestqueryGroupChatInfo(bean.groupDomainCode, bean.groupID,
                         new ModelCallback<ContactsGroupUserListBean>() {

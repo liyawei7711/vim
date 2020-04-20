@@ -14,6 +14,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.huaiye.cmf.sdp.SdpMessageCmProcessIMRsp;
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.core.SdkCallback;
+import com.huaiye.sdk.sdpmsgs.social.SendUserBean;
 
 import java.util.List;
 
@@ -112,8 +113,16 @@ public class ChatListViewHolder extends LiteViewHolder {
 
 
         if (TextUtils.isEmpty(bean.sessionName)) {
-            if (ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(bean.groupID + "") != null) {
-                bean.sessionName = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(bean.groupID).strGroupName;
+            if (bean.sessionUserList != null && !bean.sessionUserList.isEmpty()) {
+                StringBuilder sb = new StringBuilder("");
+                for (SendUserBean temp : bean.sessionUserList) {
+                    sb.append(temp.strUserName + "、");
+                }
+                if (null != sb && sb.indexOf("、") >= 0) {
+                    sb.deleteCharAt(sb.lastIndexOf("、"));
+                }
+                bean.sessionName = sb.toString();
+                item_name.setText(bean.sessionName);
             } else {
                 ModelApis.Contacts().requestqueryGroupChatInfo(bean.groupDomainCode, bean.groupID,
                         new ModelCallback<ContactsGroupUserListBean>() {

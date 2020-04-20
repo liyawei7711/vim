@@ -262,10 +262,10 @@ public class MeetNewActivity extends AppBaseActivity implements SdpUITask.SdpUIL
         switch (sdpMessageBase.GetMessageType()) {
             case CNotifyPeerUserMeetingInfo.SelfMessageId:
                 CNotifyPeerUserMeetingInfo peerInfo = (CNotifyPeerUserMeetingInfo) sdpMessageBase;
-                if (peerInfo.nMeetingID != nMeetID
-                        || !peerInfo.strMeetingDomainCode.equals(strMeetDomainCode)) {
-                    return;
-                }
+//                if (peerInfo.nMeetingID != nMeetID
+//                        || !peerInfo.strMeetingDomainCode.equals(strMeetDomainCode)) {
+//                    return;
+//                }
 
                 if (peerInfo.nIsAgree == 0) {
                     // 对方拒绝
@@ -286,10 +286,10 @@ public class MeetNewActivity extends AppBaseActivity implements SdpUITask.SdpUIL
             case CNotifyMeetingRaiseInfo.SelfMessageId:
                 CNotifyMeetingRaiseInfo raiseInfo = (CNotifyMeetingRaiseInfo) sdpMessageBase;
 
-                if (raiseInfo.nMeetingID != nMeetID
-                        || !raiseInfo.strMeetingDomainCode.equals(strMeetDomainCode)) {
-                    return;
-                }
+//                if (raiseInfo.nMeetingID != nMeetID
+//                        || !raiseInfo.strMeetingDomainCode.equals(strMeetDomainCode)) {
+//                    return;
+//                }
                 onUserRaiseOfMeetActivity(raiseInfo);
                 break;
             case CNotifyUpdateWhiteboard.SelfMessageId:
