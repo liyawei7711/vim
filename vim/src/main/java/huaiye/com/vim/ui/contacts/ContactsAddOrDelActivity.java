@@ -531,23 +531,30 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
 
     private void initData() {
         VimChoosedContacts.get().getContacts().clear();
-        if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
-            if (null != mUserList) {
-                for (int i = 0; i < mUserList.size(); i++) {
-                    mUserList.get(i).nJoinStatus = 2;
+        try {
+            if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
+                if (null != mUserList) {
+                    for (int i = 0; i < mUserList.size(); i++) {
+                        if (mUserList.get(i) != null) {
+                            mUserList.get(i).nJoinStatus = 2;
+                        }
+                    }
+                    VimChoosedContacts.get().getContacts().addAll(mUserList);
                 }
-                VimChoosedContacts.get().getContacts().addAll(mUserList);
-            }
-        } else {
-            if (null != mUserList) {
-                for (int i = 0; i < mUserList.size(); i++) {
-                    mUserList.get(i).nJoinStatus = 0;
-                }
+            } else {
+                if (null != mUserList) {
+                    for (int i = 0; i < mUserList.size(); i++) {
+                        if (mUserList.get(i) != null) {
+                            mUserList.get(i).nJoinStatus = 0;
+                        }
 
+                    }
+
+                }
             }
+        } catch (Exception e) {
+
         }
-
-
     }
 
     /**
