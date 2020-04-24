@@ -87,7 +87,7 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
     ArrayList<SdpMessageCmProcessIMReq.UserInfo> users = new ArrayList<>();
 
     private VideoRecordPresenterImpl presenter;
-
+    File fC_LINSHI;
     @Override
     protected void initActionBar() {
         getNavigate().setVisibility(View.GONE);
@@ -116,6 +116,11 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
+
+        fC_LINSHI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
 
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             if (isGroup) {
@@ -216,7 +221,7 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
             return;
         }
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFile(file.getPath()),
+            EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                     true, isGroup, isGroup ? mMeetID + "" : "", isGroup ? nMeetDomain : "",
                     isGroup ? "" : nUser.strUserID, isGroup ? "" : nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override

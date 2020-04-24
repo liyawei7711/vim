@@ -13,6 +13,7 @@ import com.huaiye.sdk.sdkabi._api.ApiEncrypt;
 import com.huaiye.sdk.sdkabi._params.SdkParamsCenter;
 import com.huaiye.sdk.sdkabi._params.encrypt.ParamsEncryptStartSession;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.FileLocalNameBean;
+import huaiye.com.vim.dao.msgs.FileMingWenNameBean;
 
 public class EncryptUtil {
 
@@ -245,9 +247,9 @@ public class EncryptUtil {
     /**
      * 传输加密文本转换为本地加密文本
      *
-     * @param setM_strData       数据
-     * @param setCallType        设置加密类型，群组为true,点对点为false
-     * m_lstData: m_nResultCode为0，列表中只有一条本地加密密文数据
+     * @param setM_strData 数据
+     * @param setCallType  设置加密类型，群组为true,点对点为false
+     *                     m_lstData: m_nResultCode为0，列表中只有一条本地加密密文数据
      */
     public static void converEncryptText(String setM_strData, boolean setCallType,
                                          String setGroupID, String setGroupDomainCode,
@@ -280,14 +282,15 @@ public class EncryptUtil {
 
     /**
      * 传输加密文件转换为本地加密文件
-     * @param srcFile 设置要加密的文件路径
-     * @param dstFile 设置要加密后的文件路径
-     * @param setCallType  设置加密类型，群组为true,点对点为false
-     * @param setGroupID  群组聊天时需要设置，设置群组id,
+     *
+     * @param srcFile            设置要加密的文件路径
+     * @param dstFile            设置要加密后的文件路径
+     * @param setCallType        设置加密类型，群组为true,点对点为false
+     * @param setGroupID         群组聊天时需要设置，设置群组id,
      * @param setGroupDomainCode 群组聊天时需要设置，设置群组域编码
-     * @param setPeerID 点对点/群组时需要设置，为对方的id
-     * @param setPeerDomainCode 点对点/群组时需要设置，为对方的域编码
-     * m_strData: 转换后的本地加密后或解密后文件
+     * @param setPeerID          点对点/群组时需要设置，为对方的id
+     * @param setPeerDomainCode  点对点/群组时需要设置，为对方的域编码
+     *                           m_strData: 转换后的本地加密后或解密后文件
      */
     public static void converEncryptFile(String srcFile, String dstFile, boolean setCallType,
                                          String setGroupID, String setGroupDomainCode,
@@ -321,6 +324,7 @@ public class EncryptUtil {
 
     /**
      * 获取新的文件名称
+     * 本地存储密文
      *
      * @param file
      * @return
@@ -339,6 +343,63 @@ public class EncryptUtil {
             String newName = fortFile + "/" + System.currentTimeMillis() + endString;
 
             AppDatas.MsgDB().getFileLocalListDao().insert(new FileLocalNameBean(file, newName));
+
+            return newName;
+        } else {
+            return bean.localFile;
+        }
+
+    }
+
+    /**
+     * 传输文件，用完就删除
+     *
+     * @param file
+     * @param jiami
+     * @return
+     */
+    public static String getNewFileChuanShu(String file, File jiami) {
+        File file2 = new File(file);
+        String newName;
+        if (jiami.getAbsolutePath().endsWith("/")) {
+            newName = jiami + String.valueOf(System.currentTimeMillis()) + "_" + file2.getName();
+        } else {
+            newName = jiami + "/" + System.currentTimeMillis() + "_" + file2.getName();
+        }
+
+        return newName;
+    }
+
+    public static String getNewFileLocal(String file, File bendi) {
+        FileLocalNameBean bean = AppDatas.MsgDB().getFileLocalListDao().getFileLocalInfo(file);
+        if (bean == null) {
+            String realName = file.substring(file.lastIndexOf("/"));
+            String newName;
+            if (bendi.getAbsolutePath().endsWith("/")) {
+                newName = bendi + realName;
+            } else {
+                newName = bendi + "/" + realName;
+            }
+            AppDatas.MsgDB().getFileLocalListDao().insert(new FileLocalNameBean(file, newName));
+
+            return newName;
+        } else {
+            return bean.localFile;
+        }
+
+    }
+
+    public static String getNewFileMingWen(String file, File mingwen) {
+        FileMingWenNameBean bean = AppDatas.MsgDB().getMingWenFileListDao().getFileMingWenInfo(file);
+        if (bean == null) {
+            String realName = file.substring(file.lastIndexOf("/"));
+            String newName;
+            if (mingwen.getAbsolutePath().endsWith("/")) {
+                newName = mingwen + realName;
+            } else {
+                newName = mingwen + "/" + realName;
+            }
+            AppDatas.MsgDB().getMingWenFileListDao().insert(new FileMingWenNameBean(file, newName));
 
             return newName;
         } else {
@@ -386,4 +447,6 @@ public class EncryptUtil {
         return sb.toString();
     }
 
+    File fC_BEANDI;
+    File fC_MINGWEN;
 }

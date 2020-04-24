@@ -182,10 +182,16 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     Map<String, String> mapLocal = new HashMap<>();
     int imageSize = 1;
     int lastLength = 0;
+    File fC_LINSHI;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fC_LINSHI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
+
         EventBus.getDefault().register(this);
         if (!SP.getBoolean(AppUtils.SP_SETTING_VOICE, false)) {//使用公放播放
             startSpeakerLound();
@@ -1107,7 +1113,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                     }
 
                     if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                        EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFile(file.getPath()),
+                        EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                                 true, true, mContactsBean.strGroupID, mContactsBean.strGroupDomainCode,
                                 "", "", users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                     @Override
@@ -1368,7 +1374,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
         initUserEncrypt();
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFile(file.getPath()),
+            EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                     true, true, mContactsBean.strGroupID, mContactsBean.strGroupDomainCode,
                     "", "", users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override

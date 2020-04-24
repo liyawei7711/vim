@@ -132,6 +132,8 @@ public class MapActivity extends AppBaseActivity {
     private ProgressDialog mProgressDialog;
     private BDLocation mLocation;
 
+    File fC_LINSHI;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         isNeedSecureSnap = true;
@@ -145,7 +147,10 @@ public class MapActivity extends AppBaseActivity {
 
     @Override
     public void doInitDelay() {
-
+        fC_LINSHI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             if (isGroup && mMessageUsersDate != null) {
                 for (SendUserBean temp : mMessageUsersDate) {
@@ -476,7 +481,7 @@ public class MapActivity extends AppBaseActivity {
                     public void doOnMain(File data) {
                         if (null != data) {
                             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                                EncryptUtil.encryptFile(data.getPath(), EncryptUtil.getNewFile(data.getPath()),
+                                EncryptUtil.encryptFile(data.getPath(), EncryptUtil.getNewFileChuanShu(data.getPath(), fC_LINSHI),
                                         true, isGroup, isGroup ? nMeetID + "" : "", isGroup ? nMeetDomain : "",
                                         isGroup ? "" : nUser.strUserID, isGroup ? "" : nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                             @Override

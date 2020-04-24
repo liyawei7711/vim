@@ -108,7 +108,7 @@ public class YueHouJiFengImgActivity extends AppBaseActivity {
 
     @Override
     public void doInitDelay() {
-        fC = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/");
+        fC = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/chuanshu/");
         if (!fC.exists()) {
             fC.mkdirs();
         }

@@ -155,9 +155,9 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
                         ++currentRequestTime;
 
                         for (GroupInfo temp : contactsBean.lstGroupInfo) {
-                            if (!temp.strGroupID.equals(data.groupID)) {
+//                            if (!temp.strGroupID.equals(data.groupID)) {
                                 mlstGroupInfo.add(temp);
-                            }
+//                            }
                         }
 
                         updateMsgTopNoDisturb(mlstGroupInfo);

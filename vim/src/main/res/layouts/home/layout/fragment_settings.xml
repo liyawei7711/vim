@@ -225,7 +225,6 @@
                 android:id="@+id/view_trans_file"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:visibility="gone"
                 android:background="@color/white">
                 <TextView
                     android:layout_width="match_parent"

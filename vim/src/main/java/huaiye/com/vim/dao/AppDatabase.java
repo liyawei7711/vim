@@ -9,6 +9,8 @@ import huaiye.com.vim.dao.msgs.ChatSingleMsgBean;
 import huaiye.com.vim.dao.msgs.ChatSingleMsgDao;
 import huaiye.com.vim.dao.msgs.FileLocalNameBean;
 import huaiye.com.vim.dao.msgs.FileLocalNameDao;
+import huaiye.com.vim.dao.msgs.FileMingWenNameBean;
+import huaiye.com.vim.dao.msgs.FileMingWenNameDao;
 import huaiye.com.vim.dao.msgs.FriendListDao;
 import huaiye.com.vim.dao.msgs.GroupListDao;
 import huaiye.com.vim.dao.msgs.JieSuoBean;
@@ -27,7 +29,7 @@ import static huaiye.com.vim.dao.AppDatas.VERSION;
  */
 @Database(entities = {ChatGroupMsgBean.class, ChatSingleMsgBean.class, JieSuoBean.class,
         User.class, GroupInfo.class, SendMsgUserBean.class, JinJiLianXiRenBean.class,
-        FileLocalNameBean.class}, version = VERSION)
+        FileLocalNameBean.class, FileMingWenNameBean.class}, version = VERSION)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract ChatGroupMsgDao chatGroupMsgDao();
 
@@ -40,6 +42,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract SendMsgUserDao getSendUserListDao();
 
     public abstract FileLocalNameDao getFileLocalListDao();
+
+    public abstract FileMingWenNameDao getMingWenFileListDao();
 
     public abstract JinJiLianXiRenDao getJinJiLianXiRenDao();
 

@@ -97,14 +97,15 @@ public class ChooseFilesActivity extends AppBaseActivity {
     Pattern pattern = Pattern.compile("[0-9]*");
 
     SDCardUtils sdCardUtils;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    File fC_LINSHI;
 
     @Override
     protected void initActionBar() {
+        fC_LINSHI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
+
         ArrayList<SdpMessageCmProcessIMReq.UserInfo> users = new ArrayList<>();
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             if (isGroup) {
@@ -141,7 +142,7 @@ public class ChooseFilesActivity extends AppBaseActivity {
                 }
                 final File file = new File(currentBean.path);
                 if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                    EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFile(file.getPath()),
+                    EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                             true, isGroup, isGroup ? mMeetID + "" : "", isGroup ? nMeetDomain : "",
                             isGroup ? "" : nUser.strUserID, isGroup ? "" : nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                 @Override

@@ -184,10 +184,15 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     int indexCount = 1;
 
     ChatPresent chatPresent;
-
+    File fC_LINSHI;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fC_LINSHI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
+
         EventBus.getDefault().register(this);
 
         if (!SP.getBoolean(AppUtils.SP_SETTING_VOICE, false)) {//使用公放播放
@@ -954,7 +959,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                         return;
                     }
                     if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                        EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFile(file.getPath()),
+                        EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                                 true, false, "", "",
                                 nUser.strUserID, nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                     @Override
@@ -1202,7 +1207,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
 
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFile(file.getPath()),
+            EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                     true, false, "", "",
                     nUser.strUserID, nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override

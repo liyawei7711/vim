@@ -93,7 +93,10 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
     TextView tv_send;
 
     RequestOptions requestOptions;
-    File fC;
+    File fC_CHUAN_SHU;
+    File fC_BEANDI;
+    File fC_MINGWEN;
+    File fC_LINSHI;
 
     public ZhuanFaGroupPopupWindow(Context context, ArrayList<UserInfo> users, String strUserID, String strUserDomainCode,
                                    boolean isGroup, String strGroupID, String strGroupDomain) {
@@ -114,8 +117,24 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
     }
 
     public void initView() {
-        fC = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/");
+        fC_CHUAN_SHU = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/chuanshu");
+        if (!fC_CHUAN_SHU.exists()) {
+            fC_CHUAN_SHU.mkdirs();
+        }
 
+        fC_BEANDI = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat");
+        if (!fC_BEANDI.exists()) {
+            fC_BEANDI.mkdirs();
+        }
+
+        fC_MINGWEN = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/mingwen");
+        if (!fC_MINGWEN.exists()) {
+            fC_MINGWEN.mkdirs();
+        }
+        fC_LINSHI = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
         setBackgroundDrawable(null);
         setHeight(ViewGroup.LayoutParams.MATCH_PARENT);
         setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
@@ -192,10 +211,10 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
     }
 
     private void sendImg() {
-        File file = new File(EncryptUtil.getNewFile(data.localFilePath));
-        File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+        File file = new File(EncryptUtil.getNewFileLocal(data.localFilePath, fC_BEANDI));
+        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFile(fileun.getPath()),
+            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
@@ -281,15 +300,15 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                 return;
             }
             try {
-                fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
             } catch (Exception e) {
                 dismiss();
             }
         }
-        File file = new File(EncryptUtil.getNewFile(fileLocal));
-        File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+        File file = new File(EncryptUtil.getNewFileLocal(fileLocal, fC_BEANDI));
+        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFile(fileun.getPath()),
+            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
@@ -323,12 +342,12 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
             localFilePath = data.localFilePath;
         } else {
             try {
-                localFilePath = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                localFilePath = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
             } catch (Exception e) {
             }
         }
-        File file = new File(EncryptUtil.getNewFile(localFilePath));
-        File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+        File file = new File(EncryptUtil.getNewFileLocal(localFilePath, fC_BEANDI));
+        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
         if (!fileun.exists()) {
             showToast("文件下载失败，请重试");
             ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
@@ -336,7 +355,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
             return;
         }
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFile(fileun.getPath()),
+            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
@@ -434,21 +453,21 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         ((AppBaseActivity) mContext).mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
         String fileLocal = "";
         try {
-            fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+            fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
         } catch (Exception e) {
 
         }
         if (null != data && !TextUtils.isEmpty(data.localFilePath) && new File(data.localFilePath).exists()) {
             fileLocal = data.localFilePath;
         }
-        File file = new File(EncryptUtil.getNewFile(fileLocal));
-        File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+        File file = new File(EncryptUtil.getNewFileLocal(fileLocal, fC_BEANDI));
+        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
         if (!fileun.exists()) {
             showToast("文件下载失败，请重试");
             return;
         }
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFile(fileun.getPath()),
+            EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
@@ -1088,39 +1107,9 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         return groupInfo.strGroupName;
     }
 
-    private void unEncryptImage() {
-        File file = new File(EncryptUtil.getNewFile(data.localFilePath));
-        if (file.exists()) {
-            Glide.with(mContext)
-                    .load(file)
-                    .into(iv_content);
-        } else {
-            EncryptUtil.encryptFile(data.localFilePath, file.getAbsolutePath(),
-                    false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                    isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                        @Override
-                        public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                            try {
-                                Glide.with(mContext)
-                                        .load(new File(resp.m_strData))
-                                        .into(iv_content);
-                            } catch (Exception e) {
-
-                            }
-                        }
-
-                        @Override
-                        public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                            showToast("文件解密失败");
-                        }
-                    }
-            );
-        }
-    }
-
     private void unEncryptImage2() {
-        File file = new File(EncryptUtil.getNewFile(data.localFilePath));
-        File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+        File file = new File(EncryptUtil.getNewFileLocal(data.localFilePath, fC_BEANDI));
+        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
         if (file.exists()) {
             if (fileun.exists()) {
                 Glide.with(mContext)
@@ -1196,7 +1185,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                 String fileLocal = "";
                 try {
-                    fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                    fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                 } catch (Exception e) {
                 }
                 final File ffLocal = new File(fileLocal);
@@ -1252,7 +1241,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
             }
             String fileLocal = "";
             try {
-                fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
             } catch (Exception e) {
             }
             String finalFileLocal = fileLocal;
@@ -1273,39 +1262,11 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         }
     }
 
-    private void go2PlayVideo(String localFilePath, int encrypt) {
-        if (encrypt == 1) {
-            if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                if (!file.exists()) {
-                    EncryptUtil.encryptFile(localFilePath, file.getAbsolutePath(),
-                            false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                            isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                @Override
-                                public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                }
-
-                                @Override
-                                public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                    showToast("文件解密失败");
-                                }
-                            }
-                    );
-                }
-            } else {
-                if(nEncryptIMEnable) {
-                    EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
-                    return;
-                }
-            }
-        }
-    }
-
     private void go2PlayVideo2(String localFilePath, int encrypt) {
         if (encrypt == 1) {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+                File file = new File(EncryptUtil.getNewFileLocal(localFilePath, fC_BEANDI));
+                File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
                 if (file.exists()) {
                     if (fileun.exists()) {
                     } else {
@@ -1372,7 +1333,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
             }
             String fileLocal = "";
             try {
-                fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
             } catch (Exception e) {
 
             }
@@ -1394,36 +1355,11 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         }
     }
 
-    private void openFile(String localFilePath, int encrypt, String name) {
-        if (encrypt == 1) {
-            if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                if (!file.exists()) {
-                    EncryptUtil.encryptFile(localFilePath, file.getAbsolutePath(),
-                            false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                            isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                @Override
-                                public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                }
-
-                                @Override
-                                public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                    showToast("文件解密失败");
-                                }
-                            }
-                    );
-                }
-            } else {
-                showToast("文件解密失败");
-            }
-        }
-    }
-
     private void openFile2(String localFilePath, int encrypt, String name) {
         if (encrypt == 1) {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+                File file = new File(EncryptUtil.getNewFileLocal(localFilePath, fC_BEANDI));
+                File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
                 if (file.exists()) {
                     if (fileun.exists()) {
                     } else {
@@ -1480,7 +1416,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
     private void loadAudio() {
         String fileLocal = "";
         try {
-            fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+            fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
         } catch (Exception e) {
 
         }
@@ -1508,36 +1444,11 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         }
     }
 
-    private void unEncryptVoice(final String path) {
-        if (data.bEncrypt == 1) {
-            if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(path));
-                if (!file.exists()) {
-                    EncryptUtil.encryptFile(path, EncryptUtil.getNewFile(path),
-                            false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                            isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                @Override
-                                public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                }
-
-                                @Override
-                                public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                    showToast("文件解密失败");
-                                }
-                            }
-                    );
-                }
-            } else {
-                showToast("文件解密失败");
-            }
-        }
-    }
-
     private void unEncryptVoice2(final String path) {
         if (data.bEncrypt == 1) {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(path));
-                File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+                File file = new File(EncryptUtil.getNewFileLocal(path, fC_BEANDI));
+                File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
                 if (file.exists()) {
                     if (fileun.exists()) {
                     } else {
