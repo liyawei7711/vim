@@ -74,7 +74,6 @@ public class YueHouJiFengAudioActivity extends AppBaseActivity {
     @BindExtra
     ArrayList<UserInfo> usersTrans;
     ArrayList<SdpMessageCmProcessIMReq.UserInfo> users = new ArrayList<>();
-    File fC;
 
     @Override
     protected void initActionBar() {

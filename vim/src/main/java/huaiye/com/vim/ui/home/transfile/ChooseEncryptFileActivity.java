@@ -4,18 +4,31 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.huaiye.cmf.sdp.SdpMessageCmProcessIMReq;
+import com.huaiye.cmf.sdp.SdpMessageCmCtrlRsp;
+import com.huaiye.cmf.sdp.SdpMessageCmProcessIMRsp;
+import com.huaiye.sdk.HYClient;
+import com.huaiye.sdk.core.SdkCallback;
+import com.huaiye.sdk.sdkabi._api.ApiEncrypt;
+import com.huaiye.sdk.sdkabi._params.SdkParamsCenter;
 import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
+import huaiye.com.vim.bus.TransMsgBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.models.meet.bean.FileBean;
+import huaiye.com.vim.neety.FileTransferServer;
 import huaiye.com.vim.ui.meet.viewholder.FileHolder;
 
 /**
@@ -36,21 +49,40 @@ public class ChooseEncryptFileActivity extends AppBaseActivity {
 
     ArrayList<FileBean> arrays = new ArrayList<>();
     LinearLayoutManager linearLayoutManager;
+    ArrayList<FileBean> temps = new ArrayList<>();//待发送数据
+    File fC_BEANDI;
+    File fC_LINSHI;
 
-    File fC;
 
     @Override
     protected void initActionBar() {
-        fC = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/");
-        ArrayList<SdpMessageCmProcessIMReq.UserInfo> users = new ArrayList<>();
+        EventBus.getDefault().register(this);
 
+        fC_BEANDI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/");
+        if (!fC_BEANDI.exists()) {
+            fC_BEANDI.mkdirs();
+        }
+        fC_LINSHI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FileTransferServer.get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
         getNavigate().setLeftClickListener(v -> {
             onBackPressed();
-        }).setTitlText("传输文件").setRightText("确定").setRightClickListener(new View.OnClickListener() {
+        }).setTitlText(getString(R.string.notice_txt_11)).setRightText(getString(R.string.makesure)).setRightClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<FileBean> temps = new ArrayList<>();
+
                 for (FileBean temp : arrays) {
                     if (temp.isChecked) {
                         temps.add(temp);
@@ -59,21 +91,38 @@ public class ChooseEncryptFileActivity extends AppBaseActivity {
                 if (temps.isEmpty()) {
                     finish();
                 } else {
-                    doChuanShu(temps);
+                    FileBean bean = temps.get(0);
+                    temps.remove(0);
+                    doChuanShu(bean);
                 }
             }
 
         });
     }
 
-    private void doChuanShu(ArrayList<FileBean> allDatas) {
-
-        mZeusLoadView.loadingText("正在上传").setLoading();
-        for (FileBean temp : allDatas) {
-
+    private void doChuanShu(FileBean temp) {
+        if (!FileTransferServer.get().isConnected()) {
+            showToast(getString(R.string.notice_txt_12));
+            return;
         }
-        mZeusLoadView.dismiss();
-        finish();
+        temp.isChecked = false;
+        mZeusLoadView.loadingText(getString(R.string.notice_txt_13)).setLoading();
+
+        String linshi = EncryptUtil.getNewFileChuanShu(temp.path, fC_LINSHI);
+        EncryptUtil.localEncryptFile(temp.path, linshi, false,
+                new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    @Override
+                    public void onSuccess(SdpMessageCmProcessIMRsp resp) {
+                        FileTransferServer.get().sendFile(new File(resp.m_strData));
+                    }
+
+                    @Override
+                    public void onError(SdkCallback.ErrorInfo sessionRsp) {
+                        showToast(getString(R.string.jiami_notice5));
+                        onEvent(new TransMsgBean(3, "error"));
+                    }
+                }
+        );
     }
 
     @Override
@@ -103,7 +152,7 @@ public class ChooseEncryptFileActivity extends AppBaseActivity {
      */
     public void getFiles() {
         arrays.clear();
-        File[] files = fC.listFiles();
+        File[] files = fC_BEANDI.listFiles();
         if (files == null) {
             files = new File[0];
         }
@@ -125,9 +174,90 @@ public class ChooseEncryptFileActivity extends AppBaseActivity {
         adapter.notifyDataSetChanged();
     }
 
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(TransMsgBean bean) {
+        switch (bean.type) {
+            case 1:
+                String devId = bean.devId;
+                String pwd = bean.pwd;
+                HYClient.getModule(ApiEncrypt.class)
+                        .encryptVerifyExternPwd(SdkParamsCenter.Encrypt.EncryptVerifyExternPwd()
+                                        .setDevId(devId)
+                                        .setPwd(pwd),
+                                new SdkCallback<SdpMessageCmCtrlRsp>() {
+                                    @Override
+                                    public void onSuccess(SdpMessageCmCtrlRsp resp) {
+                                        FileTransferServer.get().sendResponse(0x00);
+                                    }
+
+                                    @Override
+                                    public void onError(ErrorInfo error) {
+                                        FileTransferServer.get().sendResponse(0x01);
+                                    }
+                                });
+                break;
+            case 2:
+                break;
+            case 3:
+                if (bean.file != null) {
+                    File file = bean.file;
+                    File fileNew = new File(fC_BEANDI + "/" + file.getName());
+//                    if(!fileNew.exists()) {
+//                        try {
+//                            fileNew.createNewFile();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+                    EncryptUtil.localEncryptFile(file.getAbsolutePath(),
+                            fileNew.getAbsolutePath(),
+                            true,
+                            new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                                @Override
+                                public void onSuccess(SdpMessageCmProcessIMRsp resp) {
+                                    showToast(getString(R.string.jiami_notice8));
+                                    getFiles();
+                                }
+
+                                @Override
+                                public void onError(SdkCallback.ErrorInfo sessionRsp) {
+                                    showToast(getString(R.string.jiami_notice6));
+                                }
+                            }
+                    );
+                } else {
+                    if (temps.isEmpty()) {
+                        mZeusLoadView.dismiss();
+                        showToast(getString(R.string.notice_txt_14));
+                        adapter.notifyDataSetChanged();
+                        return;
+                    }
+                    FileBean fileBean = temps.get(0);
+                    temps.remove(0);
+                    doChuanShu(fileBean);
+                }
+                break;
+        }
+    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        File[] files = fC_LINSHI.listFiles();
+        if (files == null) {
+            files = new File[0];
+        }
+        for (File temp : files) {
+            if (temp.exists()) {
+                temp.delete();
+            }
+        }
+    }
 }

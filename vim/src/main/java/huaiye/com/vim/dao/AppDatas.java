@@ -25,7 +25,7 @@ import ttyy.com.sp.multiprocess.StoreIntf;
 
 public class AppDatas {
 
-    static final int VERSION = 9;
+    static final int VERSION = 10;
     static final String DBNAME = "VIM";
 
     static AppConstants CONSTANTS;

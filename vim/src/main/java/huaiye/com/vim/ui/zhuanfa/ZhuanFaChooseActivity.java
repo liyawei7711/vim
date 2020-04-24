@@ -197,10 +197,10 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
                 if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
                     mAllContacts.clear();
                     for (User temp : contactsBean.userList) {
-                        if (!data.sessionID.equals(TextUtils.isEmpty(temp.strDomainCode) ? temp.strUserDomainCode : temp.strDomainCode + temp.strUserID)) {
+//                        if (!data.sessionID.equals(TextUtils.isEmpty(temp.strDomainCode) ? temp.strUserDomainCode : temp.strDomainCode + temp.strUserID)) {
                             temp.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(temp.strUserID, TextUtils.isEmpty(temp.strDomainCode) ? temp.strUserDomainCode : temp.strDomainCode);
                             mAllContacts.add(temp);
-                        }
+//                        }
                     }
                     updateContacts();
                 }

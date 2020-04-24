@@ -225,7 +225,6 @@
                 android:id="@+id/view_trans_file"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:visibility="gone"
                 android:background="@color/white">
                 <TextView
                     android:layout_width="match_parent"
@@ -237,7 +236,7 @@
                     android:paddingRight="15dp"
                     android:drawableRight="@drawable/bt_next_press"
                     android:layout_marginLeft="15dp"
-                    android:text="文件传输"
+                    android:text="@string/notice_txt_11"
                     android:textColor="@color/black333"
                     android:textSize="16sp" />
 

@@ -64,19 +64,18 @@ public class ChoosePhotoAndScreenActivity extends AppBaseActivity {
     ArrayList<LocalPhotoBean> arrays = new ArrayList<>();
     SimpleDateFormat sdf;
     LocalPhotoBean currentBean;
-
+    File fC_LINSHI;
     public ChoosePhotoAndScreenActivity() {
         sdf = new SimpleDateFormat("yyyy-MM-dd");
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
     protected void initActionBar() {
+        fC_LINSHI = new File(getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
+
         getNavigate()
                 .setLeftClickListener(v -> onBackPressed())
                 .setTitlText(getString(R.string.img))
@@ -96,7 +95,7 @@ public class ChoosePhotoAndScreenActivity extends AppBaseActivity {
                                     .encryptFile(
                                             SdkParamsCenter.Encrypt.EncryptFile()
                                                     .setSrcFile(file.getPath())
-                                                    .setDstFile(EncryptUtil.getNewFile(file.getPath()))
+                                                    .setDstFile(EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI))
                                                     .setDoEncrypt(true),
                                             new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                                 @Override

@@ -248,7 +248,9 @@ public class MeetControlActivity extends AppBaseActivity implements SdpUITask.Sd
 
                         /* 显示会议控制下拉框 */
                         View tv_more = findViewById(R.id.tv_more);
-                        window.showView(tv_more);
+                        if(tv_more.getVisibility() == View.VISIBLE) {
+                            window.showView(tv_more);
+                        }
                     }
                 });
                 ImageView imageView = extViewHolder.findViewById(R.id.iv_user_head);

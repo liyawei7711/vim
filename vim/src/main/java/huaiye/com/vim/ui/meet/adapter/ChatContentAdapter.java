@@ -132,7 +132,10 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private ArrayList<SendUserBean> mMessageUsersDate;
     private PopupWindowList mPopupWindowList;
 
-    File fC;
+    File fC_CHUAN_SHU;
+    File fC_BEANDI;
+    File fC_MINGWEN;
+    File fC_LINSHI;
     private static final String[][] MIME_MapTable = {
             //{后缀名，    MIME类型}
             {".3gp", "video/3gpp"},
@@ -239,10 +242,26 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.strGroupID = strGroupID;
         this.strGroupDomain = strGroupDomain;
         this.mMessageUsersDate = mMessageUsersDate;
-        fC = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/");
-        if (!fC.exists()) {
-            fC.mkdirs();
+        fC_CHUAN_SHU = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/chuanshu");
+        if (!fC_CHUAN_SHU.exists()) {
+            fC_CHUAN_SHU.mkdirs();
         }
+
+        fC_BEANDI = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat");
+        if (!fC_BEANDI.exists()) {
+            fC_BEANDI.mkdirs();
+        }
+
+        fC_MINGWEN = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/mingwen");
+        if (!fC_MINGWEN.exists()) {
+            fC_MINGWEN.mkdirs();
+        }
+
+        fC_LINSHI = new File(mContext.getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!fC_LINSHI.exists()) {
+            fC_LINSHI.mkdirs();
+        }
+
         requestOptions = new RequestOptions();
         requestOptions.centerCrop()
                 .dontAnimate()
@@ -498,7 +517,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                 String fileLocal = "";
                 try {
-                    fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                    fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                 } catch (Exception e) {
 
                 }
@@ -604,7 +623,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                 String fileLocal = "";
                 try {
-                    fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                    fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                 } catch (Exception e) {
 
                 }
@@ -792,7 +811,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                 String fileLocal = "";
                 try {
-                    fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                    fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                 } catch (Exception e) {
 
                 }
@@ -944,7 +963,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                 String fileLocal = "";
                 try {
-                    fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                    fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                 } catch (Exception e) {
 
                 }
@@ -1248,7 +1267,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             public void run() {
                                 String fileLocal = "";
                                 try {
-                                    fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                                    fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                                 } catch (Exception e) {
 
                                 }
@@ -1297,7 +1316,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             public void run() {
                                 String fileLocal = "";
                                 try {
-                                    fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                                    fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                                 } catch (Exception e) {
 
                                 }
@@ -1366,10 +1385,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private Go2DaoHangDialog mGo2DaoHangDialog;
 
     public void dismissDialog() {
-        for(File file : linShiFile) {
-           if(file.exists()) {
-               file.delete();
-           }
+        for (File file : linShiFile) {
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        File[] files = fC_LINSHI.listFiles();
+        if (files == null) {
+            files = new File[0];
+        }
+        for (File temp : files) {
+            if (temp.exists()) {
+                temp.delete();
+            }
         }
         if (null != mGo2DaoHangDialog) {
             mGo2DaoHangDialog.dismiss();
@@ -1526,7 +1554,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     public void run() {
                         String fileLocal = "";
                         try {
-                            fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                            fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                         } catch (Exception e) {
 
                         }
@@ -1661,7 +1689,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             String fileLocal = "";
             try {
-                fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
             } catch (Exception e) {
 
             }
@@ -1788,7 +1816,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     public void run() {
                         String fileLocal = "";
                         try {
-                            fileLocal = fC + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+                            fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
                         } catch (Exception e) {
 
                         }
@@ -1835,48 +1863,10 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         view.setOnClickListener(new OnImageViewClicked(localFilePath, true));
     }
 
-    private void unEncryptImage(ImageView view, ChatMessageBase data, boolean isAddrss) {
-        File file = new File(EncryptUtil.getNewFile(data.localFilePath));
-        if (file.exists()) {
-            Glide.with(mContext)
-                    .load(file)
-                    .apply(isAddrss ? requestOptionsAddress : requestOptions)
-                    .into(view);
-            if (!isAddrss) {
-                view.setOnClickListener(new OnImageViewClicked(file.getAbsolutePath(), true));
-            }
-        } else {
-            EncryptUtil.encryptFile(data.localFilePath, file.getAbsolutePath(),
-                    false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                    isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                        @Override
-                        public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                            try {
-                                Glide.with(mContext)
-                                        .load(new File(resp.m_strData))
-                                        .apply(isAddrss ? requestOptionsAddress : requestOptions)
-                                        .into(view);
-                                if (!isAddrss) {
-                                    view.setOnClickListener(new OnImageViewClicked(resp.m_strData, true));
-                                }
-                            } catch (Exception e) {
-
-                            }
-                        }
-
-                        @Override
-                        public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                            AppBaseActivity.showToast(getString(R.string.jiami_notice5));
-                        }
-                    }
-            );
-        }
-    }
-
     private void unEncryptImage2(ImageView view, ChatMessageBase data, boolean isAddrss) {
         try {
-            File file = new File(EncryptUtil.getNewFile(data.localFilePath));
-            File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+            File file = new File(EncryptUtil.getNewFileLocal(data.localFilePath, fC_BEANDI));
+            File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
             if (file.exists()) {
                 if (fileun.exists()) {
                     linShiFile.add(fileun);
@@ -1975,41 +1965,11 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     }
 
-    private void openFile(String localFilePath, int encrypt, String name, ChatMessageBase data) {
-        if (encrypt == 1) {
-            if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                if (file.exists()) {
-                    openFileReal(file.getAbsolutePath(), name);
-                } else {
-                    EncryptUtil.encryptFile(localFilePath, file.getAbsolutePath(),
-                            false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                            isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                @Override
-                                public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                    openFileReal(resp.m_strData, name);
-                                }
-
-                                @Override
-                                public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                    AppBaseActivity.showToast(getString(R.string.jiami_notice5));
-                                }
-                            }
-                    );
-                }
-            } else {
-                AppBaseActivity.showToast(getString(R.string.jiami_notice5));
-            }
-        } else {
-            openFileReal(localFilePath, name);
-        }
-    }
-
     private void openFile2(String localFilePath, int encrypt, String name, ChatMessageBase data) {
         if (encrypt == 1) {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+                File file = new File(EncryptUtil.getNewFileLocal(localFilePath, fC_BEANDI));
+                File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
                 if (file.exists()) {
                     if (fileun.exists()) {
                         openFileReal(fileun.getAbsolutePath(), name);
@@ -2159,49 +2119,14 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }, "stopRecording");
     }
 
-    private void playVoice(final String path, final ChatMessageBase data, final int position, TextView view) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (data.bEncrypt == 1) {
-                    if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                        File file = new File(EncryptUtil.getNewFile(path));
-                        if (file.exists()) {
-                            playVoiceReal(path, file.getAbsolutePath(), data, position, view);
-                        } else {
-                            EncryptUtil.encryptFile(path, EncryptUtil.getNewFile(path),
-                                    false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                                    isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                        @Override
-                                        public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                            playVoiceReal(path, resp.m_strData, data, position, view);
-                                        }
-
-                                        @Override
-                                        public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                            AppBaseActivity.showToast(getString(R.string.jiami_notice5));
-                                        }
-                                    }
-                            );
-                        }
-                    } else {
-                        AppBaseActivity.showToast(getString(R.string.jiami_notice5));
-                    }
-                } else {
-                    playVoiceReal(path, path, data, position, view);
-                }
-            }
-        });
-    }
-
     private void playVoice2(final String path, final ChatMessageBase data, final int position, TextView view) {
         handler.post(new Runnable() {
             @Override
             public void run() {
                 if (data.bEncrypt == 1) {
                     if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                        File file = new File(EncryptUtil.getNewFile(path));
-                        File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+                        File file = new File(EncryptUtil.getNewFileLocal(path, fC_BEANDI));
+                        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
                         if (file.exists()) {
                             if (fileun.exists()) {
                                 playVoiceReal(path, fileun.getAbsolutePath(), data, position, view);
@@ -2329,46 +2254,11 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }, "playRecording");
     }
 
-    /**
-     * 播放
-     *
-     * @param localFilePath
-     */
-    private void go2PlayVideo(String localFilePath, int encrypt, ChatMessageBase data) {
-        if (encrypt == 1) {
-            if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                if (file.exists()) {
-                    playVideoReal(file.getAbsolutePath());
-                } else {
-                    EncryptUtil.encryptFile(localFilePath, file.getAbsolutePath(),
-                            false, isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                            isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                @Override
-                                public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                    playVideoReal(resp.m_strData);
-                                }
-
-                                @Override
-                                public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                    AppBaseActivity.showToast(getString(R.string.jiami_notice5));
-                                }
-                            }
-                    );
-                }
-            } else {
-                AppBaseActivity.showToast(getString(R.string.jiami_notice5));
-            }
-        } else {
-            playVideoReal(localFilePath);
-        }
-    }
-
     private void go2PlayVideo2(String localFilePath, int encrypt, ChatMessageBase data) {
         if (encrypt == 1) {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                File file = new File(EncryptUtil.getNewFile(localFilePath));
-                File fileun = new File(EncryptUtil.getNewFile(file.getAbsolutePath()));
+                File file = new File(EncryptUtil.getNewFileLocal(localFilePath, fC_BEANDI));
+                File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
                 if (file.exists()) {
                     if (fileun.exists()) {
                         playVideoReal(fileun.getAbsolutePath());

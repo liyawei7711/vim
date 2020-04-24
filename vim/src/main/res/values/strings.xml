@@ -727,6 +727,7 @@
 	<string name="jiami_notice5">File decryption failed</string>
 	<string name="jiami_notice6">File encryption failed</string>
 	<string name="jiami_notice7">Encryption module is not initialized, please wait</string>
+	<string name="jiami_notice8">File saved encrypted</string>
 	<!--send-->
 	<string name="send_notice1">fail in send</string>
 	<string name="send_notice2">Document greater than 50M</string>
@@ -899,6 +900,10 @@
 	<string name="notice_txt_8">Gingerprint password error</string>
 	<string name="notice_txt_9">Encryption is not turned on, unable to send</string>
 	<string name="notice_txt_10">Information has not been decrypted</string>
+	<string name="notice_txt_11">File transfer</string>
+	<string name="notice_txt_12">Server is not turned on</string>
+	<string name="notice_txt_13">Transferring...</string>
+	<string name="notice_txt_14">Transmission complete</string>
 
 	<string name="share_txt_1">Sharing failure</string>
 	<string name="share_txt_2">Share success</string>
