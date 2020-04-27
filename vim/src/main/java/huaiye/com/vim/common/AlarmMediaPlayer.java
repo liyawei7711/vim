@@ -10,12 +10,15 @@ import android.os.Build;
 
 import com.huaiye.sdk.logger.Logger;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import huaiye.com.vim.VIMApp;
+import huaiye.com.vim.bus.MessageSoundComplete;
 
 /**
  * 要注意AppAudioManager,start开始之后再使用AppAudioManager会造成状态混乱
@@ -255,6 +258,7 @@ public class AlarmMediaPlayer implements MediaPlayer.OnCompletionListener,MediaP
     @Override
     public void onCompletion(MediaPlayer mp) {
         Logger.log(TAG + " Play onCompletion");
+        EventBus.getDefault().post(new MessageSoundComplete());
         for (PlayerListener oneListener : playerListeners) {
             oneListener.onComplete(currentPlayBean);
         }

@@ -156,6 +156,15 @@ public class SpeakerFragment extends AppBaseFragment {
      */
     private boolean isResumed = false;
     private boolean isSetVisible = false;
+    private boolean isLand = false;
+
+    /**
+     * 切换布局使用
+     */
+    int oldPW = 0;
+    int oldPH = 0;
+    int oldSW = 0;
+    int oldSH = 0;
 
     private MediaProjectionManager mProjectionManager;
 
@@ -253,11 +262,12 @@ public class SpeakerFragment extends AppBaseFragment {
         isResumed = false;
     }
 
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            System.out.println("ccccccccccccccccccc 水平布局");
+            isLand = true;
             //水平布局
             DisplayMetrics dm = getResources().getDisplayMetrics();
             int heigth = dm.heightPixels;
@@ -276,6 +286,8 @@ public class SpeakerFragment extends AppBaseFragment {
                 texture_self_video.setLayoutParams(params);
             }
         } else {
+            System.out.println("ccccccccccccccccccc 垂直布局");
+            isLand = false;
             //垂直布局
             DisplayMetrics dm = getResources().getDisplayMetrics();
             int heigth = dm.heightPixels;
@@ -294,18 +306,63 @@ public class SpeakerFragment extends AppBaseFragment {
         }
     }
 
+    public void onConfigurationChanged() {
+        if (oldSH == 0) {
+            ViewGroup.LayoutParams params = texture_self_video.getLayoutParams();
+            oldSH = params.height;
+            oldSW = params.width;
+        }
+        if (oldPH == 0) {
+            ViewGroup.LayoutParams params = texture_video.getLayoutParams();
+            oldPH = params.height;
+            oldPW = params.width;
+        }
+        if (oldPH == 0) {
+            return;
+        }
+        if (oldSH == 0) {
+            return;
+        }
+        if (isLand) {
+            //水平布局
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            int heigth = dm.heightPixels;
+            int width = dm.widthPixels;
+            if (mMainSpeaker != null && mMainSpeaker.getStrUserID().equals(AppAuth.get().getUserID() + "")) {
+                calcCaptrueViewWidth(texture_video, heigth);
+            } else {
+                ViewGroup.LayoutParams params = texture_self_video.getLayoutParams();
+                params.width = oldSH;
+                params.height = oldSW;
+                texture_self_video.setLayoutParams(params);
+            }
+        } else {
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            int heigth = dm.heightPixels;
+            int width = dm.widthPixels;
+            if (mMainSpeaker != null && mMainSpeaker.getStrUserID().equals(AppAuth.get().getUserID() + "")) {
+                calcCaptureViewSize(texture_video, width);
+            } else {
+                ViewGroup.LayoutParams params = texture_self_video.getLayoutParams();
+                params.height = oldSH;
+                params.width = oldSW;
+                texture_self_video.setLayoutParams(params);
+            }
+        }
+    }
 
     /**
      * 延迟加载后,第一次初始化
      */
     private void refresh() {
         if (isResumed && isSetVisible) {
+            System.out.println("cccccccccccccccccccc startPlay");
             startPlay();
+            onConfigurationChanged();
         } else {
             stopPlay();
         }
     }
-
 
     public synchronized void setMeetingInfo(CGetMeetingInfoRsp getMeetingInfoRsp, ArrayList<CGetMeetingInfoRsp.UserInfo> list) {
         if (menu_meet_media_top != null && getMeetingInfoRsp.nMeetingID > 0) {
@@ -317,7 +374,7 @@ public class SpeakerFragment extends AppBaseFragment {
         refresh();
     }
 
-//    private void stopLosePlayer() {
+    //    private void stopLosePlayer() {
 //        Iterator map1it = mVoicePlayers.entrySet().iterator();
 //        while (map1it.hasNext()) {
 //            Map.Entry<String, UserReal> entry = (Map.Entry<String, UserReal>) map1it.next();
@@ -334,7 +391,6 @@ public class SpeakerFragment extends AppBaseFragment {
 //            }
 //        }
 //    }
-
     private void deleteLoseRaiseUsers() {
         if (mRaiseUsers == null || mRaiseUsers.size() <= 0) {
             return;
@@ -356,7 +412,6 @@ public class SpeakerFragment extends AppBaseFragment {
             mRaiseUsers.removeAll(tempUsers);
         }
     }
-
 
     private MeetSpeakMain choiceMainSpeaker(CGetMeetingInfoRsp resp) {
         MeetSpeakMain meetSpeakMain = null;
@@ -381,7 +436,6 @@ public class SpeakerFragment extends AppBaseFragment {
         }
         return meetSpeakMain;
     }
-
 
     /**
      * 根据会议信息找到合适的主讲人
@@ -415,7 +469,6 @@ public class SpeakerFragment extends AppBaseFragment {
         return meetSpeakMain;
 
     }
-
 
     private MeetSpeakMain chooseMainSpeakFromList(CGetMeetingInfoRsp resp) {
         MeetSpeakMain meetSpeakMain = null;
@@ -475,7 +528,6 @@ public class SpeakerFragment extends AppBaseFragment {
         mMainSpeaker = willPlayMainSpeak;
     }
 
-
     private void playMainSpeaker(final MeetSpeakMain mainSpeaker, MeetSpeakMain previousMainSpeak) {
         if (mainSpeaker == null || TextUtils.isEmpty(mainSpeaker.getStrUserID())) {
             return;
@@ -483,7 +535,7 @@ public class SpeakerFragment extends AppBaseFragment {
 
         //当前的主讲人和之前的一样,就不需要干什么了
         if (previousMainSpeak != null && mainSpeaker.getStrUserID().equals(previousMainSpeak.getStrUserID())) {
-            if(previousMainSpeak.getStrUserID().equals(AppAuth.get().getUserID())) {
+            if (previousMainSpeak.getStrUserID().equals(AppAuth.get().getUserID())) {
                 if (preViewVideo) {
                     video_close_layout.setVisibility(View.GONE);
                 } else {
@@ -507,8 +559,8 @@ public class SpeakerFragment extends AppBaseFragment {
 
         //之前有主讲人,且不相同就先停止播放之前的,然后再播放新的
         if (previousMainSpeak != null && !mainSpeaker.getStrUserID().equals(previousMainSpeak.getStrUserID())) {
-            if(!previousMainSpeak.getStrUserID().equals(AppAuth.get().getUserID())) {
-                if(preViewVideo) {
+            if (!previousMainSpeak.getStrUserID().equals(AppAuth.get().getUserID())) {
+                if (preViewVideo) {
                     HYClient.getHYCapture().setPreviewWindow(null);
                 }
             }
@@ -527,7 +579,6 @@ public class SpeakerFragment extends AppBaseFragment {
         }
         realPlayMainSpeaker(mainSpeaker);
     }
-
 
     /**
      * 执行播放主讲人操作
@@ -614,23 +665,20 @@ public class SpeakerFragment extends AppBaseFragment {
         }
         MeetSpeakMain mainSpeaker = choiceMainSpeaker(mCGetMeetingInfoRsp);
 
-
         performPlayMain(mainSpeaker, mMainSpeaker, mCGetMeetingInfoRsp.listUser);
 
         showPreView(mainSpeaker);
 
         initHeadView(mainSpeaker);
-
-
     }
 
     private void showPreView(MeetSpeakMain mainSpeaker) {
         if (!mainSpeaker.getStrUserID().equals(AppAuth.get().getUserID() + "")) {
-            if(preViewVideo) {
+            if (preViewVideo) {
                 texture_self_video.setVisibility(View.VISIBLE);
                 ViewGroup.LayoutParams params = texture_self_video.getLayoutParams();
                 calcCaptureViewSize(texture_self_video, params.width);
-                if(HYClient.getHYCapture().getPreviewWindow() != texture_self_video) {
+                if (HYClient.getHYCapture().getPreviewWindow() != texture_self_video) {
                     HYClient.getHYCapture().setPreviewWindow(texture_self_video);
                 }
             } else {
@@ -638,7 +686,7 @@ public class SpeakerFragment extends AppBaseFragment {
                 HYClient.getHYCapture().setPreviewWindow(null);
             }
         } else {
-            if(preViewVideo) {
+            if (preViewVideo) {
                 HYClient.getHYCapture().setPreviewWindow(texture_video);
             } else {
                 //主讲人和自己相同的话 ,播放的时候做好了,这边什么都不需要做了
@@ -1206,8 +1254,34 @@ public class SpeakerFragment extends AppBaseFragment {
     }
 
     public void startTime() {
-        if (menu_meet_media_top != null)
+        if (menu_meet_media_top != null) {
             menu_meet_media_top.startTime();
+        }
+    }
+
+    public void resetSound() {
+        if (menu_meet_media != null) {
+            menu_meet_media.resetSound();
+        }
+    }
+
+    public void resetMenu(boolean isCloseVideo) {
+        if (menu_meet_media != null) {
+            menu_meet_media.resetVoice(true);
+
+            menu_meet_media.resetAudio();
+
+            menu_meet_media.setVideoEnable(isCloseVideo);
+        }
+
+        if (isCloseVideo) {
+            closeVideo();
+        } else {
+            openVideo();
+        }
+
+        ((MeetNewActivity) getActivity()).setUserCloseVoice(!true);
+        notifyMicState(true);
     }
 
     /**
