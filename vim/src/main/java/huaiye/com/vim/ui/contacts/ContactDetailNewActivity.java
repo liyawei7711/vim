@@ -283,63 +283,30 @@ public class ContactDetailNewActivity extends AppBaseActivity {
         switch (messageEvent.what) {
             case AppUtils.EVENT_VOICE_CANCLE:
                 String msgContentVoiceCancle = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 0, 0, 0, "");
-                sendRealMsg(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceCancle);
+                sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceCancle);
                 break;
             case AppUtils.EVENT_VOICE_REFUSE:
                 String msgContentVoiceRefuse = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 1, 0, 0, "");
-                sendRealMsg(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceRefuse);
+                sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceRefuse);
                 break;
             case AppUtils.EVENT_VOICE_SUCCESS:
                 String msgContentVoiceSuccess = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 2, 0, 0, "");
-                sendRealMsg(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceSuccess);
+                sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceSuccess);
                 break;
             case AppUtils.EVENT_VIDEO_CANCLE:
                 String msgContentVideoCancle = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 0, 0, 0, "");
-                sendRealMsg(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoCancle);
+                sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoCancle);
                 break;
             case AppUtils.EVENT_VIDEO_REFUSE:
                 String msgContentVideoRefuse = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 1, 0, 0, "");
-                sendRealMsg(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoRefuse);
+                sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoRefuse);
                 break;
             case AppUtils.EVENT_VIDEO_SUCCESS:
                 String msgContentVideoSuccess = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 2, 0, 0, "");
-                sendRealMsg(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoSuccess);
+                sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoSuccess);
                 break;
             default:
                 break;
-        }
-    }
-
-    private void sendRealMsg(int msgType, String msgContent) {
-        if (null == msgContent || TextUtils.isEmpty(msgContent)) {
-            Logger.debug("MessageReceiver 未拿到有效的用户GPS数据");
-            return;
-        }
-        if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            ArrayList<SdpMessageCmProcessIMReq.UserInfo> users = new ArrayList<>();
-            SdpMessageCmProcessIMReq.UserInfo info = new SdpMessageCmProcessIMReq.UserInfo();
-            info.strUserDomainCode = nUser.strDomainCode;
-            info.strUserID = nUser.strUserID;
-            users.add(info);
-            EncryptUtil.encryptTxt(msgContent, true, false, "", "",
-                    nUser.strUserID, nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                        @Override
-                        public void onSuccess(SdpMessageCmProcessIMRsp sessionRsp) {
-                            sendWetherEncrypt(msgType, sessionRsp.m_lstData.get(0).strData);
-                        }
-
-                        @Override
-                        public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                            showToast("信息加密失败");
-                        }
-                    });
-        } else {
-            if(nEncryptIMEnable) {
-                EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
-                finish();
-                return;
-            }
-            sendWetherEncrypt(msgType, msgContent);
         }
     }
 
