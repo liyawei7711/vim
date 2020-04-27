@@ -242,6 +242,25 @@ public class MeetMediaMenuView extends RelativeLayout {
 //            mCallback.onPlayerVoiceClicked(isVoiceOpened);
 //        }
     }
+    public void resetVoice(boolean enable) {
+        isVoiceOpened = enable;
+        enableLoudspeaker(isVoiceOpened);
+
+        if (isVoiceOpened) {
+            HYClient.getHYAudioMgr().from(getContext()).setSpeakerphoneOn(true);
+            tv_voice_title.setText("免提");
+        } else {
+            HYClient.getHYAudioMgr().from(getContext()).setSpeakerphoneOn(false);
+            tv_voice_title.setText("听筒");
+        }
+
+//        if (mCallback != null) {
+//            mCallback.onPlayerVoiceClicked(isVoiceOpened);
+//        }
+    }
+    public void resetSound() {
+        enableLoudspeaker(isVoiceOpened);
+    }
 
     public void enableLoudspeaker(boolean isSpeakerOn){
         Drawable d = ContextCompat.getDrawable(getContext(), isSpeakerOn ? R.drawable.ic_loudspeaker_on : R.drawable.ic_loudspeaker_off);
@@ -364,6 +383,18 @@ public class MeetMediaMenuView extends RelativeLayout {
                 isAudioOn ? R.drawable.huiyi_btn_kaimai_open : R.drawable.huiyi_btn_kaimai);
         d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
         menu_iv_mic.setText(isAudioOn ? getString(R.string.talk_notice7) : getString(R.string.talk_notice8));
+        menu_iv_mic.setCompoundDrawables(null, d, null, null);
+//        menu_iv_mic.setCompoundDrawablePadding(5);
+        return isAudioOn;
+    }
+
+    public boolean resetAudio() {
+        mIsJingYan = false;
+        isAudioOn = true;
+        Drawable d = ContextCompat.getDrawable(getContext(),
+                isAudioOn ? R.drawable.huiyi_btn_kaimai_open : R.drawable.huiyi_btn_kaimai);
+        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+        menu_iv_mic.setText(isAudioOn ? "关闭麦克" : "打开麦克");
         menu_iv_mic.setCompoundDrawables(null, d, null, null);
 //        menu_iv_mic.setCompoundDrawablePadding(5);
         return isAudioOn;

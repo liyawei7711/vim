@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.bus.MessageEvent;
+import huaiye.com.vim.bus.MessageSoundComplete;
 import huaiye.com.vim.bus.NewChatMessage;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
@@ -515,6 +516,15 @@ public class MeetNewActivity extends AppBaseActivity implements SdpUITask.SdpUIL
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MessageSoundComplete info) {
+        try {
+            ((SpeakerFragment) mMeetAdapter.getItem(0)).resetSound();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CNotifyMeetingStatusInfo info) {
         if (currentMeetingInvite == null) {
             return;
@@ -827,6 +837,7 @@ public class MeetNewActivity extends AppBaseActivity implements SdpUITask.SdpUIL
                 showToast(getString(R.string.meet_jinruhuiyi_success));
                 refreshFragment(false);
                 ((SpeakerFragment) mMeetAdapter.getItem(0)).startTime();
+                ((SpeakerFragment) mMeetAdapter.getItem(0)).resetMenu(isCloseVideo);
                 if (isCloseVideo) {
                     ((SpeakerFragment) mMeetAdapter.
                             getItem(0)).closeVideo();
