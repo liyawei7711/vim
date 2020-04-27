@@ -231,7 +231,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:gravity="center_vertical"
-                    android:drawableLeft="@drawable/bendixiaohui"
+                    android:drawableLeft="@drawable/iocn_chuanshu"
                     android:drawablePadding="16dp"
                     android:paddingRight="15dp"
                     android:drawableRight="@drawable/bt_next_press"
