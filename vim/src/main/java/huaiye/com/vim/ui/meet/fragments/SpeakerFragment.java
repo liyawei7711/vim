@@ -263,7 +263,6 @@ public class SpeakerFragment extends AppBaseFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            System.out.println("ccccccccccccccccccc 水平布局");
             isLand = true;
             //水平布局
             DisplayMetrics dm = getResources().getDisplayMetrics();
@@ -279,7 +278,6 @@ public class SpeakerFragment extends AppBaseFragment {
                 texture_self_video.setLayoutParams(params);
             }
         } else {
-            System.out.println("ccccccccccccccccccc 垂直布局");
             isLand = false;
             //垂直布局
             DisplayMetrics dm = getResources().getDisplayMetrics();
@@ -347,7 +345,6 @@ public class SpeakerFragment extends AppBaseFragment {
      */
     private void refresh() {
         if (isResumed && isSetVisible) {
-            System.out.println("cccccccccccccccccccc startPlay");
             startPlay();
             onConfigurationChanged();
         } else {
