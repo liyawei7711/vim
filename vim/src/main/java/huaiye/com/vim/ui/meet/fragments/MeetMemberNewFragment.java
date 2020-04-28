@@ -45,6 +45,7 @@ public class MeetMemberNewFragment extends AppBaseFragment {
      */
     private boolean isResumed = false;
     private boolean isSetVisible = false;
+    private boolean isLand = false;
     private SdpMessageCmStartSessionRsp sessionRsp;
 
 
@@ -94,11 +95,14 @@ public class MeetMemberNewFragment extends AppBaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(multiPlayerHelper == null) {
+        isResumed = true;
+        showResume();
+    }
+
+    private void showResume() {
+        if (multiPlayerHelper == null) {
             multiPlayerHelper = new MultiPlayerHelper(multiViewLayout);
         }
-        isResumed = true;
-        Log.d("test", "MeetMemberNewFragment onResume");
         refreshUser(mCGetMeetingInfoRsp, mDataList);
     }
 
@@ -114,7 +118,7 @@ public class MeetMemberNewFragment extends AppBaseFragment {
         super.setUserVisibleHint(isVisibleToUser);
         isSetVisible = isVisibleToUser;
 
-        if(multiPlayerHelper != null) {
+        if (multiPlayerHelper != null) {
             multiPlayerHelper.changeUserPreview(isSetVisible);
         }
 
@@ -124,7 +128,13 @@ public class MeetMemberNewFragment extends AppBaseFragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Log.d("test", "MeetMemberNewFragment onConfigurationChanged");
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            isLand = true;
+        } else {
+            isLand = false;
+        }
+        multiPlayerHelper.setConfiguration(isLand);
+        showResume();
     }
 
     public void refreshUser(CGetMeetingInfoRsp infoRsp, ArrayList<CGetMeetingInfoRsp.UserInfo> list) {
@@ -170,7 +180,7 @@ public class MeetMemberNewFragment extends AppBaseFragment {
 
     public void setCallId(SdpMessageCmStartSessionRsp sessionRsp) {
         this.sessionRsp = sessionRsp;
-        if(multiPlayerHelper != null) {
+        if (multiPlayerHelper != null) {
             multiPlayerHelper.startPlay(sessionRsp);
         }
     }

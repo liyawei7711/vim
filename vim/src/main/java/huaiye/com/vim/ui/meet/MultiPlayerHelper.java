@@ -59,6 +59,7 @@ public class MultiPlayerHelper {
      * 缓存视频状态(是否可以播放状态)
      */
     private Map map = new HashMap<String, Boolean>();
+    private boolean isLand;//横竖屏
 
     public MultiPlayerHelper(MultiViewLayout parentView) {
         oldUserList = new ArrayList<>(100);
@@ -523,12 +524,28 @@ public class MultiPlayerHelper {
         HYClient.getHYPlayer().startPlay(videoParams);
     }
 
+    public void setConfiguration(boolean isLand) {
+        this.isLand = isLand;
+    }
 
+    /**
+     * 改变布局样式
+     *
+     * @param textureParent
+     * @param textureView
+     */
     private void resizePreview(View textureParent, TextureView textureView) {
         int parentWidth = textureParent.getWidth();
         int parentHeight = textureParent.getHeight();
-        int targetWidth = parentWidth;
-        int targetHeight = parentHeight;
+        int targetWidth;
+        int targetHeight;
+        if (isLand) {
+            targetWidth = parentHeight;
+            targetHeight = parentWidth;
+        } else {
+            targetWidth = parentWidth;
+            targetHeight = parentHeight;
+        }
         switch (SP.getString(AppUtils.STRING_KEY_capture)) {
             case AppUtils.STRING_KEY_VGA:
                 if (parentHeight > parentWidth) {
@@ -571,9 +588,9 @@ public class MultiPlayerHelper {
 
     public void changeUserPreview(boolean isSetVisible) {
         for (int i = 0; i < oldUserList.size(); i++) {
-            if(oldUserList.get(i).userInfo.strUserID.equals(AppAuth.get().getUserID())) {
-                if(isSetVisible) {
-                    if(oldUserList.get(i).targetView != null) {
+            if (oldUserList.get(i).userInfo.strUserID.equals(AppAuth.get().getUserID())) {
+                if (isSetVisible) {
+                    if (oldUserList.get(i).targetView != null) {
                         final View targetView = oldUserList.get(i).targetView;
                         ChildPlayerView childPlayerView = targetView.findViewById(R.id.child_player_view);
                         TextureView textureView = childPlayerView.getTextureView();

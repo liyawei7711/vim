@@ -266,14 +266,11 @@ public class SpeakerFragment extends AppBaseFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            System.out.println("ccccccccccccccccccc 水平布局");
             isLand = true;
             //水平布局
             DisplayMetrics dm = getResources().getDisplayMetrics();
             int heigth = dm.heightPixels;
             int width = dm.widthPixels;
-            Log.d(getClass().getName(), "LANDSCAPE heigth=" + heigth);
-            Log.d(getClass().getName(), "LANDSCAPE width=" + width);
             if (mMainSpeaker != null && mMainSpeaker.getStrUserID().equals(AppAuth.get().getUserID() + "")) {
                 Log.d(getClass().getName(), "onConfigurationChanged resize main speaker");
                 calcCaptrueViewWidth(texture_video, heigth);
@@ -286,14 +283,11 @@ public class SpeakerFragment extends AppBaseFragment {
                 texture_self_video.setLayoutParams(params);
             }
         } else {
-            System.out.println("ccccccccccccccccccc 垂直布局");
             isLand = false;
             //垂直布局
             DisplayMetrics dm = getResources().getDisplayMetrics();
             int heigth = dm.heightPixels;
             int width = dm.widthPixels;
-            Log.d(getClass().getName(), "PORTRAIT heigth=" + heigth);
-            Log.d(getClass().getName(), "PORTRAIT width=" + width);
             if (mMainSpeaker != null && mMainSpeaker.getStrUserID().equals(AppAuth.get().getUserID() + "")) {
                 calcCaptureViewSize(texture_video, width);
             } else {
@@ -356,7 +350,6 @@ public class SpeakerFragment extends AppBaseFragment {
      */
     private void refresh() {
         if (isResumed && isSetVisible) {
-            System.out.println("cccccccccccccccccccc startPlay");
             startPlay();
             onConfigurationChanged();
         } else {
