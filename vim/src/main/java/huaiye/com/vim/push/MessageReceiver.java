@@ -857,7 +857,8 @@ public class MessageReceiver {
                 currentContactsGroupUserListBean.nBeinviteMode = nContactsGroupUserListBeanNew.nBeinviteMode;
                 currentContactsGroupUserListBean.nInviteMode = nContactsGroupUserListBeanNew.nInviteMode;
                 currentContactsGroupUserListBean.nTeamMemberLimit = nContactsGroupUserListBeanNew.nTeamMemberLimit;
-                if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strHeadUrl)) {
+                if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strHeadUrl) &&
+                        !nContactsGroupUserListBeanNew.strHeadUrl.equals(currentContactsGroupUserListBean.strHeadUrl)) {
                     currentContactsGroupUserListBean.strHeadUrl = nContactsGroupUserListBeanNew.strHeadUrl;
                     event.argStr1 = "群头像已修改";
                 }
