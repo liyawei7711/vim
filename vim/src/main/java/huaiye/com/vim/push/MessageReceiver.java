@@ -936,6 +936,16 @@ public class MessageReceiver {
                 groupMsgBean.time = serTime;
             }
             sessionId = groupMsgBean.sessionID;
+
+            if (chatMessageBean.sessionUserList != null && chatMessageBean.sessionUserList.size() == 2 && chatMessageBean.groupType == 0) {
+                String myUserID = AppAuth.get().getUserID() + "";
+                for (SendUserBean item : chatMessageBean.sessionUserList) {
+                    if (!item.strUserID.equals(myUserID)) {
+                        groupMsgBean.sessionName = item.strUserName;
+                    }
+                }
+            }
+
             AppDatas.MsgDB()
                     .chatGroupMsgDao()
                     .insert(groupMsgBean);
@@ -976,6 +986,16 @@ public class MessageReceiver {
                 } else {
                     singleMsgBean.sessionID = singleMsgBean.fromUserDomain + singleMsgBean.fromUserId;
                 }
+
+                if (chatMessageBean.sessionUserList != null && chatMessageBean.sessionUserList.size() == 2 && chatMessageBean.groupType == 0) {
+                    String myUserID = AppAuth.get().getUserID() + "";
+                    for (SendUserBean item : chatMessageBean.sessionUserList) {
+                        if (!item.strUserID.equals(myUserID)) {
+                            singleMsgBean.sessionName = item.strUserName;
+                        }
+                    }
+                }
+
                 sessionId = singleMsgBean.sessionID;
                 AppDatas.MsgDB()
                         .chatSingleMsgDao()
