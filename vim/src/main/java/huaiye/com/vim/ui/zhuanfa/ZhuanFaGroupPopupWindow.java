@@ -39,6 +39,7 @@ import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.downloadutils.ChatContentDownload;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -212,9 +213,10 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
     }
 
     private void sendImg() {
-        File file = new File(EncryptUtil.getNewFileLocal(data.localFilePath, fC_BEANDI));
-        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
+
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
+            File file = new File(EncryptUtil.getNewFileLocal(data.localFilePath, fC_BEANDI));
+            File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
@@ -234,7 +236,11 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 return;
             }
-            upFileImg(fileun, fileun);
+            String msgContent = ChatUtil.getChatContentJson(mContext, "", "",
+                    data.fileUrl, 0, data.fileSize, SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false), 10,
+                    0, 0, 0, data.fileName);
+            sendRealMsg(msgContent);
+//            upFileImg(fileun, fileun);
         }
     }
 
@@ -254,7 +260,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                                 if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                                     encrypt(httpFile, true, false,
                                             0, file.length(),
-                                            data.fileName, true);
+                                            data.fileName, true, SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false));
                                 } else {
                                     if(nEncryptIMEnable) {
                                         EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
@@ -262,7 +268,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                                     }
                                     String msgContent = ChatUtil.getChatContentJson(mContext, "", "",
                                             httpFile, 0, file.length(),
-                                            false,
+                                            SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false),
                                             10, 0, 0, 0,
                                             data.fileName);
                                     sendRealMsg(msgContent);
@@ -306,9 +312,10 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                 dismiss();
             }
         }
-        File file = new File(EncryptUtil.getNewFileLocal(fileLocal, fC_BEANDI));
-        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
+
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
+            File file = new File(EncryptUtil.getNewFileLocal(fileLocal, fC_BEANDI));
+            File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
@@ -330,7 +337,11 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 return;
             }
-            upFile(fileun, fileun, true);
+            String msgContent = ChatUtil.getChatContentJson(mContext, "", "", data.fileUrl,
+                    data.nDuration, data.fileSize, SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false),
+                    data.nDuration, 0, 0, 0, data.fileName);
+            sendRealMsg(msgContent);
+//            upFile(fileun, fileun, true);
         }
 
     }
@@ -347,15 +358,15 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
             } catch (Exception e) {
             }
         }
-        File file = new File(EncryptUtil.getNewFileLocal(localFilePath, fC_BEANDI));
-        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
-        if (!fileun.exists()) {
-            showToast(getString(R.string.common_notice61));
-            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
-            dismiss();
-            return;
-        }
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
+            File file = new File(EncryptUtil.getNewFileLocal(localFilePath, fC_BEANDI));
+            File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
+            if (!fileun.exists()) {
+                showToast(getString(R.string.common_notice61));
+                ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+                dismiss();
+                return;
+            }
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
@@ -376,7 +387,11 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 return;
             }
-            upFile(fileun, fileun, false);
+            String msgContent = ChatUtil.getChatContentJson(mContext, "", "", data.fileUrl,
+                    0, data.fileSize, false, 0,
+                    0, 0, 0, data.fileName);
+            sendRealMsg(msgContent);
+//            upFile(fileun, fileun, false);
         }
     }
 
@@ -395,7 +410,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                                 if (isVideo) {
                                     if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                                         encrypt(upload.file1_name, true, true, recordTime,
-                                                oldFile.length(), data.fileName, false);
+                                                oldFile.length(), data.fileName, false, SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false));
                                     } else {
                                         if(nEncryptIMEnable) {
                                             EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
@@ -404,14 +419,14 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                                         String msgContent = ChatUtil.getChatContentJson(mContext, "", "",
                                                 upload.file1_name,
                                                 0, oldFile.length(),
-                                                false,
+                                                SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false),
                                                 recordTime, 0, 0, 0, data.fileName);
                                         sendRealMsg(msgContent);
                                     }
                                 } else {
                                     if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                                         encrypt(upload.file1_name, true, false, 0,
-                                                oldFile.length(), data.fileName, false);
+                                                oldFile.length(), data.fileName, false, false);
                                     } else {
                                         if(nEncryptIMEnable) {
                                             EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
@@ -461,13 +476,13 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         if (null != data && !TextUtils.isEmpty(data.localFilePath) && new File(data.localFilePath).exists()) {
             fileLocal = data.localFilePath;
         }
-        File file = new File(EncryptUtil.getNewFileLocal(fileLocal, fC_BEANDI));
-        File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
-        if (!fileun.exists()) {
-            showToast(getString(R.string.common_notice61));
-            return;
-        }
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
+            File file = new File(EncryptUtil.getNewFileLocal(fileLocal, fC_BEANDI));
+            File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
+            if (!fileun.exists()) {
+                showToast(getString(R.string.common_notice61));
+                return;
+            }
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, true, groupInfo.strGroupID, groupInfo.strGroupDomainCode,
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
@@ -489,7 +504,11 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 return;
             }
-            upFileVoice(fileun, fileun);
+            String msgContentVideoSuccess = ChatUtil.getChatContentJson(mContext, "", "",
+                    data.fileUrl, data.nDuration, data.fileSize, SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false),
+                    data.nDuration, 0, 0, 0, data.fileName);
+            sendRealMsg(msgContentVideoSuccess);
+//            upFileVoice(fileun, fileun);
         }
     }
 
@@ -514,7 +533,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                                 ChatLocalPathHelper.getInstance().cacheChatLoaclPath(upload.file1_name, file.getPath());
                                 int recordTime = JniIntf.GetRecordFileDuration(fileOld.getPath());
                                 if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                                    encrypt(upload.file1_name, true, true, recordTime, file.length(), fileOld.getAbsolutePath().substring(fileOld.getAbsolutePath().lastIndexOf("/") + 1), false);
+                                    encrypt(upload.file1_name, true, true, recordTime, file.length(), fileOld.getAbsolutePath().substring(fileOld.getAbsolutePath().lastIndexOf("/") + 1), false, SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false));
                                 } else {
                                     if(nEncryptIMEnable) {
                                         EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
@@ -523,7 +542,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                                     String msgContentVideoSuccess = ChatUtil.getChatContentJson(mContext, "", "",
                                             upload.file1_name, recordTime,
                                             file.length(),
-                                            false,
+                                            SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false),
                                             recordTime, 0, 0, 0, fileOld.getAbsolutePath().substring(fileOld.getAbsolutePath().lastIndexOf("/") + 1));
                                     sendRealMsg(msgContentVideoSuccess);
                                 }
@@ -551,14 +570,14 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
 
     private void sendTxtMsg() {
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-            encrypt(data.msgTxt, false, false, 0, -1, "", false);
+            encrypt(data.msgTxt, false, false, 0, -1, "", false, SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false));
         } else {
             if(nEncryptIMEnable) {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 return;
             }
             String msgContent = ChatUtil.getChatContentJson(mContext, data.msgTxt, "", "", 0, 0,
-                    false,
+                    SP.getBoolean(getGroupSessionId() + AppUtils.SP_CHAT_SETTING_YUEHOUJIFENG, false),
                     data.msgTxt.length(), 0, 0, 0, "");
             sendRealMsg(msgContent);
         }
@@ -614,7 +633,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         }
     }
 
-    void encrypt(String str, boolean isFile, boolean isVoice, int recordTime, long size, String fileName, boolean isImg) {
+    void encrypt(String str, boolean isFile, boolean isVoice, int recordTime, long size, String fileName, boolean isImg, boolean isFire) {
         final String[] msgContent = new String[1];
         int longTime = isVoice ? recordTime : str.length();
         if (isImg) {
@@ -625,7 +644,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
         } else {
             msgContent[0] = ChatUtil.getChatContentJson(mContext, isFile ? "" : str, "",
                     isFile ? str : "", recordTime, size,
-                    false,
+                    isFire,
                     longTime,
                     0, 0, 0, fileName);
         }
@@ -636,7 +655,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                     "", "", usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp sessionRsp) {
-                            sendWetherEncrypt(true, sessionRsp, isFile, isVoice, recordTime, size, fileName, str, isImg);
+                            sendWetherEncrypt(true, sessionRsp, isFile, isVoice, recordTime, size, fileName, str, isImg, isFire);
                         }
 
                         @Override
@@ -662,7 +681,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
      *
      * @param sessionRsp
      */
-    private void sendWetherEncrypt(boolean isEncrypt, SdpMessageCmProcessIMRsp sessionRsp, boolean isFile, boolean isVoice, int recordTime, long size, String fileName, String msgOld, boolean isImg) {
+    private void sendWetherEncrypt(boolean isEncrypt, SdpMessageCmProcessIMRsp sessionRsp, boolean isFile, boolean isVoice, int recordTime, long size, String fileName, String msgOld, boolean isImg, boolean isFire) {
         int longTime = isVoice ? recordTime : msgOld.length();
         if (isImg) {
             longTime = 10;
@@ -678,7 +697,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                         isFile ? msgText : "",
                         recordTime,
                         size,
-                        false,
+                        isFire,
                         longTime,
                         0,
                         0,
@@ -960,6 +979,10 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
 
             VimMessageBean vimMessageBean = VimMessageBean.from(bean);
             huaiye.com.vim.dao.msgs.ChatUtil.get().saveChangeMsg(vimMessageBean, true);
+
+            MessageEvent messageEvent = new MessageEvent(AppUtils.EVENT_COMING_NEW_MESSAGE);
+            messageEvent.obj2 = groupMsgBean.sessionID;
+            EventBus.getDefault().post(messageEvent);
 
             ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
             showToast(getString(R.string.common_notice62));
