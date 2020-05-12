@@ -222,16 +222,16 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
         VimMessageListBean nVimMessageListBean = VimMessageListMessages.get().getMessages(sessionID);
         boolean msgTopSet = false;
         boolean noDisturbSet = false;
-        if (null != nVimMessageListBean) {
-            msgTopSet = nVimMessageListBean.nMsgTop == 1 ? true : false;
-            noDisturbSet = nVimMessageListBean.nNoDisturb == 1 ? true : false;
-
-
-        } else {
+//        if (null != nVimMessageListBean) {
+//            msgTopSet = nVimMessageListBean.nMsgTop == 1 ? true : false;
+//            noDisturbSet = nVimMessageListBean.nNoDisturb == 1 ? true : false;
+//
+//
+//        } else {
             msgTopSet = SP.getInteger(sessionID + AppUtils.SP_SETTING_MSG_TOP, 0) == 1 ? true : false;
             noDisturbSet = SP.getInteger(sessionID + AppUtils.SP_SETTING_NODISTURB, 0) == 1 ? true : false;
 
-        }
+//        }
 
         if (msgTopSet) {
             userDetailMessageSetTopCheckBox.setChecked(true);

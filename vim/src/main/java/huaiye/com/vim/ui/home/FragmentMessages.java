@@ -36,6 +36,7 @@ import huaiye.com.vim.bus.RefMessageList;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.dialog.LogicDialog;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.RecycleTouchUtils;
@@ -143,6 +144,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                         VimMessageListBean data = datas.get(viewHolder.getAdapterPosition());
                         VimMessageListMessages.get().del(data.sessionID);
                         if (data.groupType == 1) {
+                            SP.putInt(data.groupDomainCode + data.groupID + AppUtils.SP_SETTING_NODISTURB, 0);
                             AppDatas.MsgDB()
                                     .chatGroupMsgDao()
                                     .deleteBySessionID(data.sessionID);
@@ -151,6 +153,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                                     .chatSingleMsgDao()
                                     .deleteBySessionID(data.sessionID);
                         }
+
                         if (data.sessionID.equals("0")) {
                             BroadcastManage.get().delAll();
                             new Thread(new Runnable() {

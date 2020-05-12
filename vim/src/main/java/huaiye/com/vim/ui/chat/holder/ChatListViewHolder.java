@@ -22,6 +22,7 @@ import butterknife.BindView;
 import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.recycle.LiteViewHolder;
 import huaiye.com.vim.common.utils.ChatUtil;
@@ -239,7 +240,8 @@ public class ChatListViewHolder extends LiteViewHolder {
 
         }
 
-        if (bean.nNoDisturb == 1) {
+        int nNoDisturb = SP.getInteger(bean.groupDomainCode + bean.groupID + AppUtils.SP_SETTING_NODISTURB, 0);
+        if (nNoDisturb == 1) {
             message_history_miandarao.setVisibility(View.VISIBLE);
         } else {
             message_history_miandarao.setVisibility(View.GONE);
