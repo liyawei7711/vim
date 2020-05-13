@@ -1044,6 +1044,10 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     /* 视频通话 */
     @OnClick(R.id.chat_title_bar_video_chat_btn)
     public void onVideoClicked() {
+        if (null == mMessageUsersDate || mMessageUsersDate.size() <= 0 || !containSelf || !canSendMsg) {
+            showToast(AppUtils.getString(R.string.chat_group_not_contains_self));
+            return;
+        }
         ChoosedContacts.get().clear();
         Intent intent = new Intent(getContext(), MeetCreateByGroupUserActivity.class);
         intent.putExtra("nMeetType", 1);

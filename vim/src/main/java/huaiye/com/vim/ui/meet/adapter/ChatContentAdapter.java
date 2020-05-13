@@ -3026,12 +3026,17 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             AppDatas.MsgDB()
                                     .chatGroupMsgDao()
                                     .deleteBySessionIDAndId(mdata.sessionID, mdata.id);
+                            AppDatas.MsgDB()
+                                    .chatGroupMsgDao()
+                                    .deletByMsgID(mdata.sessionID, mdata.msgID);
 
                         } else {
                             AppDatas.MsgDB()
                                     .chatSingleMsgDao()
                                     .deleteBySessionIDAndId(mdata.sessionID, mdata.id);
-
+                            AppDatas.MsgDB()
+                                    .chatSingleMsgDao()
+                                    .deletByMsgID(mdata.sessionID, mdata.msgID);
                         }
                     }
 
@@ -3043,6 +3048,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     VimMessageListMessages.get().clearMessage(data.sessionID);
                     String str = "";
                     boolean isDeal = false;
+                    boolean isFile = false;
                     if (index > 0) {
                         isDeal = true;
                         if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
@@ -3050,9 +3056,11 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
                         } else {
                             if (TextUtils.isEmpty(mDataList.get(index - 1).fileUrl)) {
+                                isFile = false;
                                 str = mDataList.get(index - 1).msgTxt;
                                 mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
                             } else {
+                                isFile = true;
                                 str = mDataList.get(index - 1).fileUrl;
                                 mDataList.get(index - 1).fileUrl = mDataList.get(index - 1).mStrEncrypt;
                             }
@@ -3066,10 +3074,10 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
                             mDataList.get(index - 1).msgTxt = str;
                         } else {
-                            if (TextUtils.isEmpty(mDataList.get(index - 1).fileUrl)) {
-                                mDataList.get(index - 1).msgTxt = str;
-                            } else {
+                            if (isFile) {
                                 mDataList.get(index - 1).fileUrl = str;
+                            } else {
+                                mDataList.get(index - 1).msgTxt = str;
                             }
                         }
                     }

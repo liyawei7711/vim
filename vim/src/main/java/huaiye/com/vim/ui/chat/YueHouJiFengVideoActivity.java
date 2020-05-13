@@ -52,6 +52,8 @@ public class YueHouJiFengVideoActivity extends AppBaseActivity {
     TextView videoYuehoujifengTime;
     @BindView(R.id.video_loading)
     ProgressBar videoLoading;
+    @BindView(R.id.tv_back)
+    TextView tv_back;
 
     private Disposable mDisposable;
     File file;
@@ -110,6 +112,14 @@ public class YueHouJiFengVideoActivity extends AppBaseActivity {
                 startPlay(chatMessage.localFilePath);
             }
         }
+
+        tv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
     }
 
     private void startPlay(String str) {

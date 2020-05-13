@@ -35,4 +35,16 @@
         android:layout_height="wrap_content" />
 
 
+    <TextView
+        android:id="@+id/tv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="15dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginLeft="5dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:drawablePadding="15dp"
+        android:drawableLeft="@drawable/selector_navi_back_white"/>
+
 </FrameLayout>

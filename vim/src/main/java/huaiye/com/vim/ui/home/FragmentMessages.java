@@ -111,7 +111,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                         VimMessageListBean data = datas.get(viewHolder.getAdapterPosition());
                         VimMessageListMessages.get().del(data.sessionID);
                         if (data.groupType == 1) {
-                            SP.putInt(data.groupDomainCode + data.groupID + AppUtils.SP_SETTING_NODISTURB, 0);
+                            SP.putInt(data.sessionID + AppUtils.SP_SETTING_NODISTURB, 0);
                             AppDatas.MsgDB()
                                     .chatGroupMsgDao()
                                     .deleteBySessionID(data.sessionID);
