@@ -1,10 +1,7 @@
 package huaiye.com.vim.ui.contacts;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +28,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
@@ -41,10 +39,12 @@ import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.models.contacts.bean.CustomResponse;
+import huaiye.com.vim.ui.chat.holder.ChatListViewHolder;
 import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
 import huaiye.com.vim.ui.home.adapter.VimContactsItemAdapter;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
+import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
 import ttyy.com.recyclerexts.tags.TagsAdapter;
 
@@ -98,26 +98,22 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
     int max;
     @BindView(R.id.ll_choosed_persons)
     LinearLayout llChoosedPersons;
+    @BindView(R.id.rct_choosed)
+    RecyclerView rct_choosed;
 
     TagsAdapter<CustomContacts.LetterStructure> adapter;
-
+    EXTRecyclerAdapter<User> mChoosedAdapter;
 
     private ArrayList<CustomContacts.LetterStructure> mCustomContacts;
 
     private ArrayList<User> mAllContacts = new ArrayList<>();
     private ArrayList<User> mOnlineContacts = new ArrayList<>();
+    ArrayList<User> stricts = new ArrayList<>();
     private int mPage = 1;
     private int mTotalSize = 0;
     private boolean mIsShowAll = false;
 
     long currentTime;
-
-    @SuppressLint("ResourceAsColor")
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
 
     @Override
     protected void initActionBar() {
@@ -370,6 +366,7 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
     public void doInitDelay() {
         initData();
         llChoosedPersons.setVisibility(View.GONE);
+        tv_choose_confirm.setVisibility(View.GONE);
         refresh_view.setColorSchemeColors(ContextCompat.getColor(this, R.color.blue),
                 ContextCompat.getColor(this, R.color.colorPrimary));
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -419,6 +416,7 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
         }
 
         rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_choosed.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         adapter = new TagsAdapter<CustomContacts.LetterStructure>(R.layout.letter_item_layout) {
             @Override
@@ -447,6 +445,14 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
                 itemAdapter.setOnItemClickLinstener(new VimContactsItemAdapter.OnItemClickLinstener() {
                     @Override
                     public void onClick(int position, User user) {
+                        if (stricts.contains(user)) {
+                            stricts.remove(user);
+                        } else {
+                            stricts.add(user);
+                        }
+                        mChoosedAdapter.notifyDataSetChanged();
+                        changeShowSelected();
+
                         if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
                             if (user.nJoinStatus != 2) {
                                 handleChoice(user);
@@ -526,6 +532,33 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
                 }
             });
 
+        }
+
+        mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
+            @Override
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
+                extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
+            }
+        };
+        mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(View view, int i) {
+                handleChoice(mChoosedAdapter.getDatas().get(i));
+                mChoosedAdapter.getDatas().remove(i);
+                mChoosedAdapter.notifyItemRemoved(i);
+                changeShowSelected();
+            }
+        });
+        mChoosedAdapter.setDatas(stricts);
+        rct_choosed.setAdapter(mChoosedAdapter);
+
+    }
+
+    private void changeShowSelected() {
+        if (stricts.isEmpty()) {
+            llChoosedPersons.setVisibility(View.GONE);
+        } else {
+            llChoosedPersons.setVisibility(View.VISIBLE);
         }
     }
 

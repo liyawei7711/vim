@@ -240,7 +240,7 @@ public class ChatListViewHolder extends LiteViewHolder {
 
         }
 
-        int nNoDisturb = SP.getInteger(bean.groupDomainCode + bean.groupID + AppUtils.SP_SETTING_NODISTURB, 0);
+        int nNoDisturb = SP.getInteger(bean.sessionID + AppUtils.SP_SETTING_NODISTURB, 0);
         if (nNoDisturb == 1) {
             message_history_miandarao.setVisibility(View.VISIBLE);
         } else {

@@ -65,6 +65,8 @@ public class YueHouJiFengImgActivity extends AppBaseActivity {
     PhotoView imgYuehoujifeng;
     @BindView(R.id.img_yuehoujifeng_time)
     TextView imgYuehoujifengTime;
+    @BindView(R.id.tv_back)
+    TextView tv_back;
 
     @BindView(R.id.img_loading)
     ProgressBar img_loading;
@@ -177,6 +179,13 @@ public class YueHouJiFengImgActivity extends AppBaseActivity {
                 showImage();
             }
         }
+
+        tv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
     }
 
     private void showImage() {

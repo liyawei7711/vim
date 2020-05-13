@@ -56,6 +56,8 @@ public class YueHouJiFengAudioActivity extends AppBaseActivity {
     TextView audioYuehoujifengTime;
     @BindView(R.id.audio_loading)
     ProgressBar audioLoading;
+    @BindView(R.id.tv_back)
+    TextView tv_back;
 
     private boolean isPlaying = false;
 
@@ -115,6 +117,14 @@ public class YueHouJiFengAudioActivity extends AppBaseActivity {
                 startPlayer(chatMessage.localFilePath);
             }
         }
+
+        tv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
     }
 
     private void startPlayer(String str) {

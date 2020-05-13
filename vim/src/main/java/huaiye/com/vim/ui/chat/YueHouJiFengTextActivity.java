@@ -29,6 +29,8 @@ public class YueHouJiFengTextActivity extends AppBaseActivity {
     TextView textYuehoujifengContent;
     @BindView(R.id.text_yuehoujifeng_time)
     TextView textYuehoujifengTime;
+    @BindView(R.id.tv_back)
+    TextView tv_back;
 
     @BindExtra
     ChatMessageBase chatMessage;
@@ -48,6 +50,14 @@ public class YueHouJiFengTextActivity extends AppBaseActivity {
             textYuehoujifengTime.setText(chatMessage.fireTime + "''");
             coutTime();
         }
+
+        tv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
     }
 
     private void coutTime() {

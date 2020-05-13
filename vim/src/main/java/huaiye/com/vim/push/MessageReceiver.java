@@ -305,10 +305,14 @@ public class MessageReceiver {
         HYClient.getModule(ApiSocial.class).observeOfflineMessages(new SdkNotifyCallback<COfflineMsgToUserReq>() {
             @Override
             public void onEvent(COfflineMsgToUserReq data) {
-                if (HYClient.getSdkOptions().encrypt().isEncryptBind()) {
+                if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                     doOffineMsgBean(data);
                 } else {
-                    VIMApp.getInstance().getLinXianBuChang().add(data);
+                    if(nEncryptIMEnable) {
+                        VIMApp.getInstance().getLinXianBuChang().add(data);
+                        return;
+                    }
+                    doOffineMsgBean(data);
                 }
             }
         });
@@ -1010,8 +1014,8 @@ public class MessageReceiver {
     }
 
     private void sendNotice(String sessionId, String fromUserDomain, String fromUserId) {
-        VimMessageListBean vimBean = VimMessageListMessages.get().getMessagesSimple(sessionId);
-        if (vimBean != null && vimBean.nNoDisturb == 1) {
+        int nNoDisturb = SP.getInteger(sessionId + AppUtils.SP_SETTING_NODISTURB, 0);
+        if (nNoDisturb == 1) {
         } else {
             if (SP.getBoolean(AppUtils.SP_CHAT_SETTING_NOTIFICATION, true) &&
                     !(AppDatas.Auth().getDomainCode().equals(fromUserDomain) &&
