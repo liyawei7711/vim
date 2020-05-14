@@ -105,7 +105,6 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
 
                     @Override
                     public void onSuccess(CStartMobileCaptureRsp resp) {
-                        System.out.println("cccccccccccccccccccccccc 3 ");
                         startTime = System.currentTimeMillis();
                         Logger.debug("onSuccess");
                     }
@@ -114,7 +113,6 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
                     public void onError(ErrorInfo error) {
                         startTime = 0;
                         showToast("录制出错，录制时间不能小于1s");
-                        System.out.println("cccccccccccccccccccccccc 4 ");
                         Logger.debug("onError");
                     }
 
@@ -162,7 +160,6 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
 
             @Override
             public void onError(ErrorInfo errorInfo) {
-                System.out.println("cccccccccccccccccccccccc 1");
                 // 停止采集失败
             }
 

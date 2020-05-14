@@ -232,7 +232,7 @@ public final class AppUtils {
     public static String nEncryptDevice = "0000000000000000003F";
     public static String mDeviceIM = "CM_ID";
     public static String mJiaMiMiMa = "CM_MI_MA";
-    public static boolean nEncryptIMEnable = false;
+    public static boolean nEncryptIMEnable = true;
 
     public static String audiovideoPath = Environment.getExternalStorageDirectory() + "/Android/data/" + BuildConfig.APPLICATION_ID + "/audiovideo";
 
