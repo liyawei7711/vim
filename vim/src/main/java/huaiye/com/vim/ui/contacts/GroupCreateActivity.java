@@ -22,6 +22,7 @@ import java.util.Map;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.models.contacts.bean.ContactData;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
 import huaiye.com.vim.ui.meet.views.MeetCreateHeaderView;
@@ -96,7 +97,7 @@ public class GroupCreateActivity extends AppBaseActivity {
         header = new MeetCreateHeaderView(this, false, false);
         rct_view.setAdapter(adapter);
         adapter.addHeaderView(header);
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
     }
 
 

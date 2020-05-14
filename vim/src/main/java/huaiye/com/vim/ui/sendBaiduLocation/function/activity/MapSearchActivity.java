@@ -28,6 +28,7 @@ import java.util.List;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.ui.sendBaiduLocation.function.adapter.MapSearchAdapter;
 import huaiye.com.vim.ui.sendBaiduLocation.util.AppStaticVariable;
 
@@ -107,7 +108,7 @@ public class MapSearchActivity extends AppBaseActivity {
      * 对搜索框进行监听
      */
     public void initView() {
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new SafeLinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         mMapSearchAdapter = new MapSearchAdapter(this);
         mMapSearchAdapter.setOnItemClickListener(new MapSearchAdapter.OnItemClickListener() {

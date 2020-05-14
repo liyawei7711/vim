@@ -27,6 +27,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.recycle.RecycleTouchUtils;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.models.contacts.bean.ContactData;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
@@ -80,7 +81,7 @@ public class MeetCreateOrderActivity extends AppBaseActivity {
     @Override
     public void doInitDelay() {
         ChoosedContacts.get().initDelete();
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         adapter = new EXTRecyclerAdapter<ContactData>(R.layout.item_meetcreate_member) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, ContactData contactData) {

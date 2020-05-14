@@ -1,18 +1,17 @@
 package huaiye.com.vim.ui.home;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,31 +19,36 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.github.promeg.pinyinhelper.Pinyin;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import huaiye.com.vim.R;
+import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
+import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
-import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.ui.contacts.ContactDetailNewActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
-import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
+import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
+import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
+import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
-import ttyy.com.recyclerexts.tags.TagsAdapter;
 
 /**
  * Created by Administrator on 2018\3\14 0014.
  */
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends Activity {
     @BindView(R.id.et_key)
     EditText et_key;
     @BindView(R.id.et_search_cancel)
@@ -66,8 +70,8 @@ public class SearchActivity extends AppCompatActivity {
     @BindView(R.id.tv_choose_confirm)
     TextView tv_choose_confirm;
 
-    TagsAdapter<CustomContacts.LetterStructure> adapter;
-    private ArrayList<CustomContacts.LetterStructure> mCustomContacts;
+    LiteBaseAdapter<User> adapter;
+    private ArrayList<User> mCustomContacts = new ArrayList<>();
     private ArrayList<User> mAllContacts = new ArrayList<>();
     private EXTRecyclerAdapter<User> mChoosedAdapter;
     long time;
@@ -75,6 +79,7 @@ public class SearchActivity extends AppCompatActivity {
     private int mTotalSize = 0;
     private String mSearchKey;
     private int mSource;//1--选择用户
+    private int mJoinNum = 0;
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -91,78 +96,65 @@ public class SearchActivity extends AppCompatActivity {
         if (mSource == 1) {
             ll_choosed_persons.setVisibility(View.VISIBLE);
         }
-        adapter = new TagsAdapter<CustomContacts.LetterStructure>(R.layout.letter_item_layout) {
-            @Override
-            public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                if (viewType == HEADER
-                        || viewType == FOOTER) {
-
-                    return super.onCreateViewHolder(parent, viewType);
-                }
-                final EXTViewHolder holder = super.onCreateViewHolder(parent, viewType);
-                return holder;
-            }
-
-            @Override
-            public void onBindTagViewHolder(EXTViewHolder extViewHolder, int i, CustomContacts.LetterStructure data) {
-                if (i < getHeaderViewsCount()) {
-                    return;
-                }
-                extViewHolder.setText(R.id.letter_item_txt, String.valueOf(data.letter));
-                ContactsItemAdapter itemAdapter = new ContactsItemAdapter(
-                        SearchActivity.this,
-                        data.users, mCustomContacts.get(i - getHeaderViewsCount()).letter,
-                        mSource == 1 ? true : false,
-                        ChoosedContactsNew.get().getContacts());
-                itemAdapter.setOnItemClickLinstener(new ContactsItemAdapter.OnItemClickLinstener() {
+        adapter = new LiteBaseAdapter<>(this,
+                mCustomContacts,
+                ContactsViewHolder.class,
+                R.layout.item_contacts_person,
+                new View.OnClickListener() {
                     @Override
-                    public void onClick(int position, User user) {
+                    public void onClick(View v) {
+                        User user = (User) v.getTag();
                         if (mSource == 1 ? true : false) {
                             handleChoice(user);
+                            changeShowSelected();
                         } else {
                             Intent intent = new Intent(SearchActivity.this, ContactDetailNewActivity.class);
                             intent.putExtra("nUser", user);
                             startActivity(intent);
                         }
                     }
-                });
-                itemAdapter.setOnLoadMoreListener(new ContactsItemAdapter.OnLoadMoreListener() {
-                    @Override
-                    public void onLoadMore(char letter) {
-                        char c = mCustomContacts.get(mCustomContacts.size() - 1).letter;
-                        if (c == letter) {
-                            SearchActivity.this.loadMore();
-                        }
-                    }
-                });
-                RecyclerView recyclerView = extViewHolder.findViewById(R.id.letter_item_recycler);
-                recyclerView.setLayoutManager(new LinearLayoutManager(SearchActivity.this, LinearLayoutManager.VERTICAL, false));
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setNestedScrollingEnabled(false);
-                recyclerView.setAdapter(itemAdapter);
+                }, "false");
+        ContactsViewHolder.mIsChoice = mSource == 1 ? true : false;
+        ContactsViewHolder.mOnLoadMoreListener = new ContactsViewHolder.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                loadMore();
             }
         };
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         rct_view.setAdapter(adapter);
 
         mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
+                if (contactData.nJoinStatus != 2) {
+                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
+                } else {
+                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
+                    mJoinNum++;
+                }
             }
         };
         mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                ChoosedContactsNew.get().removeContacts(mChoosedAdapter.getDatas().get(i));
-                mChoosedAdapter.notifyDataSetChanged();
-                adapter.notifyDataSetChanged();
-                changeNum(mChoosedAdapter.getDatas().size());
+                if (mChoosedAdapter.getDatas().get(i).strUserName.equals(AppDatas.Auth().getUserName())) {
+                    return;
+                }
+                for (User item : mCustomContacts) {
+                    if (mChoosedAdapter.getDatas().get(i).strUserName.equals(item.strUserName)) {
+                        handleChoice(item);
+                        break;
+                    }
+                }
+                changeShowSelected();
             }
         });
-        rct_choosed.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rct_choosed.setAdapter(mChoosedAdapter);
+        changeShowSelected();
     }
 
     private void initListener() {
@@ -180,7 +172,7 @@ public class SearchActivity extends AppCompatActivity {
                     if (s != null && s.length() > 0) {
                         refreshDatas(s.toString());
                     } else {
-                        adapter.setDatas(null);
+                        mCustomContacts.clear();
                         adapter.notifyDataSetChanged();
                     }
                     return true;
@@ -193,12 +185,13 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onTouchingLetterChanged(String s) {
                 int position = -1;
-                if (mCustomContacts == null || mCustomContacts.size() <= 0) {
+                if (mCustomContacts.size() <= 0) {
                     return;
                 }
                 for (int i = 0; i < mCustomContacts.size(); i++) {
-                    if (s.equals(String.valueOf(mCustomContacts.get(i).letter))) {
+                    if (s.equals(String.valueOf(mCustomContacts.get(i).pinyin))) {
                         position = i;
+                        break;
                     }
                 }
                 if (position == -1) {
@@ -207,7 +200,7 @@ public class SearchActivity extends AppCompatActivity {
                 if (position == 0) {
                     rct_view.scrollToPosition(0);
                 } else {
-                    rct_view.scrollToPosition(position + adapter.getHeaderViewsCount());
+                    rct_view.scrollToPosition(position);
                 }
             }
 
@@ -226,20 +219,28 @@ public class SearchActivity extends AppCompatActivity {
     private void refreshDatas(String key) {
         mSearchKey = key;
         mPage = 1;
+        mCustomContacts.clear();
+        adapter.notifyDataSetChanged();
         ModelApis.Contacts().searchContacts(mPage, key, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
                 mTotalSize = contactsBean.nTotalSize;
                 mAllContacts.clear();
                 mAllContacts.addAll(contactsBean.userList);
-                mCustomContacts = getCustomContacts(mAllContacts);
-                adapter.setDatas(mCustomContacts);
+                mCustomContacts.clear();
+                mCustomContacts.addAll(getCustomContacts(mAllContacts));
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onFinish(HTTPResponse httpResponse) {
                 super.onFinish(httpResponse);
+                refresh_view.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancel(HTTPRequest httpRequest) {
+                super.onCancel(httpRequest);
                 refresh_view.setRefreshing(false);
             }
         });
@@ -264,8 +265,8 @@ public class SearchActivity extends AppCompatActivity {
                             public void doOnMain(ArrayList<User> data) {
                                 mPage++;
                                 mAllContacts.addAll(data);
-                                mCustomContacts = getCustomContacts(mAllContacts);
-                                adapter.setDatas(mCustomContacts);
+                                mCustomContacts.clear();
+                                mCustomContacts.addAll(getCustomContacts(mAllContacts));
                                 adapter.notifyDataSetChanged();
                             }
                         });
@@ -279,52 +280,30 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-    private ArrayList<CustomContacts.LetterStructure> getCustomContacts(ArrayList<User> data) {
+    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
             return null;
         }
-        CustomContacts customContacts = new CustomContacts();
-        customContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < 27; i++) {
-            CustomContacts.LetterStructure item = new CustomContacts.LetterStructure();
-            if (i != 26) {
-                item.letter = (char) ('A' + i);
-            } else {
-                item.letter = '#';
-            }
-            item.users = null;
-            customContacts.letterStructures.add(item);
-        }
         for (User item : data) {
-            String upPinYin = item.strUserNamePinYin.toUpperCase();
-            String a = "#";
-            char firstLetter = TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0);
-            int index = firstLetter - 'A';
-            if (index >= 0 && index < 26) {
-                if (customContacts.letterStructures.get(index).users == null) {
-                    customContacts.letterStructures.get(index).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(index).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(index).users.add(item);
+            String upPinYin = "";
+            item.isSelected = false;
+            for (User temp : VimChoosedContacts.get().getContacts()) {
+                if (temp.strUserName.equals(item.strUserName)) {
+                    item.isSelected = true;
+                    break;
                 }
+            }
+            if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
-                if (customContacts.letterStructures.get(26).users == null) {
-                    customContacts.letterStructures.get(26).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(26).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(26).users.add(item);
-                }
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             }
+            String a = "#";
+            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
         }
-        CustomContacts newCustomContacts = new CustomContacts();
-        newCustomContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < customContacts.letterStructures.size(); i++) {
-            if (customContacts.letterStructures.get(i).users != null &&
-                    customContacts.letterStructures.get(i).users.size() > 0) {
-                newCustomContacts.letterStructures.add(customContacts.letterStructures.get(i));
-            }
-        }
-        return newCustomContacts.letterStructures;
+
+        return data;
     }
 
     private void handleChoice(User user) {
@@ -332,13 +311,32 @@ public class SearchActivity extends AppCompatActivity {
             return;
         }
         if (ChoosedContactsNew.get().isContain(user)) {
+            user.isSelected = false;
             ChoosedContactsNew.get().removeContacts(user);
+            mChoosedAdapter.getDatas().remove(user);
         } else {
+            user.isSelected = true;
             ChoosedContactsNew.get().addContacts(user);
         }
         adapter.notifyDataSetChanged();
         mChoosedAdapter.notifyDataSetChanged();
         changeNum(mChoosedAdapter.getDatas().size());
+        mJoinNum = 0;
+    }
+
+    private void changeShowSelected() {
+        if (mSource == 1) {
+            if (ChoosedContactsNew.get().getContacts().isEmpty()) {
+                ll_choosed_persons.setVisibility(View.GONE);
+            } else {
+                ll_choosed_persons.setVisibility(View.VISIBLE);
+            }
+        } else {
+            ll_choosed_persons.setVisibility(View.GONE);
+        }
+        if (mChoosedAdapter != null) {
+            changeNum(mChoosedAdapter.getDatas().size() - mJoinNum);
+        }
     }
 
     private void changeNum(int num) {
@@ -365,4 +363,17 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ContactsViewHolder.mOnLoadMoreListener = null;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ContactsViewHolder.mIsChoice = mSource == 1 ? true : false;
+    }
+
 }

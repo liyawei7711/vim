@@ -23,6 +23,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
@@ -107,7 +108,7 @@ public class SearchGroupActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         rct_view.setAdapter(mGroupitemAdapter);
 
     }

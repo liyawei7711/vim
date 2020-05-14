@@ -39,6 +39,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.ui.meet.LayoutPopupWindow;
 import huaiye.com.vim.ui.meet.basemodel.SelectedModel;
 import huaiye.com.vim.ui.meet.viewholder.MemberLayoutHolder;
@@ -263,7 +264,7 @@ public class MeetLayoutActivity extends AppBaseActivity implements SdpUITask.Sdp
         drawableDown = getResources().getDrawable(R.drawable.zhankai);
         drawableDown.setBounds(0, 0, drawableUp.getMinimumWidth(), drawableUp.getMinimumHeight());//对图片进行压缩
 
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
 
         layoutPopupWindow = new LayoutPopupWindow(this);
         layoutPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {

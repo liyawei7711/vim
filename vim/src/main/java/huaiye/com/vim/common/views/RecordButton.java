@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
-import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.rx.RxUtils;
 
 
@@ -132,12 +131,14 @@ public class RecordButton extends Button {
     }
 
     int startY = 0;
+    boolean canSend = false;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                canSend = true;
                 startY = (int) event.getY();
                 initDialogAndStartRecord();
                 break;
@@ -183,6 +184,10 @@ public class RecordButton extends Button {
     }
 
     private void finishRecord() {
+        if (!canSend) {
+            return;
+        }
+        canSend = false;
         mDialog.dismiss();
         long intervalTime = System.currentTimeMillis() - mStartTime;
         if (intervalTime < MIN_INTERVAL_TIME) {

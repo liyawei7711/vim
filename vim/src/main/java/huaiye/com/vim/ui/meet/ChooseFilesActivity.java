@@ -38,6 +38,7 @@ import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SDCardUtils;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.User;
@@ -230,7 +231,7 @@ public class ChooseFilesActivity extends AppBaseActivity {
                         getFiles(bean.parent, bean.name);
                     }
                 }, null);
-        rv_data.setLayoutManager(linearLayoutManager = new LinearLayoutManager(this));
+        rv_data.setLayoutManager(linearLayoutManager = new SafeLinearLayoutManager(this));
         rv_data.setAdapter(adapter);
 
 //        getFiles(rootPath, "");

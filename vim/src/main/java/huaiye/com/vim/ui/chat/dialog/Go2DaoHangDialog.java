@@ -17,6 +17,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.msgs.ChatMessageBase;
 import huaiye.com.vim.map.GPS;
 import huaiye.com.vim.map.GPSConverterUtils;
@@ -54,7 +55,7 @@ public class Go2DaoHangDialog extends Dialog {
 
     private void init() {
         mRecyclerView = findViewById(R.id.daohang_list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setLayoutManager(new SafeLinearLayoutManager(getContext()));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         mDaohangAppItemAdapter = new DaohangAppItemAdapter(getContext());
         mDaohangAppItemAdapter.setOnItemClickListener(new DaohangAppItemAdapter.OnItemClickListener() {

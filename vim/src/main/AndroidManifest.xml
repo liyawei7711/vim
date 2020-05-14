@@ -309,7 +309,7 @@
             android:configChanges="locale"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.contacts.ContactsAddOrDelActivity"
+            android:name=".ui.contacts.ContactsAddOrDelActivityNew"
             android:configChanges="locale"
             android:screenOrientation="portrait" />
 
@@ -337,10 +337,6 @@
             android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name=".ui.meet.MeetDetailEditActivity"
-            android:configChanges="locale"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.contacts.ContactsFrequentActivity"
             android:configChanges="locale"
             android:screenOrientation="portrait" />
         <activity

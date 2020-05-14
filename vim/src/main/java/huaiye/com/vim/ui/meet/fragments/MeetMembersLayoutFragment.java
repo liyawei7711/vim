@@ -30,6 +30,7 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.ui.meet.LayoutPopupWindow;
 import huaiye.com.vim.ui.meet.MeetActivity;
 import huaiye.com.vim.ui.meet.MeetWatchActivity;
@@ -244,7 +245,7 @@ public class MeetMembersLayoutFragment extends AppBaseFragment {
         super.onViewCreated(view, savedInstanceState);
         getNavigate().setVisibility(View.GONE);
 
-        rct_view.setLayoutManager(new LinearLayoutManager(getContext()));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(getContext()));
 
         layoutPopupWindow = new LayoutPopupWindow(getContext());
         layoutPopupWindow.setConfirmClickListener(new LayoutPopupWindow.ConfirmClickListener() {

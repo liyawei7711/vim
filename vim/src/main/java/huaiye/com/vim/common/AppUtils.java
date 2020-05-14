@@ -150,6 +150,7 @@ public final class AppUtils {
     public static final int NOTIFICATION_TYPE_ADD_FRIEND = 3006;//添加好友
     public static final int NOTIFICATION_TYPE_DEL_FRIEND = 3007;//删除好友
     public static final int NOTIFICATION_TYPE_GROUP_KICKOUT_MEMBER = 3008;//剔出队友
+    public static final int NOTIFICATION_TYPE_GROUP_ADD_MEMBER = 3009;//+队友
 
 
     //秘钥相关3100开始

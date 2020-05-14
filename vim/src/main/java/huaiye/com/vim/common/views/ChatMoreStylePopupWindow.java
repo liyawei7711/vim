@@ -11,7 +11,7 @@ import android.widget.TextView;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.dao.auth.AppAuth;
-import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivity;
+import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivityNew;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
 import huaiye.com.vim.ui.home.MainSettingsActivity;
 import huaiye.com.vim.ui.meet.MeetCreateByAllFriendActivity;
@@ -111,8 +111,8 @@ public class ChatMoreStylePopupWindow extends PopupWindow {
     }
 
     private void go2CreateGroupChat() {
-        Intent intent = new Intent(mContext, ContactsAddOrDelActivity.class);
-        intent.putExtra("titleName", AppUtils.getString(R.string.user_detail_add_user_title));
+        Intent intent = new Intent(mContext, ContactsAddOrDelActivityNew.class);
+        intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_add_user_title));
         intent.putExtra("isSelectUser", true);
         intent.putExtra("isCreateGroup", true);
         intent.putExtra("isAddMore", false);
@@ -126,8 +126,8 @@ public class ChatMoreStylePopupWindow extends PopupWindow {
     }
 
     private void go2CreatePushVideo() {
-        Intent intent = new Intent(mContext, ContactsAddOrDelActivity.class);
-        intent.putExtra("titleName", AppUtils.getString(R.string.main_chat_push_video));
+        Intent intent = new Intent(mContext, ContactsAddOrDelActivityNew.class);
+        intent.putExtra("titleName", AppUtils.getResourceString(R.string.main_chat_push_video));
         intent.putExtra("isSelectUser", true);
         intent.putExtra("isCreateGroup", false);
         intent.putExtra("isCreateVideoPish",true);

@@ -30,6 +30,7 @@ import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
@@ -107,7 +108,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
 
         refresh_view.setColorSchemeColors(ContextCompat.getColor(this, R.color.blue),
                 ContextCompat.getColor(this, R.color.colorPrimary));
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         adapter = new TagsAdapter<CustomContacts.LetterStructure>(R.layout.letter_item_layout) {
             @Override
             public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -137,7 +138,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
                 });
 
                 RecyclerView recyclerView = extViewHolder.findViewById(R.id.letter_item_recycler);
-                recyclerView.setLayoutManager(new LinearLayoutManager(ZhuanFaChooseActivity.this, LinearLayoutManager.VERTICAL, false));
+                recyclerView.setLayoutManager(new SafeLinearLayoutManager(ZhuanFaChooseActivity.this, LinearLayoutManager.VERTICAL, false));
                 recyclerView.setHasFixedSize(true);
                 recyclerView.setNestedScrollingEnabled(false);
                 recyclerView.setAdapter(itemAdapter);
@@ -191,7 +192,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     private void requestContacts() {
 
         /* -1表示不分页，即获取所有联系人 */
-        ModelApis.Contacts().requestBuddyContacts(-1, 0, 0, new ModelCallback<ContactsBean>() {
+        ModelApis.Contacts().requestBuddyContacts(-1, 0, AppDatas.Auth().getDomainCode(), 0, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
                 if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {

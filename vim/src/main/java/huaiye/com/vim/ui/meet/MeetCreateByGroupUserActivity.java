@@ -44,6 +44,7 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.recycle.RecycleTouchUtils;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.MeetTypeChoosePopupWindow;
 import huaiye.com.vim.common.views.NavigateView;
@@ -128,7 +129,7 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
         ChoosedContactsNew.get().addSelf();
         mMeetTypeChoosePopupWindow = new MeetTypeChoosePopupWindow(this, this);
         mMeetTypeChoosePopupWindow.initView();
-        create_meet_rct_view.setLayoutManager(new LinearLayoutManager(this));
+        create_meet_rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         adapter = new EXTRecyclerAdapter<User>(R.layout.item_meetcreate_member) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {

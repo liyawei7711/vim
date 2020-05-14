@@ -12,6 +12,7 @@ import com.ttyy.commonanno.anno.BindView;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.models.contacts.bean.ContactData;
 import huaiye.com.vim.ui.contacts.sharedata.GroupDeleteChoosedContacts;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
@@ -52,7 +53,7 @@ public class ContactsListOperationActivity extends AppBaseActivity {
 
     @Override
     public void doInitDelay() {
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         ItemTouchHelper delMoveHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {

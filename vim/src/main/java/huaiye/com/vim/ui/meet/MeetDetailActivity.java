@@ -34,6 +34,7 @@ import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.constant.CommonConstant;
 import huaiye.com.vim.common.dialog.LogicDialog;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
@@ -121,7 +122,7 @@ public class MeetDetailActivity extends AppBaseActivity {
     @Override
     public void doInitDelay() {
         mZeusLoadView.loadingText(getString(R.string.common_notice28)).setLoading();
-        meet_recycler.setLayoutManager(new LinearLayoutManager(this));
+        meet_recycler.setLayoutManager(new SafeLinearLayoutManager(this));
         adapter = new EXTRecyclerAdapter<User>(R.layout.item_meetcreate_member) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {

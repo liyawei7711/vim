@@ -50,6 +50,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
@@ -79,7 +80,6 @@ import huaiye.com.vim.dao.msgs.MessageData;
 import huaiye.com.vim.dao.msgs.StopCaptureMessage;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.VimMessageBean;
-import huaiye.com.vim.dao.msgs.VimMessageListBean;
 import huaiye.com.vim.dao.msgs.VimMessageListMessages;
 import huaiye.com.vim.map.baidu.GPSLocation;
 import huaiye.com.vim.map.baidu.LocationStrategy;
@@ -310,7 +310,7 @@ public class MessageReceiver {
                 if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                     doOffineMsgBean(data);
                 } else {
-                    if(nEncryptIMEnable) {
+                    if (nEncryptIMEnable) {
                         VIMApp.getInstance().getLinXianBuChang().add(data);
                         return;
                     }
@@ -394,6 +394,9 @@ public class MessageReceiver {
 //                            AppDatas.MsgDB()
 //                                    .chatGroupMsgDao()
 //                                    .deleteBySessionID(nNotificationDelGroup.strGroupDomainCode + nNotificationDelGroup.strGroupID);
+                    addGroupNotice("群组已被解散",
+                            nNotificationDelGroup.strGroupDomainCode + nNotificationDelGroup.strGroupID,
+                            nNotificationDelGroup.strGroupID, nNotificationDelGroup.strGroupDomainCode, "");
                     VimMessageBean vimMessageBean = new VimMessageBean();
                     vimMessageBean.groupID = nNotificationDelGroup.strGroupID;
                     EventBus.getDefault().post(vimMessageBean);
@@ -531,6 +534,7 @@ public class MessageReceiver {
                     delFriend();
                     break;
                 case AppUtils.NOTIFICATION_TYPE_ADD_MEMBER:
+                case AppUtils.NOTIFICATION_TYPE_GROUP_ADD_MEMBER:
                 case AppUtils.NOTIFICATION_TYPE_GROUP_KICKOUT_MEMBER:
                     MessageEvent me = new MessageEvent(AppUtils.EVENT_REFRESH_GROUP_DETAIL);
                     String sessionID;
@@ -542,13 +546,33 @@ public class MessageReceiver {
                         sessionID = groupDealAddMessage.getStrGroupDomainCode() + groupDealAddMessage.getStrGroupID();
                         groupID = groupDealAddMessage.getStrGroupID();
                         groupDomain = groupDealAddMessage.getStrGroupDomainCode();
-                        sessionName = groupDealAddMessage.getStrGroupName();
+                        if (ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()) != null) {
+                            sessionName = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()).strGroupName;
+                        } else {
+                            sessionName = "";
+                        }
                         StringBuilder str = new StringBuilder();
                         for (GroupDealAddMessage.LstGroupUserBean temp : groupDealAddMessage.getLstGroupUser()) {
                             str.append(temp.strUserName + ",");
                         }
-                        String content = str.toString().substring(0, str.length() - 1);
-                        me.msgContent = content + getString(R.string.group_notice1);
+
+                        if (TextUtils.isEmpty(str.toString())) {
+                            me.msgContent = getString(R.string.group_notice1);
+                        } else {
+                            String content = str.toString().substring(0, str.length() - 1);
+                            me.msgContent = content + getString(R.string.group_notice1);
+                        }
+                    } else if (chatMessageBean.type == AppUtils.NOTIFICATION_TYPE_GROUP_ADD_MEMBER) {
+                        GroupDealAddMessage groupDealAddMessage = gson.fromJson(chatMessageBean.content, GroupDealAddMessage.class);
+                        sessionID = groupDealAddMessage.getStrGroupDomainCode() + groupDealAddMessage.getStrGroupID();
+                        groupID = groupDealAddMessage.getStrGroupID();
+                        groupDomain = groupDealAddMessage.getStrGroupDomainCode();
+                        if (ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()) != null) {
+                            sessionName = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()).strGroupName;
+                        } else {
+                            sessionName = "";
+                        }
+                        me.msgContent = getString(R.string.group_notice1);
                     } else {
                         GroupDealMessage groupDealMessage = gson.fromJson(chatMessageBean.content, GroupDealMessage.class);
                         sessionID = groupDealMessage.getStrGroupDomainCode() + groupDealMessage.getStrGroupID();
@@ -898,6 +922,19 @@ public class MessageReceiver {
      * @param notice
      */
     private void addGroupNotice(String notice, String sessionID, String groupID, String groupDomain, String sessionName) {
+
+        if(TextUtils.isEmpty(sessionName)) {
+            List<ChatGroupMsgBean> nChatGroupMsgBeans = AppDatas.MsgDB()
+                    .chatGroupMsgDao()
+                    .queryPagingItemWithoutLive(groupID, 0, 10);
+            for(ChatGroupMsgBean bean : nChatGroupMsgBeans) {
+                if(!TextUtils.isEmpty(bean.sessionName)) {
+                    sessionName = bean.sessionName;
+                    break;
+                }
+            }
+        }
+
         ChatGroupMsgBean bean = new ChatGroupMsgBean();
         bean.groupType = 1;
         bean.type = CHAT_CONTENT_CUSTOM_NOTICE_ITEM;

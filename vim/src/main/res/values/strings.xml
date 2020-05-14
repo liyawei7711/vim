@@ -719,6 +719,9 @@
 	<string name="group_notice16">Quit group chat</string>
 	<string name="group_notice17">Meeting name cannot be empty</string>
 	<string name="group_notice18">You are not a group leader. You can not operate</string>
+	<string name="group_notice19">You has join the group</string>
+	<string name="group_notice20">Recording error, recording time cannot be less than 1s</string>
+	<string name="group_notice21">Recording time cannot be less than 1s</string>
 	<!--jiami-->
 	<string name="jiami_notice1">Information encryption failed</string>
 	<string name="jiami_notice2">People are kicked out of the group</string>

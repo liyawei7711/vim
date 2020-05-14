@@ -60,6 +60,7 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.utils.ChatUtil;
 import huaiye.com.vim.common.utils.SoftKeyboardUtil;
@@ -353,7 +354,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             }
         });
 
-        LinearLayoutManager nLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager nLinearLayoutManager = new SafeLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
 //        nLinearLayoutManager.setStackFromEnd(true);
         chat_recycler.setLayoutManager(nLinearLayoutManager);
         chat_recycler.setAdapter(mChatContentAdapter);
