@@ -158,6 +158,10 @@ public class User implements Parcelable {
     public int nJoinStatus;
     @Ignore
     public boolean canDel;
+    @Ignore
+    public String pinyin;
+    @Ignore
+    public boolean isSelected;
 
 
     public User() {

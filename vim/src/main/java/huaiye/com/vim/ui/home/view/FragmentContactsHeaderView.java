@@ -13,7 +13,6 @@ import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
 
 import huaiye.com.vim.R;
-import huaiye.com.vim.ui.contacts.ContactsFrequentActivity;
 import huaiye.com.vim.ui.home.SearchActivity;
 
 /**
@@ -48,7 +47,7 @@ public class FragmentContactsHeaderView extends RelativeLayout implements View.O
         switch (v.getId()) {
             case R.id.contacts_header_search:
                 Intent intent = new Intent(getContext(), SearchActivity.class);
-                intent.putExtra(ContactsFrequentActivity.SOURCE, 0);
+                intent.putExtra("mSource", 1);
                 getContext().startActivity(intent);
                 break;
             default:

@@ -1,6 +1,7 @@
 package huaiye.com.vim.dao.msgs;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GroupDealAddMessage implements Serializable {
@@ -25,6 +26,7 @@ public class GroupDealAddMessage implements Serializable {
     private String strGroupName;
     private int nBeinviteMode;
     private List<LstGroupUserBean> lstGroupUser;
+    private List<LstGroupUserBean> sessionUserList;
 
     public String getStrInviterDomainCode() {
         return strInviterDomainCode;
@@ -58,6 +60,14 @@ public class GroupDealAddMessage implements Serializable {
         this.strGroupDomainCode = strGroupDomainCode;
     }
 
+    public List<LstGroupUserBean> getSessionUserList() {
+        return sessionUserList;
+    }
+
+    public void setSessionUserList(List<LstGroupUserBean> sessionUserList) {
+        this.sessionUserList = sessionUserList;
+    }
+
     public String getStrGroupID() {
         return strGroupID;
     }
@@ -83,6 +93,9 @@ public class GroupDealAddMessage implements Serializable {
     }
 
     public List<LstGroupUserBean> getLstGroupUser() {
+        if(lstGroupUser == null) {
+            lstGroupUser = new ArrayList<>();
+        }
         return lstGroupUser;
     }
 

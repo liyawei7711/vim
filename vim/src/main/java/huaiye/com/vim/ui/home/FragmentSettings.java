@@ -63,7 +63,6 @@ import huaiye.com.vim.ui.about.AboutActivity;
 import huaiye.com.vim.ui.auth.ChangePwdActivity;
 import huaiye.com.vim.ui.auth.StartActivity;
 import huaiye.com.vim.ui.chat.dialog.CustomTipDialog;
-import huaiye.com.vim.ui.contacts.ContactsFrequentActivity;
 import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
 import huaiye.com.vim.ui.home.transfile.ChooseEncryptFileActivity;
 import huaiye.com.vim.ui.setting.ModifyHeadPicActivity;
@@ -117,7 +116,7 @@ public class FragmentSettings extends AppBaseFragment {
                         }
                         Log.d(this.getClass().getName(), "onClick");
                         Intent intent = new Intent(getContext(), SearchActivity.class);
-                        intent.putExtra(ContactsFrequentActivity.SOURCE, 0);
+                        intent.putExtra("mSource", 0);
                         startActivity(intent);
                     }
                 }).setTopAddClickListener(new View.OnClickListener() {

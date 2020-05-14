@@ -11,9 +11,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.huaiye.sdk.logger.Logger;
 import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
@@ -35,6 +35,8 @@ import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
+import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
@@ -47,19 +49,16 @@ import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupChatListBean;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
-import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
 import huaiye.com.vim.ui.contacts.ContactDetailNewActivity;
-import huaiye.com.vim.ui.contacts.ContactsFrequentActivity;
 import huaiye.com.vim.ui.contacts.GroupListActivity;
-import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
+import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
+import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
 import huaiye.com.vim.ui.home.adapter.GroupContactsItemAdapter;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
-import ttyy.com.recyclerexts.base.EXTViewHolder;
-import ttyy.com.recyclerexts.tags.TagsAdapter;
 
 /**
  * author: admin
@@ -90,10 +89,10 @@ public class FragmentContacts extends AppBaseFragment {
     @BindView(R.id.tv_letter_high_fidelity_item)
     TextView tv_letter_high_fidelity_item;
 
-    TagsAdapter<CustomContacts.LetterStructure> adapter;
+    LiteBaseAdapter<User> adapter;
     GroupContactsItemAdapter mGroupitemAdapter;
 
-    private ArrayList<CustomContacts.LetterStructure> mCustomContacts;
+    private ArrayList<User> mCustomContacts = new ArrayList<>();
     private ArrayList<User> mAllContacts = new ArrayList<>();
 
     private ArrayList<GroupInfo> mlstGroupInfo = new ArrayList<>();
@@ -116,7 +115,7 @@ public class FragmentContacts extends AppBaseFragment {
                 .setTitlClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View V) {
-                        if(isSOS) {
+                        if (isSOS) {
                             return;
                         }
                         isFreadList = true;
@@ -146,25 +145,25 @@ public class FragmentContacts extends AppBaseFragment {
                 .setTopSearchClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(isSOS) {
+                        if (isSOS) {
                             return;
                         }
                         if (isFreadList) {
                             Log.d(this.getClass().getName(), "onClick");
                             Intent intent = new Intent(getContext(), SearchActivity.class);
-                            intent.putExtra(ContactsFrequentActivity.SOURCE, 0);
+                            intent.putExtra("mSource", 0);
                             startActivity(intent);
                         } else {
                             Log.d(this.getClass().getName(), "onClick");
                             Intent intent = new Intent(getContext(), SearchGroupActivity.class);
-                            intent.putExtra(ContactsFrequentActivity.SOURCE, 0);
+                            intent.putExtra("mSource", 0);
                             startActivity(intent);
                         }
                     }
                 }).setTopAddClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isSOS) {
+                if (isSOS) {
                     return;
                 }
                 showChatMoreStylePopupWindow(v);
@@ -173,44 +172,20 @@ public class FragmentContacts extends AppBaseFragment {
 
         refresh_view.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.blue),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimary));
-        rct_view.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new TagsAdapter<CustomContacts.LetterStructure>(R.layout.letter_item_layout) {
-            @Override
-            public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                if (viewType == HEADER
-                        || viewType == FOOTER) {
-
-                    return super.onCreateViewHolder(parent, viewType);
-                }
-
-                final EXTViewHolder holder = super.onCreateViewHolder(parent, viewType);
-                return holder;
-            }
-
-            @Override
-            public void onBindTagViewHolder(EXTViewHolder extViewHolder, int i, CustomContacts.LetterStructure data) {
-                if (i < getHeaderViewsCount()) {
-                    return;
-                }
-                extViewHolder.setText(R.id.letter_item_txt, String.valueOf(data.letter));
-                ContactsItemAdapter itemAdapter = new ContactsItemAdapter(
-                        getActivity(),
-                        data.users, mCustomContacts.get(i - getHeaderViewsCount()).letter,
-                        false,
-                        null);
-                itemAdapter.setOnItemClickLinstener((position, user) -> {
-                    Intent intent = new Intent(getActivity(), ContactDetailNewActivity.class);
-                    intent.putExtra("nUser", user);
-                    startActivity(intent);
-                });
-
-                RecyclerView recyclerView = extViewHolder.findViewById(R.id.letter_item_recycler);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setNestedScrollingEnabled(false);
-                recyclerView.setAdapter(itemAdapter);
-            }
-        };
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
+        adapter = new LiteBaseAdapter<>(getActivity(),
+                mCustomContacts,
+                ContactsViewHolder.class,
+                R.layout.item_contacts_person,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        User user = (User) v.getTag();
+                        Intent intent = new Intent(getActivity(), ContactDetailNewActivity.class);
+                        intent.putExtra("nUser", user);
+                        startActivity(intent);
+                    }
+                }, "false");
 
         mGroupitemAdapter = new GroupContactsItemAdapter(getActivity(), mlstGroupInfo, false, null);
         mGroupitemAdapter.setOnItemClickLinstener(new GroupContactsItemAdapter.OnItemClickLinstener() {
@@ -241,12 +216,13 @@ public class FragmentContacts extends AppBaseFragment {
             @Override
             public void onTouchingLetterChanged(String s) {
                 int position = -1;
-                if (mCustomContacts == null || mCustomContacts.size() <= 0) {
+                if (mCustomContacts.size() <= 0) {
                     return;
                 }
                 for (int i = 0; i < mCustomContacts.size(); i++) {
-                    if (s.equals(String.valueOf(mCustomContacts.get(i).letter))) {
+                    if (s.equals(String.valueOf(mCustomContacts.get(i).pinyin))) {
                         position = i;
+                        break;
                     }
                 }
                 if (position == -1) {
@@ -255,7 +231,7 @@ public class FragmentContacts extends AppBaseFragment {
                 if (position == 0) {
                     rct_view.scrollToPosition(0);
                 } else {
-                    rct_view.scrollToPosition(position + adapter.getHeaderViewsCount());
+                    rct_view.scrollToPosition(position);
                 }
             }
 
@@ -270,7 +246,7 @@ public class FragmentContacts extends AppBaseFragment {
             }
         });
 
-        if(!isSOS) {
+        if (!isSOS) {
             initData();
         }
     }
@@ -285,7 +261,7 @@ public class FragmentContacts extends AppBaseFragment {
         Log.i(this.getClass().getName(), "requestContacts");
 
         /* -1表示不分页，即获取所有联系人 */
-        ModelApis.Contacts().requestBuddyContacts(-1, 0, 0, new ModelCallback<ContactsBean>() {
+        ModelApis.Contacts().requestBuddyContacts(-1, 0, AppDatas.Auth().getDomainCode(), 0, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
                 if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
@@ -491,66 +467,44 @@ public class FragmentContacts extends AppBaseFragment {
         }
     }
 
-    private ArrayList<CustomContacts.LetterStructure> getCustomContacts(ArrayList<User> data) {
+    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
             return null;
         }
-        CustomContacts customContacts = new CustomContacts();
-        customContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < 27; i++) {
-            CustomContacts.LetterStructure item = new CustomContacts.LetterStructure();
-            if (i != 26) {
-                item.letter = (char) ('A' + i);
-            } else {
-                item.letter = '#';
-            }
-            item.users = null;
-            customContacts.letterStructures.add(item);
-        }
         for (User item : data) {
-            String upPinYin = item.strUserNamePinYin.toUpperCase();
-            String a = "#";
-            char firstLetter = TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0);
-            int index = firstLetter - 'A';
-            if (index >= 0 && index < 26) {
-                if (customContacts.letterStructures.get(index).users == null) {
-                    customContacts.letterStructures.get(index).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(index).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(index).users.add(item);
+            String upPinYin = "";
+            item.isSelected = false;
+            for (User temp : VimChoosedContacts.get().getContacts()) {
+                if (temp.strUserName.equals(item.strUserName)) {
+                    item.isSelected = true;
+                    break;
                 }
+            }
+            if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
-                if (customContacts.letterStructures.get(26).users == null) {
-                    customContacts.letterStructures.get(26).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(26).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(26).users.add(item);
-                }
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             }
+            String a = "#";
+            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
         }
-        CustomContacts newCustomContacts = new CustomContacts();
-        newCustomContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < customContacts.letterStructures.size(); i++) {
-            if (customContacts.letterStructures.get(i).users != null &&
-                    customContacts.letterStructures.get(i).users.size() > 0) {
-                newCustomContacts.letterStructures.add(customContacts.letterStructures.get(i));
-            }
-        }
-        return newCustomContacts.letterStructures;
+
+        return data;
     }
 
     public void updateContacts(boolean isNeedRefreshUserInfo) {
         new RxUtils<List<User>>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
             @Override
             public Object doOnThread() {
-                mCustomContacts = getCustomContacts(mAllContacts);
+                mCustomContacts.clear();
+                mCustomContacts.addAll(getCustomContacts(mAllContacts));
                 return mCustomContacts;
             }
 
             @Override
             public void doOnMain(Object data) {
                 rct_view.setAdapter(adapter);
-                adapter.setDatas(mCustomContacts);
                 adapter.notifyDataSetChanged();
                 if (isNeedRefreshUserInfo) {
                     getUserInfos(mAllContacts);
@@ -597,7 +551,7 @@ public class FragmentContacts extends AppBaseFragment {
 
     @OnClick({R.id.tv_group})
     public void onClick(View view) {
-        if(isSOS) {
+        if (isSOS) {
             return;
         }
         Intent intent = new Intent(getContext(), GroupListActivity.class);

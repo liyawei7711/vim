@@ -51,6 +51,7 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.constant.SPConstant;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.models.ModelCallback;
@@ -295,11 +296,11 @@ public class MeetControlActivity extends AppBaseActivity implements SdpUITask.Sd
                 setHeadViewPic(imageView, userInfo);
             }
         };
-        joined_recyclerview.setLayoutManager(new LinearLayoutManager(this));
+        joined_recyclerview.setLayoutManager(new SafeLinearLayoutManager(this));
         joined_recyclerview.setHasFixedSize(true);
         joined_recyclerview.setNestedScrollingEnabled(false);
         joined_recyclerview.setAdapter(mMeetingAdapter);
-        no_join_recyclerview.setLayoutManager(new LinearLayoutManager(this));
+        no_join_recyclerview.setLayoutManager(new SafeLinearLayoutManager(this));
         joined_recyclerview.setHasFixedSize(true);
         joined_recyclerview.setNestedScrollingEnabled(false);
         no_join_recyclerview.setAdapter(mNoMeetingAdapter);

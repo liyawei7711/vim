@@ -404,7 +404,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     @Override
     public void onItemClick(User item) {
         if (UserDetailUserListAdapter.TYPE_ADD.equals(item.strUserID)) {
-            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivity.class);
+            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNew.class);
             intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_add_user_title));
             intent.putExtra("isSelectUser", true);
             if (isGroupChat) {
@@ -421,7 +421,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             intent.putExtra("mUserList", mUserList);
             startActivityForResult(intent, 1000);
         } else if (UserDetailUserListAdapter.TYPE_DEL.equals(item.strUserID)) {
-            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivity.class);
+            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNew.class);
             intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_del_user_title));
             intent.putExtra("strGroupDomainCode", strGroupDomainCode);
             intent.putExtra("strGroupID", strGroupID);
@@ -439,7 +439,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 
     @OnClick(R.id.user_detail_group_user_count_rel)
     void go2GroupUserList() {
-        Intent intent = new Intent(getSelf(), ContactsAddOrDelActivity.class);
+        Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNew.class);
         intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_del_user_title));
         intent.putExtra("isSelectUser", false);
         intent.putExtra("isCreateGroup", false);

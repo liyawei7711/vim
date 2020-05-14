@@ -40,6 +40,7 @@ import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.dialog.LogicDialog;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.RecycleTouchUtils;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
@@ -205,7 +206,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                         dealAdapterItemClick(v);
                     }
                 }, "false");
-        message_list.setLayoutManager(new LinearLayoutManager(getContext()));
+        message_list.setLayoutManager(new SafeLinearLayoutManager(getContext()));
         message_list.setAdapter(adapter);
     }
 

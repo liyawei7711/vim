@@ -1,6 +1,7 @@
 package huaiye.com.vim.ui.home;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
@@ -59,7 +61,7 @@ import ttyy.com.recyclerexts.tags.TagsAdapter;
  * Created by Administrator on 2018\3\14 0014.
  */
 
-public class SearchChatActivity extends AppCompatActivity {
+public class SearchChatActivity extends Activity {
     @BindView(R.id.et_key)
     EditText et_key;
     @BindView(R.id.et_search_cancel)
@@ -99,7 +101,7 @@ public class SearchChatActivity extends AppCompatActivity {
                         dealAdapterItemClick(v);
                     }
                 }, "false");
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         rct_view.setAdapter(adapter);
 
     }
@@ -158,7 +160,7 @@ public class SearchChatActivity extends AppCompatActivity {
                     if (s != null && s.length() > 0) {
                         refreshDatas(s.toString());
                     } else {
-                        adapter.setDatas(null);
+                        datas.clear();
                         adapter.notifyDataSetChanged();
                     }
                     return true;
@@ -169,6 +171,9 @@ public class SearchChatActivity extends AppCompatActivity {
     }
 
     private void refreshDatas(String key) {
+        datas.clear();
+        adapter.notifyDataSetChanged();
+
         mSearchKey = key;
         maps.clear();
         for (VimMessageListBean temp : datas) {

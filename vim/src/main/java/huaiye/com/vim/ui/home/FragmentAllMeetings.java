@@ -22,6 +22,7 @@ import java.util.List;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.meet.bean.MeetList;
@@ -97,7 +98,7 @@ public class FragmentAllMeetings extends AppBaseFragment {
                 }
             }
         });
-        rct_view.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
 
         adapter = new LiteBaseAdapter<>(getContext(),
                 datas,

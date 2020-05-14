@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import huaiye.com.vim.R;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
@@ -117,7 +118,7 @@ public class NoticeChooseActivity extends AppBaseActivity {
             }
         });
 
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         adapter = new EXTRecyclerAdapter<ContactsGroupUserListBean.LstGroupUser>(R.layout.item_group_notice_member) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, ContactsGroupUserListBean.LstGroupUser contactData) {

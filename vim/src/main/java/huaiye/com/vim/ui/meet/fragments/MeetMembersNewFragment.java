@@ -39,6 +39,7 @@ import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.ui.meet.viewholder.MemberHolder;
 
 import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
@@ -92,7 +93,7 @@ public class MeetMembersNewFragment extends AppBaseFragment {
         super.onViewCreated(view, savedInstanceState);
         getNavigate().setVisibility(View.GONE);
 
-        rct_view.setLayoutManager(new LinearLayoutManager(getContext()));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(getContext()));
 
         MemberHolder.isMeetStarter = isMeetStarter;
         MemberHolder.handUser.clear();

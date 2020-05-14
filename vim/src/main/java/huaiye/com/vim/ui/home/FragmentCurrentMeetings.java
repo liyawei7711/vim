@@ -24,6 +24,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -144,7 +145,7 @@ public class FragmentCurrentMeetings extends AppBaseFragment {
                 refreshDatas(false);
             }
         });
-        rct_view.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
         rct_view.setAdapter(adapter);
 
         refresh_view.setColorSchemeColors(R.color.blue, R.color.colorPrimary);

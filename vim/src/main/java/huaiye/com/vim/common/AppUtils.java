@@ -150,6 +150,7 @@ public final class AppUtils {
     public static final int NOTIFICATION_TYPE_ADD_FRIEND = 3006;//添加好友
     public static final int NOTIFICATION_TYPE_DEL_FRIEND = 3007;//删除好友
     public static final int NOTIFICATION_TYPE_GROUP_KICKOUT_MEMBER = 3008;//剔出队友
+    public static final int NOTIFICATION_TYPE_GROUP_ADD_MEMBER = 3009;//+队友
 
 
     //秘钥相关3100开始
@@ -231,7 +232,7 @@ public final class AppUtils {
     public static String nEncryptDevice = "0000000000000000003F";
     public static String mDeviceIM = "CM_ID";
     public static String mJiaMiMiMa = "CM_MI_MA";
-    public static boolean nEncryptIMEnable = true;
+    public static boolean nEncryptIMEnable = false;
 
     public static String audiovideoPath = Environment.getExternalStorageDirectory() + "/Android/data/" + BuildConfig.APPLICATION_ID + "/audiovideo";
 

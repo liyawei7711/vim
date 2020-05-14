@@ -21,6 +21,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.ErrorMsg;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
 
@@ -55,7 +56,7 @@ public class MeetSpeakerMgrFragment extends AppBaseFragment {
         super.onViewCreated(view, savedInstanceState);
         getNavigate().setVisibility(View.GONE);
 
-        rct_view.setLayoutManager(new LinearLayoutManager(getContext()));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(getContext()));
         adapter = new EXTRecyclerAdapter<CGetMeetingInfoRsp.UserInfo>(R.layout.item_meet_speaker) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, CGetMeetingInfoRsp.UserInfo userInfo) {

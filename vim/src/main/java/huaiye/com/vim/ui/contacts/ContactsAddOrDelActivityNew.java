@@ -8,7 +8,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,6 +28,7 @@ import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
@@ -37,16 +37,14 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
-import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.models.contacts.bean.CustomResponse;
-import huaiye.com.vim.ui.chat.holder.ChatListViewHolder;
 import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
-import huaiye.com.vim.ui.home.adapter.VimContactsItemAdapter;
+import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
+import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
-import ttyy.com.recyclerexts.tags.TagsAdapter;
 
 import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 
@@ -58,7 +56,7 @@ import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
  * desc: ContactsChoiceActivity
  */
 @BindLayout(R.layout.activity_contacts_root)
-public class ContactsAddOrDelActivity extends AppBaseActivity {
+public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     public static final String SELECTED_CONTACTS = "selectedContacts";
     public static final String RESULT_CONTACTS = "resultContacts";
     @BindView(R.id.refresh_view)
@@ -101,18 +99,14 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
     @BindView(R.id.rct_choosed)
     RecyclerView rct_choosed;
 
-    TagsAdapter<CustomContacts.LetterStructure> adapter;
+    LiteBaseAdapter<User> adapter;
     EXTRecyclerAdapter<User> mChoosedAdapter;
 
-    private ArrayList<CustomContacts.LetterStructure> mCustomContacts;
+    private ArrayList<User> mCustomContacts = new ArrayList<>();
 
     private ArrayList<User> mAllContacts = new ArrayList<>();
-    private ArrayList<User> mOnlineContacts = new ArrayList<>();
-    ArrayList<User> stricts = new ArrayList<>();
     private int mPage = 1;
-    private int mTotalSize = 0;
-    private boolean mIsShowAll = false;
-
+    private int mJoinNum = 0;
     long currentTime;
 
     @Override
@@ -365,7 +359,7 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
     @Override
     public void doInitDelay() {
         initData();
-        llChoosedPersons.setVisibility(View.GONE);
+        changeShowSelected();
         tv_choose_confirm.setVisibility(View.GONE);
         refresh_view.setColorSchemeColors(ContextCompat.getColor(this, R.color.blue),
                 ContextCompat.getColor(this, R.color.colorPrimary));
@@ -415,43 +409,17 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
             refresh_view.setEnabled(false);
         }
 
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
-        rct_choosed.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
+        rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        adapter = new TagsAdapter<CustomContacts.LetterStructure>(R.layout.letter_item_layout) {
-            @Override
-            public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                if (viewType == HEADER
-                        || viewType == FOOTER) {
-
-                    return super.onCreateViewHolder(parent, viewType);
-                }
-                final EXTViewHolder holder = super.onCreateViewHolder(parent, viewType);
-                return holder;
-            }
-
-            @Override
-            public void onBindTagViewHolder(EXTViewHolder extViewHolder, int i, CustomContacts.LetterStructure data) {
-                if (i < getHeaderViewsCount()) {
-                    return;
-                }
-                extViewHolder.setText(R.id.letter_item_txt, String.valueOf(data.letter));
-                VimContactsItemAdapter itemAdapter = new VimContactsItemAdapter(
-                        ContactsAddOrDelActivity.this,
-                        data.users, mCustomContacts.get(i - getHeaderViewsCount()).letter,
-                        isSelectUser,
-                        VimChoosedContacts.get().getContacts());
-
-                itemAdapter.setOnItemClickLinstener(new VimContactsItemAdapter.OnItemClickLinstener() {
+        adapter = new LiteBaseAdapter<>(this,
+                mCustomContacts,
+                UserViewHolder.class,
+                R.layout.letter_item_layout_new,
+                new View.OnClickListener() {
                     @Override
-                    public void onClick(int position, User user) {
-                        if (stricts.contains(user)) {
-                            stricts.remove(user);
-                        } else {
-                            stricts.add(user);
-                        }
-                        mChoosedAdapter.notifyDataSetChanged();
-                        changeShowSelected();
+                    public void onClick(View v) {
+                        User user = (User) v.getTag();
 
                         if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
                             if (user.nJoinStatus != 2) {
@@ -460,27 +428,22 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
                         } else {
                             handleChoice(user);
                         }
-
+                        changeShowSelected();
                     }
-                });
-                RecyclerView recyclerView = extViewHolder.findViewById(R.id.letter_item_recycler);
-                recyclerView.setLayoutManager(new LinearLayoutManager(ContactsAddOrDelActivity.this, LinearLayoutManager.VERTICAL, false));
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setNestedScrollingEnabled(false);
-                recyclerView.setAdapter(itemAdapter);
-            }
-        };
+                }, "false");
+        UserViewHolder.mIsChoice = isSelectUser;
 
         contacts_retrieval_bar.setOnTouchingLetterChangedListener(new FastRetrievalBar.OnTouchingLetterChangedListener() {
             @Override
             public void onTouchingLetterChanged(String s) {
                 int position = -1;
-                if (mCustomContacts == null || mCustomContacts.size() <= 0) {
+                if (mCustomContacts.size() <= 0) {
                     return;
                 }
                 for (int i = 0; i < mCustomContacts.size(); i++) {
-                    if (s.equals(String.valueOf(mCustomContacts.get(i).letter))) {
+                    if (s.equals(String.valueOf(mCustomContacts.get(i).pinyin))) {
                         position = i;
+                        break;
                     }
                 }
                 if (position == -1) {
@@ -489,7 +452,7 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
                 if (position == 0) {
                     rct_view.scrollToPosition(0);
                 } else {
-                    rct_view.scrollToPosition(position + adapter.getHeaderViewsCount());
+                    rct_view.scrollToPosition(position);
                 }
             }
 
@@ -512,14 +475,18 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
             new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
                 @Override
                 public Object doOnThread() {
-                    if (null != mUserList && mUserList.size() > 0) {
-                        for (User user : mUserList) {
-                            if (TextUtils.isEmpty(user.strHeadUrl)) {
-                                user.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(user.strUserID, user.strDomainCode);
+                    try {
+                        if (null != mUserList && mUserList.size() > 0) {
+                            for (User user : mUserList) {
+                                if (TextUtils.isEmpty(user.strHeadUrl)) {
+                                    user.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(user.strUserID, user.strDomainCode);
+                                }
                             }
+                            mAllContacts.clear();
+                            mAllContacts.addAll(mUserList);
                         }
-                        mAllContacts.clear();
-                        mAllContacts.addAll(mUserList);
+                    } catch (Exception e) {
+
                     }
 
                     return "";
@@ -537,25 +504,40 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
         mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
+                if (contactData.nJoinStatus != 2) {
+                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
+                } else {
+                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
+                    mJoinNum++;
+                }
             }
         };
+        mChoosedAdapter.setDatas(VimChoosedContacts.get().getContacts());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                handleChoice(mChoosedAdapter.getDatas().get(i));
-                mChoosedAdapter.getDatas().remove(i);
-                mChoosedAdapter.notifyItemRemoved(i);
+                if (mChoosedAdapter.getDatas().get(i).strUserName.equals(AppDatas.Auth().getUserName())) {
+                    return;
+                }
+                for (User item : mCustomContacts) {
+                    if (mChoosedAdapter.getDatas().get(i).strUserName.equals(item.strUserName)) {
+                        handleChoice(item);
+                        break;
+                    }
+                }
                 changeShowSelected();
             }
         });
-        mChoosedAdapter.setDatas(stricts);
         rct_choosed.setAdapter(mChoosedAdapter);
 
     }
 
     private void changeShowSelected() {
-        if (stricts.isEmpty()) {
+        if(!isSelectUser) {
+            llChoosedPersons.setVisibility(View.GONE);
+            return;
+        }
+        if (VimChoosedContacts.get().getContacts().isEmpty()) {
             llChoosedPersons.setVisibility(View.GONE);
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
@@ -595,7 +577,7 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
      */
     void requestDatas() {
         mPage = -1;
-        ModelApis.Contacts().requestBuddyContacts(mPage, 0, 0, new ModelCallback<ContactsBean>() {
+        ModelApis.Contacts().requestBuddyContacts(mPage, 0, strGroupDomainCode, 0, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
                 new RxUtils<ArrayList<User>>()
@@ -609,7 +591,6 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
                                         userList.add(item);
                                     }
                                 }
-                                mTotalSize = userList.size();
                                 return userList;
                             }
 
@@ -633,9 +614,9 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
 
 
     protected void updateContacts() {
-        mCustomContacts = getCustomContacts(mAllContacts);
+        mCustomContacts.clear();
+        mCustomContacts.addAll(getCustomContacts(mAllContacts));
         if (mCustomContacts != null) {
-            adapter.setDatas(mCustomContacts);
             adapter.notifyDataSetChanged();
         }
     }
@@ -675,24 +656,19 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
     }
 
 
-    private ArrayList<CustomContacts.LetterStructure> getCustomContacts(ArrayList<User> data) {
+    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
             return null;
         }
-        CustomContacts customContacts = new CustomContacts();
-        customContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < 27; i++) {
-            CustomContacts.LetterStructure item = new CustomContacts.LetterStructure();
-            if (i != 26) {
-                item.letter = (char) ('A' + i);
-            } else {
-                item.letter = '#';
-            }
-            item.users = null;
-            customContacts.letterStructures.add(item);
-        }
         for (User item : data) {
             String upPinYin = "";
+            item.isSelected = false;
+            for (User temp : VimChoosedContacts.get().getContacts()) {
+                if (temp.strUserName.equals(item.strUserName)) {
+                    item.isSelected = true;
+                    break;
+                }
+            }
             if (TextUtils.isEmpty(item.strUserNamePinYin)) {
                 item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
                 upPinYin = item.strUserNamePinYin.toUpperCase();
@@ -700,33 +676,10 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
                 upPinYin = item.strUserNamePinYin.toUpperCase();
             }
             String a = "#";
-            char firstLetter = TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0);
-            int index = firstLetter - 'A';
-            if (index >= 0 && index < 26) {
-                if (customContacts.letterStructures.get(index).users == null) {
-                    customContacts.letterStructures.get(index).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(index).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(index).users.add(item);
-                }
-            } else {
-                if (customContacts.letterStructures.get(26).users == null) {
-                    customContacts.letterStructures.get(26).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(26).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(26).users.add(item);
-                }
-            }
+            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
         }
-        CustomContacts newCustomContacts = new CustomContacts();
-        newCustomContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < customContacts.letterStructures.size(); i++) {
-            if (customContacts.letterStructures.get(i).users != null &&
-                    customContacts.letterStructures.get(i).users.size() > 0) {
-                newCustomContacts.letterStructures.add(customContacts.letterStructures.get(i));
-            }
-        }
-        return newCustomContacts.letterStructures;
+
+        return data;
     }
 
     private void handleChoice(User user) {
@@ -734,14 +687,17 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
             return;
         }
         if (VimChoosedContacts.get().isContain(user)) {
+            user.isSelected = false;
             VimChoosedContacts.get().removeContacts(user);
         } else {
             if (VimChoosedContacts.get().getContacts().size() >= max + 1) {
                 showToast("最多选" + max + "人，已达人数上限");
                 return;
             }
+            user.isSelected = true;
             VimChoosedContacts.get().addContacts(user);
         }
+        mChoosedAdapter.notifyDataSetChanged();
         adapter.notifyDataSetChanged();
     }
 
@@ -749,5 +705,11 @@ public class ContactsAddOrDelActivity extends AppBaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         VimChoosedContacts.get().clear();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ContactsViewHolder.mIsChoice = isSelectUser;
     }
 }

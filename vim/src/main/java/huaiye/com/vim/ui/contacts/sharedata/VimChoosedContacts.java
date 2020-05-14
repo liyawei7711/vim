@@ -15,6 +15,9 @@ public class VimChoosedContacts {
     private ArrayList<ContacsTerminal.Data> mTerminalDevices = new ArrayList<>();
 
     public User getSelf() {
+        if(mSelf == null) {
+            initSelf();
+        }
         return mSelf;
     }
 

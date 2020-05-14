@@ -27,6 +27,7 @@ import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.ChatMessageBase;
@@ -115,7 +116,7 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
             }
         });
         rct_view.setAdapter(mGroupitemAdapter);
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
 
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

@@ -29,6 +29,7 @@ import java.util.Map;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -141,7 +142,7 @@ public class ChoosePhotoActivity extends AppBaseActivity {
                         adapter.notifyDataSetChanged();
                     }
                 }, null);
-        rv_data.setLayoutManager(new LinearLayoutManager(this));
+        rv_data.setLayoutManager(new SafeLinearLayoutManager(this));
         rv_data.setAdapter(adapter);
 
         loadData();

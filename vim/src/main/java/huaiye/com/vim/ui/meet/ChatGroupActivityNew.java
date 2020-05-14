@@ -60,6 +60,7 @@ import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.utils.ChatUtil;
 import huaiye.com.vim.common.utils.SoftKeyboardUtil;
@@ -383,6 +384,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     }
 
     private void initNavigateView(String mOtherUserName) {
+        if(TextUtils.isEmpty(mOtherUserName)) {
+            return;
+        }
         getNavigate().setVisibility(View.GONE);
         chatTitleBarTitle.setText(mOtherUserName);
         chatTitleBarVoiceChatBtn.setVisibility(View.GONE);
@@ -464,7 +468,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             }
         });
 
-        LinearLayoutManager nLinearLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager nLinearLayoutManager = new SafeLinearLayoutManager(this);
         chat_recycler.setLayoutManager(nLinearLayoutManager);
 
         chat_recycler.setAdapter(mChatContentAdapter);
@@ -1236,10 +1240,12 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(VimMessageBean obj) {
-//        if (obj.groupID.equals(mContactsBean.strGroupID) && !obj.isSend) {
+        if (obj.groupID.equals(mContactsBean.strGroupID) && !obj.isSend) {
+            addNotice("");
+            canSendMsg = false;
 //            showToast("群组已被解散");
 //            finish();
-//        }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1479,6 +1485,10 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
     @OnClick(R.id.chat_title_bar_detail_btn)
     public void onDetailClicked() {
+        if (null == mMessageUsersDate || mMessageUsersDate.size() <= 0 || !containSelf || !canSendMsg) {
+            showToast(AppUtils.getString(R.string.chat_group_not_contains_self));
+            return;
+        }
         Intent intent = new Intent(ChatGroupActivityNew.this, UserDetailActivity.class);
         intent.putParcelableArrayListExtra("mUserList", null);
         intent.putExtra("mContactsGroupUserListBean", mContactsGroupUserListBean);

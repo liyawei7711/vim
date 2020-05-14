@@ -80,12 +80,12 @@ public class ContactsApi {
     /**
      * 获取好友列表
      */
-    public void requestBuddyContacts(int page, long nDepID, int nRouteType, ModelCallback<ContactsBean> callback) {
+    public void requestBuddyContacts(int page, long nDepID, String strDomainCode, int nRouteType, ModelCallback<ContactsBean> callback) {
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_buddy_list";
 
         Https.post(URL)
                 .addHeader("Connection", "close")
-                .addParam("strDomainCode", AppDatas.Auth().getDomainCode())
+                .addParam("strDomainCode", TextUtils.isEmpty(strDomainCode) ? AppDatas.Auth().getDomainCode() : strDomainCode)
                 .addParam("nPage", page)
                 .addParam("nSize", CommonConstant.MEET_NUM)
                 .addParam("nOrderByID", 0)
@@ -161,7 +161,7 @@ public class ContactsApi {
             }
         }
 
-        if(sessionUserList.size()<=0){
+        if (sessionUserList.size() <= 0) {
             AppBaseActivity.showToast(AppUtils.getString(R.string.string_name_create_group_tip));
             return;
         }
@@ -396,7 +396,7 @@ public class ContactsApi {
     /**
      * 获取好友头像
      */
-    public void requestGetUserHead(List<ContactsGroupUserListBean.LstGroupUser> userList, ModelCallback<ContactsBean> callback){
+    public void requestGetUserHead(List<ContactsGroupUserListBean.LstGroupUser> userList, ModelCallback<ContactsBean> callback) {
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_head";
 
         Https.post(URL)
@@ -1106,7 +1106,6 @@ public class ContactsApi {
                 .build()
                 .requestAsync();
     }
-
 
 
 }

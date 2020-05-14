@@ -21,20 +21,20 @@ import com.huaiye.sdk.sdpmsgs.video.CStopMobileCaptureRsp;
 import java.io.File;
 import java.io.IOException;
 
-import huaiye.com.vim.common.AppBaseActivity;
-import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
+import static huaiye.com.vim.common.AppBaseActivity.showToast;
+
 
 public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Presenter {
 
     private VideoRecordPresenterHelper.View view;
     private Context context;
-    private boolean isForeground =false;
+    private boolean isForeground = false;
 
     public String getFilePath() {
         return mFilePath;
@@ -57,28 +57,28 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
         final Capture.Params params;
         HYClient.getSdkOptions().Capture().setCaptureOfflineMode(true);
 
-        if(localRecord){
+        if (localRecord) {
             setDefaultFilePath();
             params = Capture.Params.get()
                     .setEnableServerRecord(true)
                     .setCaptureOrientation(HYCapture.CaptureOrientation.SCREEN_ORIENTATION_PORTRAIT)
                     .setRecordPath(mFilePath)
-                    .setCameraIndex(isForeground?HYCapture.Camera.Foreground:HYCapture.Camera.Background)
+                    .setCameraIndex(isForeground ? HYCapture.Camera.Foreground : HYCapture.Camera.Background)
                     .setPreview(textureView);
-        }else{
+        } else {
             params = Capture.Params.get()
                     .setEnableServerRecord(true)
                     .setCaptureOrientation(HYCapture.CaptureOrientation.SCREEN_ORIENTATION_PORTRAIT)
-                    .setCameraIndex(isForeground?HYCapture.Camera.Foreground:HYCapture.Camera.Background)
+                    .setCameraIndex(isForeground ? HYCapture.Camera.Foreground : HYCapture.Camera.Background)
                     .setPreview(textureView);
         }
 
-        if(HYClient.getHYCapture().isCapturing()){
+        if (HYClient.getHYCapture().isCapturing()) {
             HYClient.getHYCapture().stopCapture(new SdkCallback<CStopMobileCaptureRsp>() {
                 @Override
                 public void onSuccess(CStopMobileCaptureRsp resp) {
                     // 停止采集成功
-                    startCapture(params,textureView,localRecord);
+                    startCapture(params, textureView, localRecord);
                 }
 
                 @Override
@@ -87,10 +87,12 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
                 }
 
             });
-        }else{
-            startCapture(params,textureView,localRecord);
+        } else {
+            startCapture(params, textureView, localRecord);
         }
     }
+
+    long startTime = 0;
 
     private void startCapture(Capture.Params params, TextureView textureView, boolean localRecord) {
         HYClient.getSdkOptions().Capture().setCaptureOfflineMode(false);
@@ -103,11 +105,16 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
 
                     @Override
                     public void onSuccess(CStartMobileCaptureRsp resp) {
+                        System.out.println("cccccccccccccccccccccccc 3 ");
+                        startTime = System.currentTimeMillis();
                         Logger.debug("onSuccess");
                     }
 
                     @Override
                     public void onError(ErrorInfo error) {
+                        startTime = 0;
+                        showToast("录制出错，录制时间不能小于1s");
+                        System.out.println("cccccccccccccccccccccccc 4 ");
                         Logger.debug("onError");
                     }
 
@@ -137,19 +144,25 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
     @Override
     public void stopRecordVideo() {
 
-        if(!HYClient.getHYCapture().isCapturing()){
+        if (!HYClient.getHYCapture().isCapturing()) {
             view.recordOver(mFilePath);
             return;
         }
         HYClient.getHYCapture().stopCapture(new SdkCallback<CStopMobileCaptureRsp>() {
             @Override
             public void onSuccess(CStopMobileCaptureRsp resp) {
+                long dis = System.currentTimeMillis() - startTime;
+                startTime = 0;
+                if (dis < 1000) {
+                    showToast("录制时间不能小于1s");
+                }
                 view.recordOver(mFilePath);
                 // 停止采集成功
             }
 
             @Override
             public void onError(ErrorInfo errorInfo) {
+                System.out.println("cccccccccccccccccccccccc 1");
                 // 停止采集失败
             }
 
@@ -159,8 +172,8 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
     }
 
     @Override
-    public void playLocaVideoRepeate(final TextureView ttvCapture){
-        if(!TextUtils.isEmpty(mFilePath)){
+    public void playLocaVideoRepeate(final TextureView ttvCapture) {
+        if (!TextUtils.isEmpty(mFilePath)) {
             HYClient.getHYPlayer().startPlay(Player.Params.TypeVideoOfflineRecord()
                     .setResourcePath(mFilePath)
                     .setPreview(ttvCapture)
@@ -183,7 +196,7 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
                         @Override
                         public void onVideoStatusChanged(VideoParams param, SdpMessageBase msg) {
                             super.onVideoStatusChanged(param, msg);
-                            if (msg instanceof SdkMsgNotifyPlayStatus){
+                            if (msg instanceof SdkMsgNotifyPlayStatus) {
                                 SdkMsgNotifyPlayStatus status = (SdkMsgNotifyPlayStatus) msg;
                                 if (status.isStopped()) {
                                     if (!status.isOperationFromUser()) {
@@ -199,7 +212,7 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
                         @Override
                         public void onError(VideoParams param, SdkCallback.ErrorInfo errorInfo) {
                             super.onError(param, errorInfo);
-                            AppBaseActivity.showToast(errorInfo+"");
+                            showToast(errorInfo + "");
                         }
                     }));
         }

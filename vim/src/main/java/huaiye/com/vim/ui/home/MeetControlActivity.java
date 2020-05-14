@@ -45,6 +45,7 @@ import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.dialog.LogicDialog;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
@@ -143,7 +144,7 @@ public class MeetControlActivity extends AppBaseActivity implements SdpUITask.Sd
 
     @Override
     public void doInitDelay() {
-        rct_view.setLayoutManager(new LinearLayoutManager(this));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
 
         MemberHolder.handUser.clear();
         adapter = new LiteBaseAdapter<>(this,

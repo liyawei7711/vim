@@ -290,7 +290,7 @@
             android:name=".ui.contacts.UserDetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.contacts.ContactsAddOrDelActivity"
+            android:name=".ui.contacts.ContactsAddOrDelActivityNew"
             android:screenOrientation="portrait" />
 
 
@@ -313,9 +313,6 @@
             android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name=".ui.meet.MeetDetailEditActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.contacts.ContactsFrequentActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.meet.MeetControlActivity"

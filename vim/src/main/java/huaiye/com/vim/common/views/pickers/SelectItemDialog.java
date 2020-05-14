@@ -18,6 +18,7 @@ import java.util.List;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.views.pickers.adapter.ItemHolder;
 import huaiye.com.vim.common.views.pickers.itemdivider.SimpleItemDecoration;
 
@@ -77,7 +78,7 @@ public class SelectItemDialog extends Dialog {
                 dismiss();
             }
         });
-        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv.setLayoutManager(new SafeLinearLayoutManager(getContext()));
         rv.addItemDecoration(new SimpleItemDecoration(context));
         setContentView(rootView);
         setWidthScale();

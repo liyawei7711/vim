@@ -60,6 +60,7 @@ import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.utils.BitmapResizeUtil;
 import huaiye.com.vim.dao.AppDatas;
@@ -185,7 +186,7 @@ public class MapActivity extends AppBaseActivity {
      */
     private void initView() {
         mBaiduMap = mMapView.getMap();
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new SafeLinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         mMapAdapter = new MapAdapter(this);
         //条目点击移动界面

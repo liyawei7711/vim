@@ -25,6 +25,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.ErrorMsg;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.views.CheckableLinearLayout;
 import huaiye.com.vim.ui.meet.MeetActivity;
 import huaiye.com.vim.ui.meet.MeetWatchActivity;
@@ -69,7 +70,7 @@ public class MeetMembersFragment extends AppBaseFragment {
         super.onViewCreated(view, savedInstanceState);
         getNavigate().setVisibility(View.GONE);
 
-        rct_view.setLayoutManager(new LinearLayoutManager(getContext()));
+        rct_view.setLayoutManager(new SafeLinearLayoutManager(getContext()));
         adapter = new TagsAdapter<CGetMeetingInfoRsp.UserInfo>(R.layout.item_meet_members) {
 
             @Override

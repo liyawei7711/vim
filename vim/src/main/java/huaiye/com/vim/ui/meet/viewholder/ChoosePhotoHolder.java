@@ -13,6 +13,7 @@ import butterknife.BindView;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.LiteViewHolder;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.models.meet.bean.Bean;
 import huaiye.com.vim.models.meet.bean.PhotoBean;
 
@@ -29,7 +30,7 @@ public class ChoosePhotoHolder extends LiteViewHolder {
 
     public ChoosePhotoHolder(Context context, View view, View.OnClickListener ocl) {
         super(context, view, ocl);
-        rv_images.setLayoutManager(new LinearLayoutManager(context));
+        rv_images.setLayoutManager(new SafeLinearLayoutManager(context));
         rv_images.setLayoutManager(new GridLayoutManager(context, 4));
     }
 

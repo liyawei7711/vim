@@ -1,4 +1,4 @@
-package huaiye.com.vim.ui.contacts.viewholder;
+package huaiye.com.vim.ui.home.adapter;
 
 import android.content.Context;
 import android.view.View;
@@ -19,9 +19,9 @@ import huaiye.com.vim.common.views.CheckableLinearLayout;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.User;
 
-public class UserViewHolder extends LiteViewHolder {
-    @BindView(R.id.letter_item_txt)
-    TextView letter_item_txt;
+public class ContactsViewHolder extends LiteViewHolder {
+    @BindView(R.id.tv_title)
+    TextView tv_title;
     @BindView(R.id.tv_checklayout)
     CheckableLinearLayout tv_checklayout;
     @BindView(R.id.iv_choice)
@@ -38,9 +38,11 @@ public class UserViewHolder extends LiteViewHolder {
     private RequestOptions requestOptions;
 
     private int nJoinStatus;
-    public static boolean mIsChoice;
 
-    public UserViewHolder(Context context, View view, View.OnClickListener ocl) {
+    public static boolean mIsChoice;
+    public static OnLoadMoreListener mOnLoadMoreListener;
+
+    public ContactsViewHolder(Context context, View view, View.OnClickListener ocl) {
         super(context, view, ocl);
         requestOptions = new RequestOptions();
         requestOptions.centerCrop()
@@ -57,16 +59,16 @@ public class UserViewHolder extends LiteViewHolder {
         User user = (User) data;
         itemView.setTag(user);
 
-        letter_item_txt.setText(user.pinyin);
+        tv_title.setText(user.pinyin);
         if (position > 0) {
             User last = (User) datas.get(position - 1);
             if (last.pinyin.equals(user.pinyin)) {
-                letter_item_txt.setVisibility(View.GONE);
+                tv_title.setVisibility(View.GONE);
             } else {
-                letter_item_txt.setVisibility(View.VISIBLE);
+                tv_title.setVisibility(View.VISIBLE);
             }
         } else {
-            letter_item_txt.setVisibility(View.VISIBLE);
+            tv_title.setVisibility(View.VISIBLE);
         }
         Glide.with(context)
                 .load(AppDatas.Constants().getAddressWithoutPort() + user.strHeadUrl)
@@ -74,10 +76,10 @@ public class UserViewHolder extends LiteViewHolder {
                 .into(iv_user_head);
         tv_user_name.setText(user.strUserName);
 
-        if(user.isSelected) {
+        if (user.isSelected) {
             nJoinStatus = user.nJoinStatus;
         }
-        if(nJoinStatus == 2){
+        if (nJoinStatus == 2) {
             tv_choose_added.setText("已添加");
             tv_choose_added.setVisibility(View.GONE);
             iv_choice.setVisibility(View.VISIBLE);
@@ -97,5 +99,18 @@ public class UserViewHolder extends LiteViewHolder {
 
         itemView.setOnClickListener(ocl);
 
+        if (position >= datas.size() - 1 && mOnLoadMoreListener != null) {
+            try {
+                mOnLoadMoreListener.onLoadMore();
+            } catch (Exception e) {
+
+            }
+        }
+
     }
+
+    public interface OnLoadMoreListener {
+        void onLoadMore();
+    }
+
 }

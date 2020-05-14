@@ -35,6 +35,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
+import huaiye.com.vim.BuildConfig;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
@@ -244,8 +245,10 @@ public class MainActivity extends AppBaseActivity {
         ConfigApi.get().getAllConfig(new ModelCallback<GetConfigResponse>() {
             @Override
             public void onSuccess(GetConfigResponse response) {
-                ModelApis.Auth().requestVersion(MainActivity.this, null);
-                ModelApis.Auth().uploadLog(false, AppDatas.Constants().getFileUploadUri());
+                if (!BuildConfig.DEBUG) {
+                    ModelApis.Auth().requestVersion(MainActivity.this, null);
+                    ModelApis.Auth().uploadLog(false, AppDatas.Constants().getFileUploadUri());
+                }
             }
         });
     }
@@ -451,7 +454,7 @@ public class MainActivity extends AppBaseActivity {
                 AppAuth.get().setAutoLogin(false);
                 VimChoosedContacts.get().destory();
 
-                if(errCode == -1000) {
+                if (errCode == -1000) {
                     SP.putBoolean("actived", true);
                     MessageReceiver.get().kitOutUser(false);
                     finish();

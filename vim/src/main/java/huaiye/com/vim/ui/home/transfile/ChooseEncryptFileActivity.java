@@ -27,6 +27,7 @@ import huaiye.com.vim.bus.TransMsgBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.models.meet.bean.FileBean;
 import huaiye.com.vim.neety.FileTransferServer;
 import huaiye.com.vim.ui.meet.viewholder.FileHolder;
@@ -140,7 +141,7 @@ public class ChooseEncryptFileActivity extends AppBaseActivity {
                     } else {
                     }
                 }, null);
-        rv_data.setLayoutManager(linearLayoutManager = new LinearLayoutManager(this));
+        rv_data.setLayoutManager(linearLayoutManager = new SafeLinearLayoutManager(this));
         rv_data.setAdapter(adapter);
 
         getFiles();

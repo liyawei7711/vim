@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.views.CheckableLinearLayout;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.models.ModelApis;
@@ -96,8 +97,8 @@ public class ContactsSearchActivity extends AppBaseActivity {
             }
         });
 
-        rcv_list.setLayoutManager(new LinearLayoutManager(this));
-        rct_choosed.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rcv_list.setLayoutManager(new SafeLinearLayoutManager(this));
+        rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         adapter = new TagsAdapter<CommonContacts.Data>(R.layout.item_contacts_person) {
             {
