@@ -3006,90 +3006,83 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void deleByChatMessageBase(ChatMessageBase data) {
         if (null != mDataList) {
-            new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-                @Override
-                public Object doOnThread() {
+            int index = -1;
+            ChatMessageBase mdata = null;
+            for (ChatMessageBase ndata : mDataList) {
+                index++;
+                if (ndata.msgID.equals(data.msgID) ||
+                        ndata.id == data.id) {
+                    mdata = ndata;
+                    break;
+                }
+            }
+            if (null != mdata) {
+                if (isGroup) {
+                    AppDatas.MsgDB()
+                            .chatGroupMsgDao()
+                            .deleteBySessionIDAndId(data.sessionID, data.id);
+                    AppDatas.MsgDB()
+                            .chatGroupMsgDao()
+                            .deletByMsgID(data.sessionID, data.msgID);
+                } else {
+                    AppDatas.MsgDB()
+                            .chatSingleMsgDao()
+                            .deleteBySessionIDAndId(data.sessionID, data.id);
+                    AppDatas.MsgDB()
+                            .chatSingleMsgDao()
+                            .deletByMsgID(data.sessionID, data.msgID);
+                }
+            }
 
-                    int index = -1;
-
-                    ChatMessageBase mdata = null;
-
-                    for (ChatMessageBase ndata : mDataList) {
-                        index++;
-                        if (ndata.msgID.equals(data.msgID)) {
-                            mdata = ndata;
-                            break;
-                        }
+            if (index != mDataList.size() - 1) {
+                mDataList.remove(index);
+                notifyDataSetChanged();
+                return;
+            }
+            mDataList.remove(index);
+            notifyDataSetChanged();
+            VimMessageListMessages.get().clearMessage(data.sessionID);
+            String str = "";
+            boolean isDeal = false;
+            boolean isFile = false;
+            if (index > 0) {
+                isDeal = true;
+                if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
+                    str = mDataList.get(index - 1).msgTxt;
+                    if (mDataList.get(index - 1).bEncrypt == 1) {
+                        mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
                     }
-                    if (null != mdata) {
-                        if (isGroup) {
-                            AppDatas.MsgDB()
-                                    .chatGroupMsgDao()
-                                    .deleteBySessionIDAndId(mdata.sessionID, mdata.id);
-                            AppDatas.MsgDB()
-                                    .chatGroupMsgDao()
-                                    .deletByMsgID(mdata.sessionID, mdata.msgID);
-
-                        } else {
-                            AppDatas.MsgDB()
-                                    .chatSingleMsgDao()
-                                    .deleteBySessionIDAndId(mdata.sessionID, mdata.id);
-                            AppDatas.MsgDB()
-                                    .chatSingleMsgDao()
-                                    .deletByMsgID(mdata.sessionID, mdata.msgID);
-                        }
-                    }
-
-                    if (index != mDataList.size() - 1) {
-                        mDataList.remove(mdata);
-                        return "";
-                    }
-                    mDataList.remove(mdata);
-                    VimMessageListMessages.get().clearMessage(data.sessionID);
-                    String str = "";
-                    boolean isDeal = false;
-                    boolean isFile = false;
-                    if (index > 0) {
-                        isDeal = true;
-                        if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
-                            str = mDataList.get(index - 1).msgTxt;
+                } else {
+                    if (TextUtils.isEmpty(mDataList.get(index - 1).fileUrl)) {
+                        isFile = false;
+                        str = mDataList.get(index - 1).msgTxt;
+                        if (mDataList.get(index - 1).bEncrypt == 1) {
                             mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
-                        } else {
-                            if (TextUtils.isEmpty(mDataList.get(index - 1).fileUrl)) {
-                                isFile = false;
-                                str = mDataList.get(index - 1).msgTxt;
-                                mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
-                            } else {
-                                isFile = true;
-                                str = mDataList.get(index - 1).fileUrl;
-                                mDataList.get(index - 1).fileUrl = mDataList.get(index - 1).mStrEncrypt;
-                            }
                         }
-                        mDataList.get(index - 1).sessionUserList = mMessageUsersDate;
-                        VimMessageBean bean = VimMessageBean.from(mDataList.get(index - 1));
-                        ChatUtil.get().saveChangeMsg(bean);
-                    }
-
-                    if (isDeal) {
-                        if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
-                            mDataList.get(index - 1).msgTxt = str;
-                        } else {
-                            if (isFile) {
-                                mDataList.get(index - 1).fileUrl = str;
-                            } else {
-                                mDataList.get(index - 1).msgTxt = str;
-                            }
+                    } else {
+                        isFile = true;
+                        str = mDataList.get(index - 1).fileUrl;
+                        if (mDataList.get(index - 1).bEncrypt == 1) {
+                            mDataList.get(index - 1).fileUrl = mDataList.get(index - 1).mStrEncrypt;
                         }
                     }
-
-                    return "";
                 }
+                mDataList.get(index - 1).sessionUserList = mMessageUsersDate;
+                VimMessageBean bean = VimMessageBean.from(mDataList.get(index - 1));
+                ChatUtil.get().saveChangeMsg(bean);
+            }
 
-                @Override
-                public void doOnMain(Object data) {
-                    notifyDataSetChanged();
+            if (isDeal && mDataList.get(index - 1).bEncrypt == 1) {
+                if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
+                    mDataList.get(index - 1).msgTxt = str;
+                } else {
+                    if (isFile) {
+                        mDataList.get(index - 1).fileUrl = str;
+                    } else {
+                        mDataList.get(index - 1).msgTxt = str;
+                    }
                 }
-            });
+            }
         }
 
     }

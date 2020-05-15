@@ -434,7 +434,7 @@ public class MessageReceiver {
                 case AppUtils.MESSAGE_TYPE_FILE:
                 case AppUtils.MESSAGE_TYPE_VIDEO_FILE:
                 case AppUtils.MESSAGE_TYPE_AUDIO_FILE:
-                case AppUtils.MESSAGE_TYPE_GROUP_MEET:
+//                case AppUtils.MESSAGE_TYPE_GROUP_MEET:
                 case AppUtils.MESSAGE_TYPE_ADDRESS:
                 case AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE:
                 case AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO:
