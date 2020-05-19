@@ -546,6 +546,8 @@ public class MessageReceiver {
                         sessionID = groupDealAddMessage.getStrGroupDomainCode() + groupDealAddMessage.getStrGroupID();
                         groupID = groupDealAddMessage.getStrGroupID();
                         groupDomain = groupDealAddMessage.getStrGroupDomainCode();
+                        me.setGroupDomain(groupDomain);
+                        me.setGroupId(groupID);
                         if (ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()) != null) {
                             sessionName = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()).strGroupName;
                         } else {
@@ -567,6 +569,8 @@ public class MessageReceiver {
                         sessionID = groupDealAddMessage.getStrGroupDomainCode() + groupDealAddMessage.getStrGroupID();
                         groupID = groupDealAddMessage.getStrGroupID();
                         groupDomain = groupDealAddMessage.getStrGroupDomainCode();
+                        me.setGroupDomain(groupDomain);
+                        me.setGroupId(groupID);
                         if (ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()) != null) {
                             sessionName = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupDealAddMessage.getStrGroupID()).strGroupName;
                         } else {
@@ -583,6 +587,8 @@ public class MessageReceiver {
                             sessionName = "";
                         }
                         groupDomain = groupDealMessage.getStrGroupDomainCode();
+                        me.setGroupDomain(groupDomain);
+                        me.setGroupId(groupID);
                         StringBuilder str = new StringBuilder();
                         for (GroupDealMessage.LstOutUserBean temp : groupDealMessage.getLstOutUser()) {
                             str.append(temp.strUserName + ",");
@@ -901,6 +907,8 @@ public class MessageReceiver {
                 groupInfo.strGroupID = currentContactsGroupUserListBean.strGroupID;
                 groupInfo.strGroupName = currentContactsGroupUserListBean.strGroupName;
                 groupInfo.strHeadUrl = currentContactsGroupUserListBean.strHeadUrl;
+                event.setGroupDomain(groupInfo.strGroupDomainCode);
+                event.setGroupId(groupInfo.strGroupID);
                 AppDatas.MsgDB().getGroupListDao().insert(groupInfo);
                 ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(currentContactsGroupUserListBean.strGroupID + "", currentContactsGroupUserListBean);
                 addGroupNotice(event.argStr1, groupInfo.strGroupDomainCode + groupInfo.strGroupID, groupInfo.strGroupID, groupInfo.strGroupDomainCode, groupInfo.strGroupName);

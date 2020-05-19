@@ -2985,14 +2985,17 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 mDataList.get(index - 1).sessionUserList = mMessageUsersDate;
                 if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
                     str = mDataList.get(index - 1).msgTxt;
-                    mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
+                    mDataList.get(index - 1).msgTxt =  TextUtils.isEmpty(mDataList.get(index - 1).mStrEncrypt) ?
+                            mDataList.get(index - 1).msgTxt : mDataList.get(index - 1).mStrEncrypt;
                 } else {
                     if (TextUtils.isEmpty(mDataList.get(index - 1).fileUrl)) {
                         str = mDataList.get(index - 1).msgTxt;
-                        mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
+                        mDataList.get(index - 1).msgTxt =  TextUtils.isEmpty(mDataList.get(index - 1).mStrEncrypt) ?
+                                mDataList.get(index - 1).msgTxt : mDataList.get(index - 1).mStrEncrypt;
                     } else {
                         str = mDataList.get(index - 1).fileUrl;
-                        mDataList.get(index - 1).fileUrl = mDataList.get(index - 1).mStrEncrypt;
+                        mDataList.get(index - 1).fileUrl = TextUtils.isEmpty(mDataList.get(index - 1).mStrEncrypt) ?
+                                mDataList.get(index - 1).fileUrl : mDataList.get(index - 1).mStrEncrypt;
                     }
                 }
                 VimMessageBean bean = VimMessageBean.from(mDataList.get(index - 1));
@@ -3063,20 +3066,23 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 if (mDataList.get(index - 1).type == AppUtils.MESSAGE_TYPE_ADDRESS) {
                     str = mDataList.get(index - 1).msgTxt;
                     if (mDataList.get(index - 1).bEncrypt == 1) {
-                        mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
+                        mDataList.get(index - 1).msgTxt =  TextUtils.isEmpty(mDataList.get(index - 1).mStrEncrypt) ?
+                                mDataList.get(index - 1).msgTxt : mDataList.get(index - 1).mStrEncrypt;
                     }
                 } else {
                     if (TextUtils.isEmpty(mDataList.get(index - 1).fileUrl)) {
                         isFile = false;
                         str = mDataList.get(index - 1).msgTxt;
                         if (mDataList.get(index - 1).bEncrypt == 1) {
-                            mDataList.get(index - 1).msgTxt = mDataList.get(index - 1).mStrEncrypt;
+                            mDataList.get(index - 1).msgTxt =  TextUtils.isEmpty(mDataList.get(index - 1).mStrEncrypt) ?
+                                    mDataList.get(index - 1).msgTxt : mDataList.get(index - 1).mStrEncrypt;
                         }
                     } else {
                         isFile = true;
                         str = mDataList.get(index - 1).fileUrl;
                         if (mDataList.get(index - 1).bEncrypt == 1) {
-                            mDataList.get(index - 1).fileUrl = mDataList.get(index - 1).mStrEncrypt;
+                            mDataList.get(index - 1).fileUrl =  TextUtils.isEmpty(mDataList.get(index - 1).mStrEncrypt) ?
+                                    mDataList.get(index - 1).fileUrl : mDataList.get(index - 1).mStrEncrypt;
                         }
                     }
                 }

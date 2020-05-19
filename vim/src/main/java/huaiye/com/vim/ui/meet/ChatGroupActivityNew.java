@@ -1250,6 +1250,12 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             case AppUtils.EVENT_REFRESH_GROUP_DETAIL:
             case AppUtils.EVENT_ADD_PEOPLE_TO_GROUP_SUCCESS://add
             case AppUtils.EVENT_KICKOUT_PEOPLE_TO_SUCCESS://kickout
+                if(!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                    return;
+                }
+                if(!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                    return;
+                }
                 if (AppUtils.EVENT_REFRESH_GROUP_DETAIL == messageEvent.what) {
                     addNotice(messageEvent.msgContent);
                 }
@@ -1257,6 +1263,12 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 break;
             case AppUtils.EVENT_DEL_GROUP_SUCCESS://解散群
             case AppUtils.EVENT_LEAVE_GROUP_SUCCESS://退群
+                if(!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                    return;
+                }
+                if(!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                    return;
+                }
                 if (messageEvent.what == AppUtils.EVENT_DEL_GROUP_SUCCESS) {
                     addNotice(getString(R.string.send_notice4));
                 } else {
