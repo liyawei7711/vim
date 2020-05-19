@@ -1232,7 +1232,20 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 AppBaseActivity.showToast("信息尚未解密");
                 return;
             }
-
+            if (data.read == 1) {
+                AppBaseActivity.showToast("该信息已阅读");
+                return;
+            }
+            data.read = 1;
+            if (isGroup) {
+                AppDatas.MsgDB()
+                        .chatGroupMsgDao()
+                        .updateReadWithMsgID(strGroupID, data.msgID);
+            } else {
+                AppDatas.MsgDB()
+                        .chatSingleMsgDao()
+                        .updateReadWithMsgID(data.fromUserId, AppAuth.get().getUserID(), data.msgID);
+            }
             switch (data.type) {
                 case AppUtils.MESSAGE_TYPE_TEXT:
                     Intent intentText = new Intent(mContext, YueHouJiFengTextActivity.class);
