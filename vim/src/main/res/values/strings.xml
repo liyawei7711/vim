@@ -907,6 +907,7 @@
 	<string name="notice_txt_12">Server is not turned on</string>
 	<string name="notice_txt_13">Transferring...</string>
 	<string name="notice_txt_14">Transmission complete</string>
+	<string name="notice_txt_15">This information has been read</string>
 
 	<string name="share_txt_1">Sharing failure</string>
 	<string name="share_txt_2">Share success</string>

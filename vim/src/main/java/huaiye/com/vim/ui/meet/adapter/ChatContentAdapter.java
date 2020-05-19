@@ -1229,11 +1229,11 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         @Override
         public void onClick(View v) {
             if (data.bEncrypt == 1 && !data.isUnEncrypt) {
-                AppBaseActivity.showToast("信息尚未解密");
+                AppBaseActivity.showToast(getString(R.string.notice_txt_10));
                 return;
             }
             if (data.read == 1) {
-                AppBaseActivity.showToast("该信息已阅读");
+                AppBaseActivity.showToast(getString(R.string.notice_txt_15));
                 return;
             }
             data.read = 1;

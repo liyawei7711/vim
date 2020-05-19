@@ -903,6 +903,11 @@
 	<string name="notice_txt_8">Gesture password error</string>
 	<string name="notice_txt_9">Encryption is not turned on, unable to send</string>
 	<string name="notice_txt_10">Information has not been decrypted</string>
+	<string name="notice_txt_11">File transfer</string>
+	<string name="notice_txt_12">Server is not turned on</string>
+	<string name="notice_txt_13">Transferring...</string>
+	<string name="notice_txt_14">Transmission complete</string>
+	<string name="notice_txt_15">This information has been read</string>
 
 	<string name="share_txt_1">Sharing failure</string>
 	<string name="share_txt_2">Share success</string>
