@@ -11,8 +11,16 @@ public class MessageEvent implements Serializable {
     public String argStr1;
     public Object obj1;
     public Object obj2;
+    public String groupId;
+    public String groupDomain;
 
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
+    public void setGroupDomain(String groupDomain) {
+        this.groupDomain = groupDomain;
+    }
 
     public MessageEvent(int what) {
         this.what = what;
