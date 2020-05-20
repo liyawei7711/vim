@@ -92,6 +92,7 @@ public class MainSettingsActivity extends AppBaseActivity {
 
     private CustomTipDialog mCustomTipDialogl;
     private CustomTipDialog mCustomTipDialog2;
+    private CustomTipDialog mCustomTipDialog3;
     private boolean isSOS;
 
     @Override
@@ -278,8 +279,7 @@ public class MainSettingsActivity extends AppBaseActivity {
                 @Override
                 public void onClickedRightFunction() {
                     mCustomTipDialogl.dismiss();
-                    securityLogout();
-
+                    showLogOutDialog2();
                 }
             });
             mCustomTipDialogl.setLeftFunctionText(AppUtils.getString(R.string.logout_security_dialog_left));
@@ -288,6 +288,28 @@ public class MainSettingsActivity extends AppBaseActivity {
         }
         mCustomTipDialogl.show();
     }
+
+    private void showLogOutDialog2() {
+        if (null == mCustomTipDialog3) {
+            mCustomTipDialog3 = new CustomTipDialog(this, getString(R.string.logout_security2));
+            mCustomTipDialog3.setOnFunctionClickedListener(new CustomTipDialog.IFunctionClickedListener() {
+                @Override
+                public void onClickedLeftFunction() {
+                    mCustomTipDialog3.dismiss();
+                }
+
+                @Override
+                public void onClickedRightFunction() {
+                    mCustomTipDialog3.dismiss();
+                    securityLogout();
+                }
+            });
+            mCustomTipDialog3.setLeftFunctionText(AppUtils.getString(R.string.cancel));
+            mCustomTipDialog3.setRightFunctionText(AppUtils.getString(R.string.confirm));
+        }
+        mCustomTipDialog3.show();
+    }
+
 
     private void showLogoutDestoryDialog() {
         if (null == mCustomTipDialog2) {
