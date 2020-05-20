@@ -342,6 +342,7 @@
     <string name="meet_diaodu_ing">正在会议...</string>
     <string name="video_diaodu_ing">正在视频...</string>
     <string name="logout_security">是否选择安全退出?\n\n安全退出将删除所有本地缓存内容以及记录!</string>
+    <string name="logout_security2">安全退出将会清理所有缓存的用户数据!</string>
     <string name="logout_security_dialog_left">普通退出</string>
     <string name="logout_security_dialog_right">安全退出</string>
 

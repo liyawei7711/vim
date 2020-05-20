@@ -96,6 +96,7 @@ public class FragmentSettings extends AppBaseFragment {
 
     private CustomTipDialog mCustomTipDialogl;
     private CustomTipDialog mCustomTipDialog2;
+    private CustomTipDialog mCustomTipDialog3;
     private boolean isSOS;
 
     @Override
@@ -295,8 +296,7 @@ public class FragmentSettings extends AppBaseFragment {
                 @Override
                 public void onClickedRightFunction() {
                     mCustomTipDialogl.dismiss();
-                    clearData(true);
-
+                    showLogOutDialog2();
                 }
             });
             mCustomTipDialogl.setLeftFunctionText(AppUtils.getString(R.string.logout_security_dialog_left));
@@ -304,6 +304,27 @@ public class FragmentSettings extends AppBaseFragment {
 
         }
         mCustomTipDialogl.show();
+    }
+
+    private void showLogOutDialog2() {
+        if (null == mCustomTipDialog3) {
+            mCustomTipDialog3 = new CustomTipDialog(getContext(), AppUtils.getString(R.string.logout_security2));
+            mCustomTipDialog3.setOnFunctionClickedListener(new CustomTipDialog.IFunctionClickedListener() {
+                @Override
+                public void onClickedLeftFunction() {
+                    mCustomTipDialog3.dismiss();
+                }
+
+                @Override
+                public void onClickedRightFunction() {
+                    mCustomTipDialog3.dismiss();
+                    clearData(true);
+                }
+            });
+            mCustomTipDialog3.setLeftFunctionText(AppUtils.getString(R.string.cancel));
+            mCustomTipDialog3.setRightFunctionText(AppUtils.getString(R.string.confirm));
+        }
+        mCustomTipDialog3.show();
     }
 
     private void showLogoutDestoryDialog() {
