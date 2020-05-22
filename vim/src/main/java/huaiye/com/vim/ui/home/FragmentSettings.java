@@ -290,17 +290,17 @@ public class FragmentSettings extends AppBaseFragment {
                 @Override
                 public void onClickedLeftFunction() {
                     mCustomTipDialogl.dismiss();
-                    customLogout();
+                    showLogOutDialog2();
                 }
 
                 @Override
                 public void onClickedRightFunction() {
                     mCustomTipDialogl.dismiss();
-                    showLogOutDialog2();
+                    customLogout();
                 }
             });
-            mCustomTipDialogl.setLeftFunctionText(AppUtils.getString(R.string.logout_security_dialog_left));
-            mCustomTipDialogl.setRightFunctionText(AppUtils.getString(R.string.logout_security_dialog_right));
+            mCustomTipDialogl.setRightFunctionText(AppUtils.getString(R.string.logout_security_dialog_left));
+            mCustomTipDialogl.setLeftFunctionText(AppUtils.getString(R.string.logout_security_dialog_right));
 
         }
         mCustomTipDialogl.show();
@@ -313,16 +313,16 @@ public class FragmentSettings extends AppBaseFragment {
                 @Override
                 public void onClickedLeftFunction() {
                     mCustomTipDialog3.dismiss();
+                    clearData(true);
                 }
 
                 @Override
                 public void onClickedRightFunction() {
                     mCustomTipDialog3.dismiss();
-                    clearData(true);
                 }
             });
-            mCustomTipDialog3.setLeftFunctionText(AppUtils.getString(R.string.cancel));
-            mCustomTipDialog3.setRightFunctionText(AppUtils.getString(R.string.confirm));
+            mCustomTipDialog3.setRightFunctionText(AppUtils.getString(R.string.cancel));
+            mCustomTipDialog3.setLeftFunctionText(AppUtils.getString(R.string.confirm));
         }
         mCustomTipDialog3.show();
     }
