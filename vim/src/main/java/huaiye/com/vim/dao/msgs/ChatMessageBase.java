@@ -96,6 +96,8 @@ public class ChatMessageBase implements Serializable {
     public String mStrEncrypt;
 
     @Ignore
+    public boolean isSelected;
+    @Ignore
     public int downloadState = AppUtils.CHAT_DOWNLOAD_FILE_STATE_UNDOWNLOAD;//0未下载 1下载中 2已下载
 
     @Ignore
