@@ -660,7 +660,10 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 //                        VimMessageListMessages.get().del(strGroupDomainCode + strGroupID);
                         addGroupNotice(getString(R.string.send_notice5), sessionID, strGroupID, strGroupName);
                         EventBus.getDefault().post(new VimMessageBean());
-                        EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_LEAVE_GROUP_SUCCESS));
+                        MessageEvent me = new MessageEvent(AppUtils.EVENT_LEAVE_GROUP_SUCCESS);
+                        me.setGroupDomain(strGroupDomainCode);
+                        me.setGroupId(strGroupID);
+                        EventBus.getDefault().post(me);
                         finish();
                     }
                 });
@@ -687,7 +690,10 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                     @Override
                     public void run() {
                         addGroupNotice(getString(R.string.send_notice4), sessionID, strGroupID, strGroupName);
-                        EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_DEL_GROUP_SUCCESS));
+                        MessageEvent me = new MessageEvent(AppUtils.EVENT_DEL_GROUP_SUCCESS);
+                        me.setGroupDomain(strGroupDomainCode);
+                        me.setGroupId(strGroupID);
+                        EventBus.getDefault().post(me);
                         finish();
                     }
                 });

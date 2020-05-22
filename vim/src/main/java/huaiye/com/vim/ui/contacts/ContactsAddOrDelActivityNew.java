@@ -227,6 +227,8 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
             str.append(temp.strUserName + ",");
         }
         MessageEvent event = new MessageEvent(AppUtils.EVENT_KICKOUT_PEOPLE_TO_SUCCESS);
+        event.setGroupDomain(strGroupDomainCode);
+        event.setGroupId(strGroupID);
         event.msgContent = str.toString().substring(0, str.length() - 1);
         EventBus.getDefault().post(event);
         finish();
@@ -298,6 +300,8 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
             str.append(temp.strUserName + ",");
         }
         MessageEvent event = new MessageEvent(AppUtils.EVENT_ADD_PEOPLE_TO_GROUP_SUCCESS);
+        event.setGroupDomain(strGroupDomainCode);
+        event.setGroupId(strGroupID);
         event.msgContent = str.toString().substring(0, str.length() - 1);
         EventBus.getDefault().post(event);
         showToast(getString(R.string.group_notice8));
