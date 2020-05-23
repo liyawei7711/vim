@@ -17,6 +17,7 @@ public class FileBean {
     public String parent;
     public String mapKey;
     public int has_sd_card;
+    public boolean isPC;
     public boolean isFile;
     public boolean isChecked;
 }

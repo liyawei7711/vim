@@ -55,6 +55,7 @@ import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
+import huaiye.com.vim.bus.StartTransModelBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
@@ -146,6 +147,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     ImageView chatTitleBarDetailBtn;
     @BindView(R.id.chat_title_bar)
     LinearLayout chatTitleBar;
+    @BindView(R.id.tv_send_trans)
+    View tv_send_trans;
 
     @BindExtra
     String from;
@@ -904,6 +907,12 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         ChatSingleActivity.this.startActivity(intent);
     }
 
+    @OnClick(R.id.tv_send_trans)
+    public void onSendFile() {
+        tv_send_trans.setVisibility(View.GONE);
+        mChatContentAdapter.sendFile();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1172,6 +1181,24 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 break;
             default:
                 break;
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(StartTransModelBean bean) {
+        if(bean.canSelected) {
+            tv_send_trans.setVisibility(View.VISIBLE);
+        } else {
+            tv_send_trans.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(tv_send_trans.getVisibility() == View.VISIBLE) {
+            mChatContentAdapter.changeSelectedModel(false);
+        } else {
+            super.onBackPressed();
         }
     }
 

@@ -55,6 +55,7 @@ import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
+import huaiye.com.vim.bus.StartTransModelBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
@@ -151,6 +152,8 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     ImageView chatTitleBarDetailBtn;
     @BindView(R.id.chat_title_bar)
     LinearLayout chatTitleBar;
+    @BindView(R.id.tv_send_trans)
+    View tv_send_trans;
 
     @BindExtra
     String from;
@@ -384,7 +387,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     }
 
     private void initNavigateView(String mOtherUserName) {
-        if(TextUtils.isEmpty(mOtherUserName)) {
+        if (TextUtils.isEmpty(mOtherUserName)) {
             return;
         }
         getNavigate().setVisibility(View.GONE);
@@ -1063,6 +1066,12 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         startActivity(intent);
     }
 
+    @OnClick(R.id.tv_send_trans)
+    public void onSendFile() {
+        tv_send_trans.setVisibility(View.GONE);
+        mChatContentAdapter.sendFile();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1255,10 +1264,10 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             case AppUtils.EVENT_REFRESH_GROUP_DETAIL:
             case AppUtils.EVENT_ADD_PEOPLE_TO_GROUP_SUCCESS://add
             case AppUtils.EVENT_KICKOUT_PEOPLE_TO_SUCCESS://kickout
-                if(!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                if (!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
                     return;
                 }
-                if(!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                if (!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
                     return;
                 }
                 if (AppUtils.EVENT_REFRESH_GROUP_DETAIL == messageEvent.what) {
@@ -1268,10 +1277,10 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 break;
             case AppUtils.EVENT_DEL_GROUP_SUCCESS://解散群
             case AppUtils.EVENT_LEAVE_GROUP_SUCCESS://退群
-                if(!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                if (!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
                     return;
                 }
-                if(!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                if (!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
                     return;
                 }
                 if (messageEvent.what == AppUtils.EVENT_DEL_GROUP_SUCCESS) {
@@ -1365,6 +1374,24 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
     private void addNotice(String notice) {
         loadMore();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(StartTransModelBean bean) {
+        if (bean.canSelected) {
+            tv_send_trans.setVisibility(View.VISIBLE);
+        } else {
+            tv_send_trans.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (tv_send_trans.getVisibility() == View.VISIBLE) {
+            mChatContentAdapter.changeSelectedModel(false);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override

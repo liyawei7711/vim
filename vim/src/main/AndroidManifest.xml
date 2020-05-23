@@ -219,6 +219,10 @@
             android:name=".ui.home.transfile.ChooseEncryptFileActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".ui.home.transfile.ChuanShuShowActivity"
+            android:screenOrientation="portrait" />
+
 
         <activity
             android:name=".ui.meet.NickJoinMeetActivity"

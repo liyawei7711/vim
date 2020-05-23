@@ -19,6 +19,7 @@ import android.widget.RadioGroup;
 import com.huaiye.cmf.sdp.SdpMessageCmCtrlReq;
 import com.huaiye.cmf.sdp.SdpMessageCmCtrlRsp;
 import com.huaiye.cmf.sdp.SdpMessageCmInitRsp;
+import com.huaiye.cmf.sdp.SdpMessageCmProcessIMRsp;
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.core.SdkCallback;
 import com.huaiye.sdk.sdkabi._api.ApiAuth;
@@ -33,15 +34,20 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import huaiye.com.vim.BuildConfig;
+import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.bus.NewMessageNum;
 import huaiye.com.vim.bus.ReafBean;
 import huaiye.com.vim.bus.SimpleViewBean;
+import huaiye.com.vim.bus.StartTransFileBean;
+import huaiye.com.vim.bus.StartTransRefBean;
+import huaiye.com.vim.bus.TransMsgBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.AppUtils;
@@ -60,6 +66,8 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.AuthApi;
 import huaiye.com.vim.models.config.ConfigApi;
 import huaiye.com.vim.models.config.bean.GetConfigResponse;
+import huaiye.com.vim.models.meet.bean.FileBean;
+import huaiye.com.vim.neety.FileTransferServer;
 import huaiye.com.vim.push.MessageReceiver;
 import huaiye.com.vim.services.MusicService;
 import huaiye.com.vim.ui.Capture.CaptureGuanMoOrPushActivity;
@@ -112,6 +120,8 @@ public class MainActivity extends AppBaseActivity {
 
     Bundle savedInstanceState;
     private LocationService locationService;
+
+    ArrayList<FileBean> temps = new ArrayList<>();//待发送数据
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -196,6 +206,18 @@ public class MainActivity extends AppBaseActivity {
             intent.setClass(getSelf(), ShareChooseActivity.class);
             startActivity(intent);
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FileTransferServer.get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
     private void clearSafe() {
@@ -434,6 +456,117 @@ public class MainActivity extends AppBaseActivity {
             SP.putBoolean("actived", false);
             showExitWarning(bean.arg0, "设备已解绑，服务不可用，请退出");
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(TransMsgBean bean) {
+        switch (bean.type) {
+            case 1:
+                String devId = bean.devId;
+                String pwd = bean.pwd;
+                HYClient.getModule(ApiEncrypt.class)
+                        .encryptVerifyExternPwd(SdkParamsCenter.Encrypt.EncryptVerifyExternPwd()
+                                        .setDevId(devId)
+                                        .setPwd(pwd),
+                                new SdkCallback<SdpMessageCmCtrlRsp>() {
+                                    @Override
+                                    public void onSuccess(SdpMessageCmCtrlRsp resp) {
+                                        FileTransferServer.get().sendResponse(0x00);
+                                    }
+
+                                    @Override
+                                    public void onError(ErrorInfo error) {
+                                        FileTransferServer.get().sendResponse(0x01);
+                                    }
+                                });
+                break;
+            case 2:
+                break;
+            case 3:
+                if (bean.file != null) {
+                    AppUtils.initFile(this);
+                    File file = bean.file;
+                    File fileNew = new File(AppUtils.fC_BEANDI + "/" + "PC_" + file.getName());
+                    EncryptUtil.localEncryptFile(file.getAbsolutePath(),
+                            fileNew.getAbsolutePath(),
+                            true,
+                            new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                                @Override
+                                public void onSuccess(SdpMessageCmProcessIMRsp resp) {
+                                    showToast("文件已加密保存");
+                                    EventBus.getDefault().post(new StartTransRefBean());
+                                }
+
+                                @Override
+                                public void onError(SdkCallback.ErrorInfo sessionRsp) {
+                                    showToast("文件加密失败");
+                                }
+                            }
+                    );
+                } else {
+                    if (TextUtils.isEmpty(bean.fanKui)) {
+                        showToast(bean.fanKui);
+                        FileBean fileBean = temps.get(0);
+                        temps.remove(0);
+                        doChuanShu(fileBean);
+                        return;
+                    }
+                    if (temps.isEmpty()) {
+                        showToast("传输完成");
+                        EventBus.getDefault().post(new StartTransRefBean());
+                        return;
+                    }
+                    FileBean fileBean = temps.get(0);
+                    temps.remove(0);
+                    doChuanShu(fileBean);
+                }
+                break;
+        }
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(StartTransFileBean allData) {
+        if (!allData.allData.isEmpty()) {
+            temps.addAll(allData.allData);
+        }
+
+        if (temps.isEmpty()) {
+            finish();
+        } else {
+            FileBean bean = temps.get(0);
+            temps.remove(0);
+            doChuanShu(bean);
+        }
+    }
+
+    private void doChuanShu(FileBean temp) {
+
+        if (!FileTransferServer.get().isConnected()) {
+            showToast("服务器尚未开启");
+            return;
+        }
+        temp.isChecked = false;
+//        mZeusLoadView.loadingText("正在传输").setLoading();
+        showToast("正在传输");
+
+        AppUtils.initFile(this);
+
+        String linshi = EncryptUtil.getNewFileChuanShu(temp.path, AppUtils.fC_LINSHI);
+        EncryptUtil.localEncryptFile(temp.path, linshi, false,
+                new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    @Override
+                    public void onSuccess(SdpMessageCmProcessIMRsp resp) {
+                        FileTransferServer.get().sendFile(new File(resp.m_strData));
+                    }
+
+                    @Override
+                    public void onError(SdkCallback.ErrorInfo sessionRsp) {
+                        showToast("文件解密失败");
+                        onEvent(new TransMsgBean(3, "error"));
+                    }
+                }
+        );
     }
 
     protected void showExitWarning(int errCode, String str) {

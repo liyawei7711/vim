@@ -65,6 +65,7 @@ import huaiye.com.vim.ui.auth.StartActivity;
 import huaiye.com.vim.ui.chat.dialog.CustomTipDialog;
 import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
 import huaiye.com.vim.ui.home.transfile.ChooseEncryptFileActivity;
+import huaiye.com.vim.ui.home.transfile.ChuanShuShowActivity;
 import huaiye.com.vim.ui.setting.ModifyHeadPicActivity;
 import huaiye.com.vim.ui.setting.SettingActivity;
 
@@ -225,7 +226,7 @@ public class FragmentSettings extends AppBaseFragment {
     void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.view_trans_file:
-                startActivity(new Intent(getActivity(), ChooseEncryptFileActivity.class));
+                startActivity(new Intent(getActivity(), ChuanShuShowActivity.class));
                 break;
             case R.id.view_logout:
                 showLogoutDialog();

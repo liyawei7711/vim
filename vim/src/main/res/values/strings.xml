@@ -257,6 +257,8 @@
     <string name="user_detail_perple">人</string>
     <string name="user_detail_del_perple">删除</string>
     <string name="user_detail_zhuanfa_perple">转发</string>
+    <string name="user_detail_tans">传输</string>
+    <string name="user_detail_duoxuan">多选</string>
     <string name="my_detail_voice_set">使用听筒播放语音</string>
     <string name="my_detail_change_password">修改密码</string>
     <string name="request_loading">正在加载,请稍后</string>

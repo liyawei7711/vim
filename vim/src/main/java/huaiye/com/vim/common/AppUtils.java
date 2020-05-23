@@ -236,6 +236,33 @@ public final class AppUtils {
 
     public static String audiovideoPath = Environment.getExternalStorageDirectory() + "/Android/data/" + BuildConfig.APPLICATION_ID + "/audiovideo";
 
+    public static File fC_CHUAN_SHU;
+    public static File fC_BEANDI;
+    public static File fC_MINGWEN;
+    public static File fC_LINSHI;
+
+    public static void initFile(Context context) {
+        AppUtils.fC_CHUAN_SHU = new File(context.getExternalFilesDir(null) + File.separator + "Vim/chat/chuanshu");
+        if (!AppUtils.fC_CHUAN_SHU.exists()) {
+            AppUtils.fC_CHUAN_SHU.mkdirs();
+        }
+
+        AppUtils.fC_BEANDI = new File(context.getExternalFilesDir(null) + File.separator + "Vim/chat");
+        if (!AppUtils.fC_BEANDI.exists()) {
+            AppUtils.fC_BEANDI.mkdirs();
+        }
+
+        AppUtils.fC_MINGWEN = new File(context.getExternalFilesDir(null) + File.separator + "Vim/chat/mingwen");
+        if (!AppUtils.fC_MINGWEN.exists()) {
+            AppUtils.fC_MINGWEN.mkdirs();
+        }
+
+        AppUtils.fC_LINSHI = new File(context.getExternalFilesDir(null) + File.separator + "Vim/chat/linshi/");
+        if (!AppUtils.fC_LINSHI.exists()) {
+            AppUtils.fC_LINSHI.mkdirs();
+        }
+    }
+
     /**
      * 此名单屏蔽三星某机型，此机型用AppAudioManager类库，会产生崩溃问题
      */
