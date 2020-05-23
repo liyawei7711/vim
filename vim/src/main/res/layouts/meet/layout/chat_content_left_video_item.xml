@@ -31,7 +31,8 @@
 
         <LinearLayout
             android:layout_marginLeft="11dp"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginRight="60dp"
             android:orientation="vertical">
@@ -71,5 +72,15 @@
             </FrameLayout>
 
         </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/cb_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:button="@drawable/selector_check_uncheck_red"
+            android:visibility="gone"
+            />
+
     </LinearLayout>
 </LinearLayout>

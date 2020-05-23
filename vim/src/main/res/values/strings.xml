@@ -553,6 +553,8 @@
 	<string name="user_detail_del_user_title">Chat members</string>
 	<string name="user_detail_perple">people</string>
 	<string name="user_detail_del_perple">Delete</string>
+	<string name="user_detail_tans">TransFile</string>
+	<string name="user_detail_duoxuan">Multiple options</string>
 	<string name="user_detail_zhuanfa_perple">Forward</string>
 	<string name="my_detail_voice_set">Use the handset to play the voice</string>
 	<string name="my_detail_change_password">Change Password</string>
@@ -909,6 +911,9 @@
 	<string name="notice_txt_13">Transferring...</string>
 	<string name="notice_txt_14">Transmission complete</string>
 	<string name="notice_txt_15">This information has been read</string>
+	<string name="notice_txt_16">Encrypted file transfer only</string>
+	<string name="notice_txt_17">Downloading files</string>
+	<string name="notice_txt_18">Converting file format</string>
 
 	<string name="share_txt_1">Sharing failure</string>
 	<string name="share_txt_2">Share success</string>

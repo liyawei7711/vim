@@ -358,7 +358,8 @@ public class EncryptUtil {
         } else {
             newName = jiami + "/" + System.currentTimeMillis() + "_" + file2.getName();
         }
-
+        System.out.println("cccccccccccccccccccccc 0 "+file);
+        System.out.println("cccccccccccccccccccccc 1 "+newName);
         return newName;
     }
 
