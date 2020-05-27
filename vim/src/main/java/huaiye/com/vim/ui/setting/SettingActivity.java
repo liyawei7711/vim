@@ -24,6 +24,7 @@ import com.ttyy.commonanno.anno.route.BindExtra;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.SP;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.JieSuoBean;
@@ -31,6 +32,8 @@ import huaiye.com.vim.dao.msgs.JinJiLianXiRenBean;
 import huaiye.com.vim.ui.home.AudioSettingActivity;
 import huaiye.com.vim.ui.jiesuo.JieSuoResultActivity;
 import huaiye.com.vim.ui.jiesuo.JieSuoSetActivity;
+
+import static huaiye.com.vim.common.AppUtils.SP_ENABLE_DINGYUE_GPS;
 
 /**
  * @author zhangzhen
@@ -40,8 +43,12 @@ public class SettingActivity extends AppBaseActivity {
 
     @BindView(R.id.jinjijiuzhu_checkbox)
     CheckBox jinjijiuzhu_checkbox;
+    @BindView(R.id.gps_view_checkbox)
+    View gps_view_checkbox;
     @BindView(R.id.view_checkbox)
     View view_checkbox;
+    @BindView(R.id.gps_checkbox)
+    CheckBox gps_checkbox;
     @BindView(R.id.zhiwen_checkbox)
     CheckBox zhiwen_checkbox;
     @BindView(R.id.tv_shoushi_notic)
@@ -53,6 +60,7 @@ public class SettingActivity extends AppBaseActivity {
     boolean isChecked;
 
     boolean isFromActivity;
+    boolean isEnableGps;
 
     @Override
     protected void initActionBar() {
@@ -73,6 +81,9 @@ public class SettingActivity extends AppBaseActivity {
 
     @Override
     public void doInitDelay() {
+        isEnableGps = SP.getBoolean(SP_ENABLE_DINGYUE_GPS, true);
+        gps_checkbox.setChecked(isEnableGps);
+
         JinJiLianXiRenBean lianxi = AppDatas.MsgDB().getJinJiLianXiRenDao().queryOneItem(AppAuth.get().getUserID(), AppAuth.get().getDomainCode());
         if (lianxi == null) {
             jinjijiuzhu_checkbox.setChecked(false);
@@ -99,6 +110,15 @@ public class SettingActivity extends AppBaseActivity {
             tv_shoushi_notic.setText("重置手势密码");
         }
 
+        gps_view_checkbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isEnableGps = !isEnableGps;
+                SP.putBoolean(SP_ENABLE_DINGYUE_GPS, isEnableGps);
+                gps_checkbox.setChecked(isEnableGps);
+            }
+        });
+
         view_checkbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,7 +127,7 @@ public class SettingActivity extends AppBaseActivity {
                     return;
                 }
 
-                if(jiesuo == null) {
+                if (jiesuo == null) {
                     showToast("请先绘制手势密码");
                     return;
                 }

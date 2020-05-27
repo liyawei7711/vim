@@ -94,6 +94,7 @@ import huaiye.com.vim.ui.auth.StartActivity;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static com.huaiye.sdk.sdkabi._params.SdkBaseParams.ConnectionStatus.Disconnected;
+import static huaiye.com.vim.common.AppUtils.SP_ENABLE_DINGYUE_GPS;
 import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 import static huaiye.com.vim.ui.meet.adapter.ChatContentAdapter.CHAT_CONTENT_CUSTOM_NOTICE_ITEM;
 
@@ -687,6 +688,9 @@ public class MessageReceiver {
     }
 
     private void sendUserGps(ChatMessageBean chatMessageBean) {
+        if (!SP.getBoolean(SP_ENABLE_DINGYUE_GPS, true)) {
+            return;
+        }
         JsonObject json = new JsonObject();
         JsonObject rGPSInfo = new JsonObject();
         BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();
@@ -928,12 +932,12 @@ public class MessageReceiver {
      */
     private void addGroupNotice(String notice, String sessionID, String groupID, String groupDomain, String sessionName) {
 
-        if(TextUtils.isEmpty(sessionName)) {
+        if (TextUtils.isEmpty(sessionName)) {
             List<ChatGroupMsgBean> nChatGroupMsgBeans = AppDatas.MsgDB()
                     .chatGroupMsgDao()
                     .queryPagingItemWithoutLive(groupID, 0, 10);
-            for(ChatGroupMsgBean bean : nChatGroupMsgBeans) {
-                if(!TextUtils.isEmpty(bean.sessionName)) {
+            for (ChatGroupMsgBean bean : nChatGroupMsgBeans) {
+                if (!TextUtils.isEmpty(bean.sessionName)) {
                     sessionName = bean.sessionName;
                     break;
                 }
