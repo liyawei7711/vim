@@ -895,6 +895,7 @@
 	<string name="label_txt123">Play picture quality</string>
 	<string name="label_txt124">Added</string>
 	<string name="label_txt125">File trans</string>
+	<string name="label_txt126">Subscription location not allowed</string>
 
 	<string name="notice_txt_1">There are permissions not allowed, which may affect the use of some functions</string>
 	<string name="notice_txt_2">Emergency contact has not been set</string>

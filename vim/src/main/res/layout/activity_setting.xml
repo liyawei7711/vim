@@ -263,7 +263,66 @@
                         />
                 </FrameLayout>
 
+
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginLeft="25dp"
+                    android:background="@color/blackddd" />
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_pingbi"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:background="@color/white">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="15dp"
+                    android:layout_weight="1"
+                    android:drawablePadding="16dp"
+                    android:gravity="center_vertical"
+                    android:paddingRight="15dp"
+                    android:text="@string/label_txt126"
+                    android:textColor="@color/black333"
+                    android:textSize="16sp" />
+
+                <FrameLayout
+                    android:layout_marginRight="15dp"
+                    android:layout_width="33dp"
+                    android:layout_height="20dp">
+                    <CheckBox
+                        android:id="@+id/gps_checkbox"
+                        android:layout_width="33dp"
+                        android:layout_height="20dp"
+                        android:checked="false"
+                        android:button="@null"
+                        android:enabled="false"
+                        android:background="@drawable/selector_user_detail_switch"
+                        />
+                    <View
+                        android:id="@+id/gps_view_checkbox"
+                        android:layout_width="33dp"
+                        android:layout_height="20dp"
+                        android:background="@color/transparent"
+                        />
+                </FrameLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </ScrollView>

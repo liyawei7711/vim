@@ -165,6 +165,7 @@ public final class AppUtils {
     public static final String SP_SETTING_NODISTURB = "SP_SETTING_NODISTURB";//消息设置免打扰
     public static final String SP_CHAT_SETTING_NOTIFICATION = "SP_CHAT_SETTING_NOTIFICATION";//聊天通知声音
     public static final String SP_CHAT_SETTING_YUEHOUJIFENG = "SP_CHAT_SETTING_YUEHOUJIFENG";//是否开启阅后即焚
+    public static final String SP_ENABLE_DINGYUE_GPS = "SP_ENABLE_DINGYUE_GPS";//订阅GPS
 
 
     //位置相关
