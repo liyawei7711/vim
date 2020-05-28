@@ -554,7 +554,7 @@
 	<string name="user_detail_perple">people</string>
 	<string name="user_detail_del_perple">Delete</string>
 	<string name="user_detail_tans">TransFile</string>
-	<string name="user_detail_duoxuan">Multiple options</string>
+	<string name="user_detail_duoxuan">Multiple TransFile</string>
 	<string name="user_detail_zhuanfa_perple">Forward</string>
 	<string name="my_detail_voice_set">Use the handset to play the voice</string>
 	<string name="my_detail_change_password">Change Password</string>
