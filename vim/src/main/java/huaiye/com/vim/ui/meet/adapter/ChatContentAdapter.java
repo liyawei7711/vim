@@ -447,80 +447,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (canSelected) {
-                    if (data.bEncrypt != 1) {
-                        showToast("仅支持加密文件传输");
-                        return;
-                    }
-
-                    if (!data.isUnEncrypt) {
-                        showToast("信息尚未解密");
-                        return;
-                    }
-                    String fileLocal = "";
-                    try {
-                        fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
-                    } catch (Exception e) {
-
-                    }
-
-                    final File ffLocal = new File(fileLocal);
-                    if (!ffLocal.exists()) {
-                        showToast("正在下载文件");
-                        String finalFileLocal = fileLocal;
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (downloadFileByUrl(AppDatas.Constants().getFileServerURL() + data.fileUrl, finalFileLocal, data.type)) {
-                                    File file = new File(EncryptUtil.getNewFileLocal(ffLocal.getAbsolutePath(), fC_BEANDI));
-                                    if (!file.exists()) {
-                                        EncryptUtil.converEncryptFile(ffLocal.getAbsolutePath(), file.getAbsolutePath(),
-                                                isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                                                isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode,
-                                                new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                                    @Override
-                                                    public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                                    }
-
-                                                    @Override
-                                                    public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                                        showToast("文件解密失败");
-                                                    }
-                                                }
-                                        );
-                                    }
-                                }
-                            }
-                        }).start();
-                        return;
-                    } else {
-                        File file = new File(EncryptUtil.getNewFileLocal(ffLocal.getAbsolutePath(), fC_BEANDI));
-                        if (!file.exists()) {
-                            showToast("正在转换文件格式");
-                            EncryptUtil.converEncryptFile(ffLocal.getAbsolutePath(), file.getAbsolutePath(),
-                                    isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
-                                    isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode,
-                                    new SdkCallback<SdpMessageCmProcessIMRsp>() {
-                                        @Override
-                                        public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                        }
-
-                                        @Override
-                                        public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                                            showToast("文件解密失败");
-                                        }
-                                    }
-                            );
-                            return;
-                        }
-                    }
-                    File file = new File(ffLocal.getAbsolutePath());
-//                    File file = new File(EncryptUtil.getNewFileLocal(ffLocal.getAbsolutePath(), fC_BEANDI));
-                    all_file.put(data.msgID, file);
-
-                    data.isSelected = !data.isSelected;
-                    notifyItemChanged(holder.getAdapterPosition());
-                }
+                doCoverClick(data, holder);
             }
         });
         if (holder instanceof CustomMeetViewHolder) {
@@ -845,11 +772,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.right_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         viewHolder.right_content_file_lin.setOnClickListener(new OnFileClicked(holder, data, position, false));
         viewHolder.right_content_file_lin.setOnLongClickListener(onLongClick);
@@ -866,11 +801,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.right_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         viewHolder.right_content_voice.setBackground(null);
         viewHolder.right_content_voice.setBackgroundResource(R.drawable.anim_chat_voice_white);
@@ -894,11 +837,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.right_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         viewHolder.right_content_video_image.setOnClickListener(new OnVideoClicked(holder, data, position, false));
         viewHolder.right_content_video_image.setOnLongClickListener(onLongClick);
@@ -914,11 +865,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.right_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         if (data.bEncrypt == 1) {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
@@ -1028,11 +987,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.left_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         viewHolder.left_content_file_lin.setOnClickListener(new OnFileClicked(holder, data, position, true));
         viewHolder.left_content_file_lin.setOnLongClickListener(onLongClick);
@@ -1048,11 +1015,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.left_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         viewHolder.left_content_voice.setBackground(null);
         viewHolder.left_content_voice.setBackgroundResource(R.drawable.anim_chat_voice_gray);
@@ -1075,11 +1050,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.left_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         viewHolder.left_content_video_image.setOnClickListener(new OnVideoClicked(holder, data, position, true));
         viewHolder.left_content_video_image.setOnLongClickListener(onLongClick);
@@ -1094,11 +1077,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         showUserName(viewHolder.left_name);
 
         if (canSelected) {
+            viewHolder.view_cover.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setVisibility(View.VISIBLE);
             viewHolder.cb_selected.setChecked(data.isSelected);
         } else {
+            viewHolder.view_cover.setVisibility(View.GONE);
             viewHolder.cb_selected.setVisibility(View.GONE);
         }
+        viewHolder.view_cover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doCoverClick(data, holder);
+            }
+        });
 
         if (data.bEncrypt == 1) {
             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
@@ -1175,6 +1166,104 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             viewHolder.left_time.setVisibility(View.VISIBLE);
         } else {
             viewHolder.left_time.setVisibility(View.GONE);
+        }
+    }
+
+    private void doCoverClick(ChatMessageBase data, RecyclerView.ViewHolder holder) {
+        if (canSelected) {
+            if (data.bEncrypt != 1) {
+                showToast("仅支持加密文件传输");
+                return;
+            }
+
+            if (!data.isUnEncrypt) {
+                showToast("信息尚未解密");
+                return;
+            }
+            String fileLocal = "";
+            try {
+                fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
+            } catch (Exception e) {
+
+            }
+
+            final File ffLocal = new File(fileLocal);
+            if (!ffLocal.exists()) {
+                showToast("正在下载文件");
+                String finalFileLocal = fileLocal;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (downloadFileByUrl(AppDatas.Constants().getFileServerURL() + data.fileUrl, finalFileLocal, data.type)) {
+                            File file = new File(EncryptUtil.getNewFileLocal(ffLocal.getAbsolutePath(), fC_BEANDI));
+                            if (!file.exists()) {
+                                new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
+                                    @Override
+                                    public Object doOnThread() {
+                                        return "";
+                                    }
+
+                                    @Override
+                                    public void doOnMain(Object data) {
+                                        EncryptUtil.converEncryptFile(ffLocal.getAbsolutePath(), file.getAbsolutePath(),
+                                                isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
+                                                isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode,
+                                                new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                                                    @Override
+                                                    public void onSuccess(SdpMessageCmProcessIMRsp resp) {
+                                                    }
+
+                                                    @Override
+                                                    public void onError(ErrorInfo sessionRsp) {
+                                                        showToast("文件解密失败");
+                                                    }
+                                                }
+                                        );
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }).start();
+                return;
+            } else {
+                File file = new File(EncryptUtil.getNewFileLocal(ffLocal.getAbsolutePath(), fC_BEANDI));
+                if (!file.exists()) {
+                    showToast("正在转换文件格式");
+                    new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
+                                                         @Override
+                                                         public Object doOnThread() {
+                                                             return "";
+                                                         }
+
+                                                         @Override
+                                                         public void doOnMain(Object data) {
+                                                             EncryptUtil.converEncryptFile(ffLocal.getAbsolutePath(), file.getAbsolutePath(),
+                                                                     isGroup, isGroup ? strGroupID : "", isGroup ? strGroupDomain : "",
+                                                                     isGroup ? "" : strUserID, isGroup ? "" : strUserDomainCode,
+                                                                     new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                                                                         @Override
+                                                                         public void onSuccess(SdpMessageCmProcessIMRsp resp) {
+                                                                         }
+
+                                                                         @Override
+                                                                         public void onError(ErrorInfo sessionRsp) {
+                                                                             showToast("文件解密失败");
+                                                                         }
+                                                                     }
+                                                             );
+                                                         }
+                                                     }
+                    );
+                    return;
+                }
+            }
+            File file = new File(ffLocal.getAbsolutePath());
+//                    File file = new File(EncryptUtil.getNewFileLocal(ffLocal.getAbsolutePath(), fC_BEANDI));
+            all_file.put(data.msgID, file);
+
+            data.isSelected = !data.isSelected;
+            notifyItemChanged(holder.getAdapterPosition());
         }
     }
 
@@ -1686,6 +1775,9 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
+            if(canSelected) {
+                return;
+            }
             if (data.bEncrypt == 1 && !data.isUnEncrypt) {
                 showToast("信息尚未解密");
                 return;
@@ -1812,6 +1904,9 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
+            if(canSelected) {
+                return;
+            }
             if (data.isPlaying) {
                 stopVoice();
                 return;
@@ -1885,6 +1980,9 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
+            if(canSelected) {
+                return;
+            }
             Intent intent = new Intent(mContext, ImageShowActivity.class);
             ArrayList<String> imageUrls = new ArrayList<>();
             imageUrls.add(url);
@@ -1948,6 +2046,9 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
+            if(canSelected) {
+                return;
+            }
             if (data.bEncrypt == 1 && !data.isUnEncrypt) {
                 showToast("信息尚未解密");
                 return;
@@ -2616,6 +2717,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private TextView left_name;
         private ImageView left_content_image;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private LeftCustomImageViewHolder(View itemView) {
             super(itemView);
@@ -2624,6 +2726,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             left_name = (TextView) itemView.findViewById(R.id.left_name);
             left_content_image = (ImageView) itemView.findViewById(R.id.left_content_image);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
         }
     }
 
@@ -2635,6 +2738,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private ImageView left_content_video_play;
         private ProgressBar chat_download_file;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private LeftCustomVideoViewHolder(View itemView) {
             super(itemView);
@@ -2645,6 +2749,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             left_content_video_play = (ImageView) itemView.findViewById(R.id.left_content_video_play);
             chat_download_file = (ProgressBar) itemView.findViewById(R.id.chat_download_file);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
         }
     }
 
@@ -2657,6 +2762,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private ImageView left_content_voice_state;
         private TextView left_content_voice_time;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private LeftCustomVoiceViewHolder(View itemView) {
             super(itemView);
@@ -2668,6 +2774,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             left_content_voice_state = (ImageView) itemView.findViewById(R.id.left_content_voice_state);
             left_content_voice_time = (TextView) itemView.findViewById(R.id.left_content_voice_time);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
         }
     }
 
@@ -2679,6 +2786,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private TextView left_content_file;
         private ProgressBar chat_download_file;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private LeftCustomFileViewHolder(View itemView) {
             super(itemView);
@@ -2689,6 +2797,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             left_content_file = (TextView) itemView.findViewById(R.id.left_content_file);
             chat_download_file = (ProgressBar) itemView.findViewById(R.id.chat_download_file);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
 
         }
     }
@@ -2736,6 +2845,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private TextView right_name;
         private ImageView right_content_image;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private RightCustomImageViewHolder(View itemView) {
             super(itemView);
@@ -2744,6 +2854,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             right_name = (TextView) itemView.findViewById(R.id.right_name);
             right_content_image = (ImageView) itemView.findViewById(R.id.right_content_image);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
         }
     }
 
@@ -2755,6 +2866,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private ImageView right_content_video_play;
         private ProgressBar chat_download_file;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private RightCustomVideoViewHolder(View itemView) {
             super(itemView);
@@ -2765,6 +2877,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             right_content_video_play = (ImageView) itemView.findViewById(R.id.right_content_video_play);
             chat_download_file = (ProgressBar) itemView.findViewById(R.id.chat_download_file);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
         }
     }
 
@@ -2776,6 +2889,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private TextView right_content_file;
         private ProgressBar chat_download_file;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private RightCustomFileViewHolder(View itemView) {
             super(itemView);
@@ -2786,6 +2900,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             right_content_file = (TextView) itemView.findViewById(R.id.right_content_file);
             chat_download_file = (ProgressBar) itemView.findViewById(R.id.chat_download_file);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
         }
     }
 
@@ -2798,6 +2913,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private ImageView right_content_voice_state;
         private TextView right_content_voice_time;
         private CheckBox cb_selected;
+        private View view_cover;
 
         private RightCustomVoiceViewHolder(View itemView) {
             super(itemView);
@@ -2809,6 +2925,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             right_content_voice_state = (ImageView) itemView.findViewById(R.id.right_content_voice_state);
             right_content_voice_time = (TextView) itemView.findViewById(R.id.right_content_voice_time);
             cb_selected = (CheckBox) itemView.findViewById(R.id.cb_selected);
+            view_cover = itemView.findViewById(R.id.view_cover);
         }
     }
 
