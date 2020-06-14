@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -2316,19 +2318,22 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             intent.putExtra("name", name);
             mContext.startActivity(intent);
         } else {
-            showToast("不支持该格式文件");
-//            Intent intent = new Intent(Intent.ACTION_VIEW);
-//            intent.addCategory(Intent.CATEGORY_DEFAULT);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                Uri contentUri = FileProvider.getUriForFile(mContext, "huaiye.com.vim.fileprovider", new File(m_strData));
-//                intent.setDataAndType(contentUri, getMIMEType(new File(m_strData)));
-//            } else {
-//                intent.setDataAndType(Uri.fromFile(new File(m_strData)), getMIMEType(new File(m_strData)));
-//            }
-//
-//            mContext.startActivity(intent);
+            if(nEncryptIMEnable) {
+                showToast("不支持该格式文件");
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.addCategory(Intent.CATEGORY_DEFAULT);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    Uri contentUri = FileProvider.getUriForFile(mContext, "huaiye.com.vim.fileprovider", new File(m_strData));
+                    intent.setDataAndType(contentUri, getMIMEType(new File(m_strData)));
+                } else {
+                    intent.setDataAndType(Uri.fromFile(new File(m_strData)), getMIMEType(new File(m_strData)));
+                }
+
+                mContext.startActivity(intent);
+            }
         }
 
 

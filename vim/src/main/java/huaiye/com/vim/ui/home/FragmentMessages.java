@@ -142,38 +142,46 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                 logicDialog.setConfirmClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        VimMessageListBean data = datas.get(viewHolder.getAdapterPosition());
-                        VimMessageListMessages.get().del(data.sessionID);
-                        if (data.groupType == 1) {
-                            SP.putInt(data.sessionID + AppUtils.SP_SETTING_NODISTURB, 0);
-                            AppDatas.MsgDB()
-                                    .chatGroupMsgDao()
-                                    .deleteBySessionID(data.sessionID);
-                        } else {
-                            AppDatas.MsgDB()
-                                    .chatSingleMsgDao()
-                                    .deleteBySessionID(data.sessionID);
+                        try{
+                            int i = viewHolder.getAdapterPosition();
+                            VimMessageListBean data = datas.get(i);
+
+                            datas.remove(i);
+                            adapter.notifyDataSetChanged();
+                            showEmpty();
+
+                            VimMessageListMessages.get().del(data.sessionID);
+                            if (data.groupType == 1) {
+                                SP.putInt(data.sessionID + AppUtils.SP_SETTING_NODISTURB, 0);
+                                AppDatas.MsgDB()
+                                        .chatGroupMsgDao()
+                                        .deleteBySessionID(data.sessionID);
+                            } else {
+                                AppDatas.MsgDB()
+                                        .chatSingleMsgDao()
+                                        .deleteBySessionID(data.sessionID);
+                            }
+
+                            if (data.sessionID.equals("0")) {
+                                BroadcastManage.get().delAll();
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        File file = new File(AppUtils.audiovideoPath);
+                                        if (file.exists()) {
+                                            File[] files = file.listFiles();
+                                            for (File f : files) {
+                                                AppUtils.delFile(f);
+                                            }
+                                            file.delete();
+                                        }
+                                    }
+                                }).start();
+                            }
+                        }catch (Exception e){
+
                         }
 
-                        if (data.sessionID.equals("0")) {
-                            BroadcastManage.get().delAll();
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    File file = new File(AppUtils.audiovideoPath);
-                                    if (file.exists()) {
-                                        File[] files = file.listFiles();
-                                        for (File f : files) {
-                                            AppUtils.delFile(f);
-                                        }
-                                        file.delete();
-                                    }
-                                }
-                            }).start();
-                        }
-                        datas.remove(viewHolder.getAdapterPosition());
-                        adapter.notifyDataSetChanged();
-                        showEmpty();
                     }
                 }).setCancelClickListener(new View.OnClickListener() {
                     @Override

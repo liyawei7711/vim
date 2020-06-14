@@ -71,6 +71,7 @@ import huaiye.com.vim.ui.setting.SettingActivity;
 
 import static android.app.Activity.RESULT_OK;
 import static huaiye.com.vim.common.AppUtils.REQUEST_CODE_MODIFY_PIC;
+import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 
 /**
  * author: admin
@@ -229,7 +230,11 @@ public class FragmentSettings extends AppBaseFragment {
                 startActivity(new Intent(getActivity(), ChuanShuShowActivity.class));
                 break;
             case R.id.view_logout:
-                showLogoutDialog();
+                if(nEncryptIMEnable) {
+                    showLogoutDialog();
+                } else {
+                    showLogoutDialogFalse();
+                }
                 break;
             case R.id.view_about:
                 startActivity(new Intent(getActivity(), AboutActivity.class));
@@ -284,6 +289,29 @@ public class FragmentSettings extends AppBaseFragment {
         }
     }
 
+    private void showLogoutDialogFalse() {
+        if (null == mCustomTipDialogl) {
+            mCustomTipDialogl = new CustomTipDialog(getContext(), AppUtils.getString(R.string.logout_security0));
+            mCustomTipDialogl.setOnFunctionClickedListener(new CustomTipDialog.IFunctionClickedListener() {
+                @Override
+                public void onClickedLeftFunction() {
+                    mCustomTipDialogl.dismiss();
+                    showLogOutDialog2();
+                }
+
+                @Override
+                public void onClickedRightFunction() {
+                    mCustomTipDialogl.dismiss();
+                    customLogout();
+                }
+            });
+            mCustomTipDialogl.setRightFunctionText(AppUtils.getString(R.string.makesure));
+            mCustomTipDialogl.setLeftFunctionText(AppUtils.getString(R.string.logout_security_dialog_right));
+            mCustomTipDialogl.hideLeftFunctionText();
+        }
+        mCustomTipDialogl.show();
+    }
+
     private void showLogoutDialog() {
         if (null == mCustomTipDialogl) {
             mCustomTipDialogl = new CustomTipDialog(getContext(), AppUtils.getString(R.string.logout_security));
@@ -302,7 +330,6 @@ public class FragmentSettings extends AppBaseFragment {
             });
             mCustomTipDialogl.setRightFunctionText(AppUtils.getString(R.string.logout_security_dialog_left));
             mCustomTipDialogl.setLeftFunctionText(AppUtils.getString(R.string.logout_security_dialog_right));
-
         }
         mCustomTipDialogl.show();
     }

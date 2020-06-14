@@ -53,6 +53,7 @@ import huaiye.com.vim.ui.setting.ModifyHeadPicActivity;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static huaiye.com.vim.common.AppUtils.REQUEST_CODE_MODIFY_PIC;
+import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 import static huaiye.com.vim.ui.meet.adapter.ChatContentAdapter.CHAT_CONTENT_CUSTOM_NOTICE_ITEM;
 
 /**
@@ -288,6 +289,11 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                     mDataList.add(del);
                     isGroupOwner = true;
                 } else {
+                    if(!nEncryptIMEnable) {
+                        User add = new User();
+                        add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
+                        mDataList.add(add);
+                    }
                     isGroupOwner = false;
                 }
                 strAnnouncement = mContactsGroupUserListBean.strAnnouncement;
