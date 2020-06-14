@@ -210,7 +210,11 @@ public class MainSettingsActivity extends AppBaseActivity {
                 startActivity(new Intent(this, ChuanShuShowActivity.class));
                 break;
             case R.id.view_logout:
-                showLogoutDialog();
+                if(nEncryptIMEnable) {
+                    showLogoutDialog();
+                } else {
+                    showLogoutDialogFalse();
+                }
                 break;
             case R.id.view_clear_bendi:
                 showLogoutDestoryDialog();
@@ -265,6 +269,29 @@ public class MainSettingsActivity extends AppBaseActivity {
                 getUploadLogHost();
                 break;
         }
+    }
+
+    private void showLogoutDialogFalse() {
+        if (null == mCustomTipDialogl) {
+            mCustomTipDialogl = new CustomTipDialog(this, AppUtils.getString(R.string.logout_security0));
+            mCustomTipDialogl.setOnFunctionClickedListener(new CustomTipDialog.IFunctionClickedListener() {
+                @Override
+                public void onClickedLeftFunction() {
+                    mCustomTipDialogl.dismiss();
+                    showLogOutDialog2();
+                }
+
+                @Override
+                public void onClickedRightFunction() {
+                    mCustomTipDialogl.dismiss();
+                    customLogout();
+                }
+            });
+            mCustomTipDialogl.setRightFunctionText(AppUtils.getString(R.string.makesure));
+            mCustomTipDialogl.setLeftFunctionText(AppUtils.getString(R.string.logout_security_dialog_right));
+            mCustomTipDialogl.hideLeftFunctionText();
+        }
+        mCustomTipDialogl.show();
     }
 
     private void showLogoutDialog() {

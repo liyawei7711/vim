@@ -668,9 +668,10 @@
 	<string name="meet_diaodu_ing">Meeting now...</string>
 	<string name="video_diaodu_ing">Video in progress...</string>
 	<string name="logout_security">Do you want to choose safe exit? \n\n security exit will delete all local cache contents and records!</string>
+	<string name="logout_security0">Notice \n\n do you want to exite?</string>
 	<string name="logout_security2">Safe exit will delete all local cache user information !</string>
 	<string name="logout_security_dialog_left">Ordinary exit</string>
-	<string name="logout_security_dialog_right">Safe exit</string>
+	<string name="logout_security_dialog_right">Restore factory settings</string>
 
 	<!--权限-->
 	<string name="has_power_float">You don not have permission to hover. Please turn it on</string>
