@@ -1,14 +1,19 @@
 package huaiye.com.vim.ui.contacts;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.huaiye.sdk.logger.Logger;
 import com.ttyy.commonanno.anno.BindLayout;
 
 import org.greenrobot.eventbus.EventBus;
@@ -24,6 +29,7 @@ import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
+import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
@@ -35,7 +41,7 @@ import huaiye.com.vim.models.contacts.bean.ContactsGroupChatListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
-import huaiye.com.vim.ui.home.adapter.GroupContactsItemAdapter;
+import huaiye.com.vim.ui.contacts.viewholder.GroupInfoViewHolder;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
@@ -47,19 +53,39 @@ import ttyy.com.jinnetwork.core.work.HTTPResponse;
 @BindLayout(R.layout.activity_group_list)
 public class GroupListActivity extends AppBaseActivity {
 
-    @BindView(R.id.rct_view)
-    RecyclerView rct_view;
+    @BindView(R.id.et_key)
+    EditText et_key;
+    @BindView(R.id.close)
+    ImageView close;
+
+    @BindView(R.id.tv_my_create)
+    TextView tv_my_create;
+    @BindView(R.id.tv_my_jonie)
+    TextView tv_my_jonie;
+    @BindView(R.id.view_my_create)
+    View view_my_create;
+    @BindView(R.id.view_my_jonie)
+    View view_my_jonie;
+
+    @BindView(R.id.rct_view_create)
+    RecyclerView rct_view_create;
+    @BindView(R.id.rct_view_jonie)
+    RecyclerView rct_view_jonie;
     @BindView(R.id.iv_empty_view)
     View iv_empty_view;
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
 
-    GroupContactsItemAdapter mGroupitemAdapter;
-    private ArrayList<GroupInfo> mlstGroupInfo = new ArrayList<>();
-    private int requestCount = 0;
-    private int currentRequestTime = 0;
-    private boolean isFreadList = false;
-    private boolean isRef = false;
+    ArrayList<GroupInfo> lstGroupInfo = new ArrayList<>();
+    LiteBaseAdapter<GroupInfo> myCreateAdapter;
+    ArrayList<GroupInfo> mCreateGroupInfo = new ArrayList<>();
+    LiteBaseAdapter<GroupInfo> myJonieAdapter;
+    ArrayList<GroupInfo> mJonieGroupInfo = new ArrayList<>();
+    int requestCount = 0;
+    int currentRequestTime = 0;
+    boolean isFreadList = false;
+    boolean isRef = false;
+    private boolean create;//当前是不是创建的模式
 
     @Override
     protected void initActionBar() {
@@ -68,7 +94,19 @@ public class GroupListActivity extends AppBaseActivity {
 
     private void initNavigateView() {
         getNavigate().setVisibility(View.VISIBLE);
-        getNavigate().setTitlText("群组")
+        getNavigate().setTitlText("我的群组")
+                .setRightText("发起群聊")
+                .setRightClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(GroupListActivity.this, ContactsAddOrDelActivityNew.class);
+                        intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_add_user_title));
+                        intent.putExtra("isSelectUser", true);
+                        intent.putExtra("isCreateGroup", true);
+                        intent.putExtra("isAddMore", false);
+                        GroupListActivity.this.startActivity(intent);
+                    }
+                })
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -83,21 +121,54 @@ public class GroupListActivity extends AppBaseActivity {
     }
 
     private void initView() {
-
-        mGroupitemAdapter = new GroupContactsItemAdapter(this, mlstGroupInfo, false, null);
-        mGroupitemAdapter.setOnItemClickLinstener(new GroupContactsItemAdapter.OnItemClickLinstener() {
+        tv_my_create.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(int position, GroupInfo user) {
-                Intent intent = new Intent(GroupListActivity.this, ChatGroupActivityNew.class);
-                CreateGroupContactData contactsBean = new CreateGroupContactData();
-                contactsBean.strGroupID = mlstGroupInfo.get(position).strGroupID;
-                contactsBean.strGroupDomainCode = mlstGroupInfo.get(position).strGroupDomainCode;
-                intent.putExtra("mContactsBean", contactsBean);
-                startActivity(intent);
+            public void onClick(View v) {
+                changeSelected(true);
             }
         });
-        rct_view.setAdapter(mGroupitemAdapter);
-        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
+        tv_my_jonie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeSelected(false);
+            }
+        });
+        myCreateAdapter = new LiteBaseAdapter<>(this,
+                mCreateGroupInfo,
+                GroupInfoViewHolder.class,
+                R.layout.item_contacts_person,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        GroupInfo groupInfo = (GroupInfo) v.getTag();
+                        Intent intent = new Intent(GroupListActivity.this, ChatGroupActivityNew.class);
+                        CreateGroupContactData contactsBean = new CreateGroupContactData();
+                        contactsBean.strGroupID = groupInfo.strGroupID;
+                        contactsBean.strGroupDomainCode = groupInfo.strGroupDomainCode;
+                        intent.putExtra("mContactsBean", contactsBean);
+                        startActivity(intent);
+                    }
+                }, "false");
+        myJonieAdapter = new LiteBaseAdapter<>(this,
+                mJonieGroupInfo,
+                GroupInfoViewHolder.class,
+                R.layout.item_contacts_person,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        GroupInfo groupInfo = (GroupInfo) v.getTag();
+                        Intent intent = new Intent(GroupListActivity.this, ChatGroupActivityNew.class);
+                        CreateGroupContactData contactsBean = new CreateGroupContactData();
+                        contactsBean.strGroupID = groupInfo.strGroupID;
+                        contactsBean.strGroupDomainCode = groupInfo.strGroupDomainCode;
+                        intent.putExtra("mContactsBean", contactsBean);
+                        startActivity(intent);
+                    }
+                }, "false");
+        rct_view_create.setAdapter(myCreateAdapter);
+        rct_view_create.setLayoutManager(new SafeLinearLayoutManager(this));
+        rct_view_jonie.setAdapter(myJonieAdapter);
+        rct_view_jonie.setLayoutManager(new SafeLinearLayoutManager(this));
 
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -109,9 +180,26 @@ public class GroupListActivity extends AppBaseActivity {
             }
         });
 
-        rct_view.setAdapter(mGroupitemAdapter);
-        mGroupitemAdapter.setDatas(mlstGroupInfo);
+        et_key.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    Editable s = et_key.getText();
+                    if (s != null && s.length() > 0) {
+                        showData(s.toString());
+                    } else {
+                        showData("");
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         requestGroupContacts();
     }
 
@@ -120,9 +208,8 @@ public class GroupListActivity extends AppBaseActivity {
             return;
         }
         isRef = true;
-        Log.i(this.getClass().getName(), "requestGroupContacts");
-        mlstGroupInfo.clear();
-        /* -1表示不分页，即获取所有联系人 */
+
+        lstGroupInfo.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             refresh_view.setRefreshing(true);
             requestCount = VIMApp.getInstance().mDomainInfoList.size();
@@ -132,14 +219,13 @@ public class GroupListActivity extends AppBaseActivity {
                     @Override
                     public void onSuccess(final ContactsGroupChatListBean contactsBean) {
                         if (currentRequestTime == 0) {
-                            mlstGroupInfo.clear();
+                            lstGroupInfo.clear();
                         }
                         ++currentRequestTime;
-                        mlstGroupInfo.addAll(contactsBean.lstGroupInfo);
+                        lstGroupInfo.addAll(contactsBean.lstGroupInfo);
                         updateMsgTopNoDisturb(contactsBean.lstGroupInfo);
-                        if (!isFreadList) {
-                            mGroupitemAdapter.notifyDataSetChanged();
-                        }
+
+                        showData(et_key.getText().toString());
                     }
 
                     @Override
@@ -160,9 +246,11 @@ public class GroupListActivity extends AppBaseActivity {
                         isRef = false;
                         if (requestCount == currentRequestTime) {
                             refresh_view.setRefreshing(false);
-                            if (null != mlstGroupInfo && mlstGroupInfo.size() > 0) {
-                                AppDatas.MsgDB().getGroupListDao().insertAll(mlstGroupInfo);
-                                Logger.debug(TAG, AppDatas.MsgDB().getGroupListDao().getGroupList().size() + "");
+                            if (null != mJonieGroupInfo && mJonieGroupInfo.size() > 0) {
+                                AppDatas.MsgDB().getGroupListDao().insertAll(mJonieGroupInfo);
+                            }
+                            if (null != mCreateGroupInfo && mCreateGroupInfo.size() > 0) {
+                                AppDatas.MsgDB().getGroupListDao().insertAll(mCreateGroupInfo);
                             }
                         }
                     }
@@ -172,7 +260,26 @@ public class GroupListActivity extends AppBaseActivity {
             refresh_view.setRefreshing(false);
             VIMApp.getInstance().getDomainCodeList();
         }
+    }
 
+    private void showData(String str) {
+        mCreateGroupInfo.clear();
+        mJonieGroupInfo.clear();
+        for (GroupInfo temp : lstGroupInfo) {
+            if (TextUtils.isEmpty(str)) {
+                mCreateGroupInfo.add(temp);
+                mJonieGroupInfo.add(temp);
+            } else {
+                if (temp.strGroupName.contains(str)) {
+                    mCreateGroupInfo.add(temp);
+                    mJonieGroupInfo.add(temp);
+                }
+            }
+        }
+        if (!isFreadList) {
+            myCreateAdapter.notifyDataSetChanged();
+            myJonieAdapter.notifyDataSetChanged();
+        }
     }
 
     private void updateMsgTopNoDisturb(ArrayList<GroupInfo> lstGroupInfo) {
@@ -198,6 +305,25 @@ public class GroupListActivity extends AppBaseActivity {
 
                 }
             });
+        }
+    }
+
+    private void changeSelected(boolean create) {
+        this.create = create;
+        if (create) {
+            tv_my_create.setTextColor(Color.parseColor("#22a5ff"));
+            tv_my_jonie.setTextColor(Color.parseColor("#333333"));
+            view_my_create.setVisibility(View.VISIBLE);
+            view_my_jonie.setVisibility(View.GONE);
+            rct_view_create.setVisibility(View.VISIBLE);
+            rct_view_jonie.setVisibility(View.GONE);
+        } else {
+            tv_my_create.setTextColor(Color.parseColor("#333333"));
+            tv_my_jonie.setTextColor(Color.parseColor("#22a5ff"));
+            view_my_create.setVisibility(View.GONE);
+            view_my_jonie.setVisibility(View.VISIBLE);
+            rct_view_create.setVisibility(View.GONE);
+            rct_view_jonie.setVisibility(View.VISIBLE);
         }
     }
 

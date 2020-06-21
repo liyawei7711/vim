@@ -1,20 +1,56 @@
-<?xml version="1.0" encoding="utf-8"?><!--<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/refresh_view"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">-->
+    android:orientation="vertical">
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/iv_empty_view"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/ll_search"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/img_empty_contacts"
-        android:visibility="gone" />
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingLeft="15dp"
+        android:paddingTop="10dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="10dp">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:background="@drawable/search_bar_bg">
+
+            <TextView
+                android:id="@+id/et_key"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/close"
+                android:background="@color/transparent"
+                android:drawableLeft="@drawable/common_icon_search"
+                android:drawablePadding="5dp"
+                android:hint="搜索:组织、联系人"
+                android:imeOptions="actionSearch"
+                android:paddingLeft="8dp"
+                android:paddingTop="10dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="10dp"
+                android:singleLine="true"
+                android:textSize="15dp" />
+
+            <ImageView
+                android:id="@+id/close"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/cross_re"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/rct_view_layout"
@@ -44,11 +80,27 @@
             android:layout_height="60dp"
             android:layout_gravity="center"
             android:background="#ffffff"
-            android:drawableLeft="@drawable/qunzu"
+            android:drawableLeft="@drawable/main_qunzu"
             android:drawablePadding="20dp"
             android:gravity="center_vertical"
-            android:paddingLeft="16dp"
+            android:paddingLeft="15dp"
             android:text="群聊"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_friend"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@id/tv_group"
+            android:layout_gravity="center"
+            android:background="#ffffff"
+            android:drawableLeft="@drawable/qunzu"
+            android:drawablePadding="20dp"
+            android:visibility="gone"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:text="我的好友"
             android:textColor="#333333"
             android:textSize="16sp" />
 
@@ -56,19 +108,71 @@
             android:id="@+id/refresh_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/tv_group">
+            android:layout_below="@id/tv_friend">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rct_view"
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_dept_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/main_zuzhijiagou"
+                    android:drawablePadding="20dp"
+                    android:paddingLeft="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:textColor="#333333"
+                    android:text="组织架构"
+                    android:textSize="16sp" />
+
+                <huaiye.com.vim.views.MaxRecyclerView
+                    android:id="@+id/rct_view_dept"
+                    android:paddingLeft="15dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tv_dept_at"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:textColor="#333333"
+                    android:text="所在部门"
+                    android:textSize="16sp" />
+
+                <huaiye.com.vim.views.MaxRecyclerView
+                    android:id="@+id/rct_view_suozai"
+                    android:paddingLeft="15dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:textColor="#333333"
+                    android:text="常用联系人"
+                    android:textSize="16sp" />
+
+                <huaiye.com.vim.views.MaxRecyclerView
+                    android:id="@+id/rct_view"
+                    android:paddingLeft="15dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+            </ScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <huaiye.com.vim.common.views.FastRetrievalBar
-            android:id="@+id/contacts_retrieval_bar"
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:background="@color/transparent" />
     </RelativeLayout>
-</FrameLayout><!--</android.support.v4.widget.SwipeRefreshLayout>-->
+
+</LinearLayout>

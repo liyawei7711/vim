@@ -66,7 +66,9 @@ import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.utils.WeiXinDateFormat;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.AppMessages;
+import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
 import huaiye.com.vim.ui.meet.MeetActivity;
 import huaiye.com.vim.ui.meet.MeetNewActivity;
 
@@ -108,6 +110,8 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
     @BindView(R.id.iv_camera)
     ImageView iv_camera;
 
+    @BindExtra
+    String strInviteName;
     @BindExtra
     String strInviteUserId;
     @BindExtra
@@ -175,6 +179,18 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
             texture_smaller.getLayoutParams().width = AppUtils.getSize(120);
         } else {
             texture_smaller.getLayoutParams().width = AppUtils.getSize(90);
+        }
+
+        try{
+            if(toUser == null) {
+                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), strInviteUserId, strInviteUserDomain);
+                AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(strInviteName, strInviteUserId, strInviteUserDomain));
+            } else {
+                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), toUser.strToUserID, toUser.strToUserDomainCode);
+                AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(toUser.strToUserName, toUser.strToUserID, toUser.strToUserDomainCode));
+            }
+        } catch (Exception e){
+
         }
 
         if (isTalkStarter) {

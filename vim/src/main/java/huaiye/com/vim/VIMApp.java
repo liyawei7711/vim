@@ -78,7 +78,7 @@ public class VIMApp extends MultiDexApplication {
     boolean isLogin;//是否已登陆成功
 
     public LocationService locationService;
-    public List<DomainInfoList.DomainInfo> mDomainInfoList;
+    public List<DomainInfoList.DomainInfo> mDomainInfoList = new ArrayList<>();
     public List<DaoHangAppInfo> daoHangAppInfoList;
     public List<DaoHangAppInfo> alldaoHangAppInfoList;
 
@@ -184,7 +184,7 @@ public class VIMApp extends MultiDexApplication {
             @Override
             public void onSuccess(DomainInfoList domainInfoList) {
                 if (null != domainInfoList && null != domainInfoList.domainInfoList && domainInfoList.domainInfoList.size() > 0) {
-                    mDomainInfoList = domainInfoList.domainInfoList;
+                    mDomainInfoList.addAll(domainInfoList.domainInfoList);
                 }
             }
 

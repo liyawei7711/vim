@@ -4,11 +4,19 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import huaiye.com.vim.models.contacts.bean.DeptData;
 
 @Entity(tableName = "tb_friend_list", primaryKeys ={"strUserID","strDomainCode"})
-public class User implements Parcelable {
+public class User implements Serializable {
 
     @NonNull
     @ColumnInfo
@@ -148,11 +156,18 @@ public class User implements Parcelable {
     public String strDepName;
     @ColumnInfo
     public String strRoleName;
+    @ColumnInfo
+    public String strPostName;
+    @ColumnInfo
+    public String nPostID;
     /**
      * 终端设备也当成人处理
      */
     @ColumnInfo
     public int deviceType;
+
+    @ColumnInfo
+    public String strDept;
 
     @Ignore
     public int nJoinStatus;
@@ -162,9 +177,41 @@ public class User implements Parcelable {
     public String pinyin;
     @Ignore
     public boolean isSelected;
-
+    @Ignore
+    public ArrayList<DeptData> lstDepartment;
 
     public User() {
+    }
+
+    public void setLstDepartment(ArrayList<DeptData> lstDepartment) {
+        this.lstDepartment = lstDepartment;
+        this.strDept = new Gson().toJson(lstDepartment);
+    }
+
+    public String getStrDept() {
+        if (TextUtils.isEmpty(strDept)) {
+            if(lstDepartment == null) {
+                return "";
+            } else {
+                this.strDept = new Gson().toJson(lstDepartment);
+            }
+        }
+        return strDept;
+    }
+
+    public ArrayList<DeptData> getUserDept() {
+        if (TextUtils.isEmpty(strDept)) {
+            if(lstDepartment == null) {
+                return new ArrayList<>();
+            } else {
+                this.strDept = new Gson().toJson(lstDepartment);
+                return lstDepartment;
+            }
+        }
+        if(lstDepartment == null) {
+            lstDepartment = new Gson().fromJson(strDept, new TypeToken<ArrayList<DeptData>>(){}.getType());
+        }
+        return lstDepartment;
     }
 
     public User(Parcel source) {
@@ -200,59 +247,5 @@ public class User implements Parcelable {
         nJoinStatus = source.readInt();
         strUserDomainCode = source.readString();
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(strUserID);
-        dest.writeString(strLoginName);
-        dest.writeString(strUserName);
-        dest.writeString(strUserNamePinYin);
-        dest.writeInt(nRoleID);
-        dest.writeInt(nRoleType);
-        dest.writeInt(nSex);
-        dest.writeString(strMobilePhone);
-        dest.writeInt(nPriority);
-        dest.writeString(strRemark);
-        dest.writeString(strLastLoginTime);
-        dest.writeInt(nStatus);
-        dest.writeDouble(dLongitude);
-        dest.writeDouble(dLatitude);
-        dest.writeDouble(dHeight);
-        dest.writeDouble(dSpeed);
-        dest.writeString(strDomainCode);
-        dest.writeString(strUserTokenID);
-        dest.writeString(strTrunkChannelDomainCode);
-        dest.writeInt(nTrunkChannelID);
-        dest.writeString(strTrunkChannelName);
-        dest.writeInt(nSpeaking);
-        dest.writeInt(nDevType);
-        dest.writeInt(nDepID);
-        dest.writeString(strDepName);
-        dest.writeString(strRoleName);
-        dest.writeInt(deviceType);
-        dest.writeString(strCollectTime);
-        dest.writeString(strHeadUrl);
-        dest.writeInt(nJoinStatus);
-        dest.writeString(strUserDomainCode);
-
-    }
-
-    public static final Parcelable.Creator<User> CREATOR = new Creator<User>() {
-        @Override
-        public User createFromParcel(Parcel source) {
-            return new User(source);
-        }
-
-        @Override
-        public User[] newArray(int size) {
-            return new User[size];
-        }
-    };
-
 
 }

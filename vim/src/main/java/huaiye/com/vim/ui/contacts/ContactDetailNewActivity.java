@@ -2,7 +2,6 @@ package huaiye.com.vim.ui.contacts;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -13,8 +12,6 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
-import com.huaiye.cmf.sdp.SdpMessageCmProcessIMReq;
-import com.huaiye.cmf.sdp.SdpMessageCmProcessIMRsp;
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.core.SdkCallback;
 import com.huaiye.sdk.logger.Logger;
@@ -35,7 +32,6 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
@@ -49,8 +45,6 @@ import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.ui.meet.ChatSingleActivity;
 import huaiye.com.vim.ui.talk.TalkActivity;
 import huaiye.com.vim.ui.talk.TalkVoiceActivity;
-
-import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 
 
 /**
@@ -282,27 +276,27 @@ public class ContactDetailNewActivity extends AppBaseActivity {
     public void onEvent(MessageEvent messageEvent) {
         switch (messageEvent.what) {
             case AppUtils.EVENT_VOICE_CANCLE:
-                String msgContentVoiceCancle = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 0, 0, 0, "");
+                String msgContentVoiceCancle = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "", "", 0, 0, false, 0, 0, 0, 0, "");
                 sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceCancle);
                 break;
             case AppUtils.EVENT_VOICE_REFUSE:
-                String msgContentVoiceRefuse = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 1, 0, 0, "");
+                String msgContentVoiceRefuse = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "", "", 0, 0, false, 0, 1, 0, 0, "");
                 sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceRefuse);
                 break;
             case AppUtils.EVENT_VOICE_SUCCESS:
-                String msgContentVoiceSuccess = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 2, 0, 0, "");
+                String msgContentVoiceSuccess = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "", "", 0, 0, false, 0, 2, 0, 0, "");
                 sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE, msgContentVoiceSuccess);
                 break;
             case AppUtils.EVENT_VIDEO_CANCLE:
-                String msgContentVideoCancle = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 0, 0, 0, "");
+                String msgContentVideoCancle = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "", "", 0, 0, false, 0, 0, 0, 0, "");
                 sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoCancle);
                 break;
             case AppUtils.EVENT_VIDEO_REFUSE:
-                String msgContentVideoRefuse = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 1, 0, 0, "");
+                String msgContentVideoRefuse = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "", "", 0, 0, false, 0, 1, 0, 0, "");
                 sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoRefuse);
                 break;
             case AppUtils.EVENT_VIDEO_SUCCESS:
-                String msgContentVideoSuccess = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "","", 0, 0, false, 0, 2, 0, 0, "");
+                String msgContentVideoSuccess = ChatUtil.getChatContentJson(ContactDetailNewActivity.this, messageEvent.msgContent, "", "", 0, 0, false, 0, 2, 0, 0, "");
                 sendWetherEncrypt(AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO, msgContentVideoSuccess);
                 break;
             default:

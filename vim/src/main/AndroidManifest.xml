@@ -40,11 +40,11 @@
         android:name=".VIMApp"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:usesCleartextTraffic="true"
         android:icon="@drawable/guanyu_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".ui.guide.WelcomeActivity"
             android:screenOrientation="portrait"
@@ -156,6 +156,10 @@
             android:name=".ui.meet.MeetCreateByAllFriendActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.contacts.SearchDeptUserListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
 
         <activity
             android:name=".ui.contacts.GroupDetailActivity"
@@ -163,13 +167,34 @@
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.contacts.GroupListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.FriendActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.DeptListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.DeptUserManagerActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.DeptDeepListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.DomainUserListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.fenxiang.ShareGroupListActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.fenxiang.ShareChooseActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -235,7 +260,6 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-
 
 
         <activity
@@ -365,8 +389,8 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
         <activity
             android:name=".ui.Capture.CaptureGuanMoOrPushActivity"
-            android:screenOrientation="portrait"
             android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
 
 
@@ -417,13 +441,14 @@
         </receiver>
         <receiver android:name=".services.PackageInstallReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED"/>
-                <action android:name="android.intent.action.PACKAGE_CHANGED"/>
-                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
-                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
-                <action android:name="android.intent.action.PACKAGE_RESTARTED"/>
-                <action android:name="android.intent.action.PACKAGE_INSTALL"/>
-                <data android:scheme="package"/>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
+
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 

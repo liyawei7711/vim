@@ -3,6 +3,8 @@ package huaiye.com.vim.dao;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
 
+import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
+import huaiye.com.vim.dao.msgs.ChangyongLianXiRenDao;
 import huaiye.com.vim.dao.msgs.ChatGroupMsgBean;
 import huaiye.com.vim.dao.msgs.ChatGroupMsgDao;
 import huaiye.com.vim.dao.msgs.ChatSingleMsgBean;
@@ -29,7 +31,7 @@ import static huaiye.com.vim.dao.AppDatas.VERSION;
  */
 @Database(entities = {ChatGroupMsgBean.class, ChatSingleMsgBean.class, JieSuoBean.class,
         User.class, GroupInfo.class, SendMsgUserBean.class, JinJiLianXiRenBean.class,
-        FileLocalNameBean.class, FileMingWenNameBean.class}, version = VERSION)
+        FileLocalNameBean.class, FileMingWenNameBean.class, ChangyongLianXiRenBean.class}, version = VERSION)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract ChatGroupMsgDao chatGroupMsgDao();
 
@@ -48,5 +50,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract JinJiLianXiRenDao getJinJiLianXiRenDao();
 
     public abstract JieSuoDao getJieSuoDao();
+
+    public abstract ChangyongLianXiRenDao getChangYongLianXiRen();
 
 }

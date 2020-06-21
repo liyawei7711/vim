@@ -70,6 +70,7 @@ import huaiye.com.vim.common.views.pickers.adapter.GlideLoader;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.constants.AppFrequentlyConstants;
+import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
 import huaiye.com.vim.dao.msgs.ChatMessageBase;
 import huaiye.com.vim.dao.msgs.ChatMessageBean;
 import huaiye.com.vim.dao.msgs.ChatSingleMsgBean;
@@ -240,6 +241,9 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             SharePopupLeaveWindow sharePopupLeaveWindow = new SharePopupLeaveWindow(this);
             sharePopupLeaveWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
         }
+
+        AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), nUser.strUserID, nUser.strDomainCode);
+        AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(nUser));
     }
 
     private void loadFirstPage() {
@@ -901,7 +905,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     @OnClick(R.id.chat_title_bar_detail_btn)
     public void onDetailClicked() {
         Intent intent = new Intent(ChatSingleActivity.this, UserDetailActivity.class);
-        intent.putParcelableArrayListExtra("mUserList", getUserList());
+        intent.putExtra("mUserList", getUserList());
         intent.putExtra("isGroupChat", false);
         intent.putExtra("sessionID", getSessionId());
         ChatSingleActivity.this.startActivity(intent);

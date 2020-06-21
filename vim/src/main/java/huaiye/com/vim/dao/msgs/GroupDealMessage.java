@@ -59,39 +59,5 @@ public class GroupDealMessage implements Serializable {
         this.lstOutUser = lstOutUser;
     }
 
-    public static class LstOutUserBean implements Serializable{
-        /**
-         * strUserDomainCode : f079595d296b
-         * strUserID : f079595d296b611552662
-         * strUserName : jy
-         */
 
-        private String strUserDomainCode;
-        private String strUserID;
-        public String strUserName;
-
-        public String getStrUserDomainCode() {
-            return strUserDomainCode;
-        }
-
-        public void setStrUserDomainCode(String strUserDomainCode) {
-            this.strUserDomainCode = strUserDomainCode;
-        }
-
-        public String getStrUserID() {
-            return strUserID;
-        }
-
-        public void setStrUserID(String strUserID) {
-            this.strUserID = strUserID;
-        }
-
-        public String getStrUserName() {
-            return strUserName;
-        }
-
-        public void setStrUserName(String strUserName) {
-            this.strUserName = strUserName;
-        }
-    }
 }

@@ -75,6 +75,7 @@ import huaiye.com.vim.dao.msgs.ChatUtil;
 import huaiye.com.vim.dao.msgs.ContentBean;
 import huaiye.com.vim.dao.msgs.GroupDealAddMessage;
 import huaiye.com.vim.dao.msgs.GroupDealMessage;
+import huaiye.com.vim.dao.msgs.LstOutUserBean;
 import huaiye.com.vim.dao.msgs.MessageData;
 import huaiye.com.vim.dao.msgs.StopCaptureMessage;
 import huaiye.com.vim.dao.msgs.User;
@@ -588,7 +589,7 @@ public class MessageReceiver {
                         me.setGroupDomain(groupDomain);
                         me.setGroupId(groupID);
                         StringBuilder str = new StringBuilder();
-                        for (GroupDealMessage.LstOutUserBean temp : groupDealMessage.getLstOutUser()) {
+                        for (LstOutUserBean temp : groupDealMessage.getLstOutUser()) {
                             str.append(temp.strUserName + ",");
                         }
                         String content = str.toString().substring(0, str.length() - 1);

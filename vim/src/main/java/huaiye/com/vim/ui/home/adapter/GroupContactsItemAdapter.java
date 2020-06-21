@@ -123,46 +123,6 @@ public class GroupContactsItemAdapter extends RecyclerView.Adapter<RecyclerView.
             viewHolder.tv_user_name.setText(mDataList.get(position).strGroupName);
         }
 
-//        if(mChoicedContacts != null && mChoicedContacts.size() > 0 && mIsChoice) {
-//            for (GroupInfo item : mChoicedContacts) {
-//                if (mDataList.get(position).strGroupID.equals(item.strGroupID)) {
-//                    nJoinStatus = item.nJoinStatus;
-//                }
-//            }
-//        }
-//        if(nJoinStatus == 2){
-//            viewHolder.tv_choose_added.setText("已添加");
-//            mDataList.get(position).nJoinStatus = 2;
-//            nJoinStatus = 0;
-//        } else {
-//            if (mIsChoice) {
-//                viewHolder.iv_choice.setVisibility(View.VISIBLE);
-//            }
-//            if (mChoicedContacts != null && mChoicedContacts.size() > 0 && mIsChoice) {
-//                boolean isSelected = false;
-//                for (User item : mChoicedContacts) {
-//                    if (item.strUserID.equals(mDataList.get(position).strUserID)) {
-//                        isSelected = true;
-//                        break;
-//                    }
-//                }
-//                if (isSelected) {
-//                    viewHolder.iv_choice.setImageResource(R.drawable.ic_choice_checked);
-//                } else {
-//                    viewHolder.iv_choice.setImageResource(R.drawable.ic_choice);
-//                }
-//            }
-
-        /*viewHolder.tv_checklayout.setOnCheckedListener(new CheckableLinearLayout.OnCheckedChangedListener() {
-            @Override
-            public void onCheckedChanged(View parent, boolean isChecked) {
-                if (isChecked) {
-                    viewHolder.iv_choice.setImageResource(R.drawable.ic_choice_checked);
-                } else {
-                    viewHolder.iv_choice.setImageResource(R.drawable.ic_choice);
-                }
-            }
-        });*/
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

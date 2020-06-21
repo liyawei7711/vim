@@ -25,7 +25,7 @@ import ttyy.com.sp.multiprocess.StoreIntf;
 
 public class AppDatas {
 
-    static final int VERSION = 10;
+    static final int VERSION = 11;
     static final String DBNAME = "VIM";
 
     static AppConstants CONSTANTS;
@@ -61,7 +61,7 @@ public class AppDatas {
         db = Room.databaseBuilder(context, AppDatabase.class, "vim_db")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
-                .addMigrations(migration_1_new, migration_2_new, migration_3_new, migration_4_new, migration_7_8_new, migration_8_9_new)
+                .addMigrations(migration_1_new, migration_2_new, migration_3_new, migration_4_new, migration_7_8_new, migration_8_9_new, migration_9_11_new)
                 .build();
 
         CONSTANTS = new AppConstants();
@@ -117,7 +117,7 @@ public class AppDatas {
 //            dealAddColumn(database);
         }
     };
-    static Migration migration_7_8_new = new Migration(7, VERSION) {
+    static Migration migration_7_8_new = new Migration(7, 8) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             try {
@@ -139,7 +139,7 @@ public class AppDatas {
             }
         }
     };
-    static Migration migration_8_9_new = new Migration(7, VERSION) {
+    static Migration migration_8_9_new = new Migration(8, 9) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             try {
@@ -147,6 +147,24 @@ public class AppDatas {
                         + " ADD COLUMN summary INTEGER");
                 database.execSQL("ALTER TABLE tb_chat_group_msg "
                         + " ADD COLUMN summary INTEGER");
+            } catch (Exception e) {
+            }
+        }
+    };
+
+    static Migration migration_9_11_new = new Migration(9, VERSION) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            try {
+                database.execSQL("ALTER TABLE tb_friend_list "
+                        + " ADD COLUMN strPostName STRING"
+                );
+                database.execSQL("ALTER TABLE tb_friend_list "
+                        + " ADD COLUMN nPostID INTEGER"
+                );
+                database.execSQL("ALTER TABLE tb_friend_list "
+                        + " ADD COLUMN strDept STRING"
+                );
             } catch (Exception e) {
             }
         }

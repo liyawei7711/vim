@@ -357,7 +357,7 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
 
     private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
-            return null;
+            return new ArrayList<>();
         }
         for (User item : data) {
             String upPinYin = "";

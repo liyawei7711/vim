@@ -6,15 +6,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import com.github.promeg.pinyinhelper.Pinyin;
-import com.huaiye.sdk.logger.Logger;
 import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
 import com.ttyy.commonanno.anno.OnClick;
@@ -24,40 +24,35 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.AppUtils;
-import huaiye.com.vim.common.SP;
-import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
-import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
+import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
 import huaiye.com.vim.dao.msgs.User;
-import huaiye.com.vim.dao.msgs.VimMessageListMessages;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
-import huaiye.com.vim.models.contacts.ContactsApi;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
-import huaiye.com.vim.models.contacts.bean.ContactsGroupChatListBean;
-import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
-import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
+import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
-import huaiye.com.vim.models.contacts.bean.GroupInfo;
 import huaiye.com.vim.ui.contacts.ContactDetailNewActivity;
+import huaiye.com.vim.ui.contacts.DeptChatUtils;
+import huaiye.com.vim.ui.contacts.DeptDeepListActivity;
+import huaiye.com.vim.ui.contacts.DeptListActivity;
+import huaiye.com.vim.ui.contacts.FriendActivity;
 import huaiye.com.vim.ui.contacts.GroupListActivity;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
-import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
-import huaiye.com.vim.ui.home.adapter.GroupContactsItemAdapter;
-import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
-import ttyy.com.jinnetwork.core.work.HTTPRequest;
+import huaiye.com.vim.ui.contacts.SearchDeptUserListActivity;
+import huaiye.com.vim.ui.home.adapter.ContactsDeptViewHolder;
+import huaiye.com.vim.ui.home.adapter.ContactsDomainViewHolder;
+import huaiye.com.vim.ui.home.adapter.ContactsViewDeptHolder;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 /**
@@ -74,35 +69,42 @@ public class FragmentContacts extends AppBaseFragment {
 
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
-    @BindView(R.id.contacts_retrieval_bar)
-    FastRetrievalBar contacts_retrieval_bar;
+    @BindView(R.id.et_key)
+    TextView et_key;
+
     /*@BindView(R.id.rct_view_layout)
     RelativeLayout rct_view_layout;*/
+    @BindView(R.id.ll_search)
+    View ll_search;
+    @BindView(R.id.tv_dept_at)
+    View tv_dept_at;
+    @BindView(R.id.rct_view_suozai)
+    RecyclerView rct_view_suozai;
+    @BindView(R.id.rct_view_dept)
+    RecyclerView rct_view_dept;
     @BindView(R.id.rct_view)
     RecyclerView rct_view;
     @BindView(R.id.view_list)
     RecyclerView view_list;
-    @BindView(R.id.iv_empty_view)
-    View iv_empty_view;
     @BindView(R.id.tv_title)
     View tv_title;
     @BindView(R.id.tv_letter_high_fidelity_item)
     TextView tv_letter_high_fidelity_item;
 
-    LiteBaseAdapter<User> adapter;
-    GroupContactsItemAdapter mGroupitemAdapter;
+    LiteBaseAdapter<ChangyongLianXiRenBean> adapter;
+    LiteBaseAdapter<DomainInfoList.DomainInfo> adapterDomain;
+    LiteBaseAdapter<DeptData> adapterAt;
 
-    private ArrayList<User> mCustomContacts = new ArrayList<>();
-    private ArrayList<User> mAllContacts = new ArrayList<>();
+    private ArrayList<ChangyongLianXiRenBean> mCustomContacts = new ArrayList<>();//常用联系人
+    private ArrayList<DomainInfoList.DomainInfo> domainData = new ArrayList<>();//部门
+    private ArrayList<DeptData> atData = new ArrayList<>();//所在部门
 
-    private ArrayList<GroupInfo> mlstGroupInfo = new ArrayList<>();
-
-    private ArrayList<User> mOnlineContacts = new ArrayList<>();
+    private ArrayList<DomainInfoList.DomainInfo> allDomainDatas = new ArrayList<>();//all部门
+    private ArrayList<ChangyongLianXiRenBean> mAllContacts = new ArrayList<>();//常用联系人
 
     private boolean isFreadList = true;
-    private int requestCount = 0;
-    private int currentRequestTime = 0;
     private boolean isSOS;
+    public static boolean isShow = true;
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -111,138 +113,138 @@ public class FragmentContacts extends AppBaseFragment {
         EventBus.getDefault().register(this);
         getNavigate().hideLeftIcon()
                 .setReserveStatusbarPlace()
-                .setTitlText("联系人")
+                .setTitlText("组织架构")
                 .setTitlClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View V) {
-                        if (isSOS) {
-                            return;
-                        }
-                        isFreadList = true;
-                        contacts_retrieval_bar.setVisibility(View.VISIBLE);
-                        if (null != mAllContacts && mAllContacts.size() > 0) {
-                            updateContacts(true);
-                        } else {
-                            requestContacts();
-                        }
                     }
                 })
-//                .setTitl1Text("群聊")
-//                .setTitl1ClickListener(new View.OnClickListener() {
+//                .showTopSearch()
+//                .setTopSearchClickListener(new View.OnClickListener() {
 //                    @Override
-//                    public void onClick(View V) {
-//                        contacts_retrieval_bar.setVisibility(View.GONE);
-//                        if(null!=mlstGroupInfo&&mlstGroupInfo.size()>0){
-//                            updateGroupContacts();
-//                        }else{
-//                            requestGroupContacts();
+//                    public void onClick(View v) {
+//                        if (isSOS) {
+//                            return;
 //                        }
-//                        isFreadList = false;
+//                        if (isFreadList) {
+//                            Intent intent = new Intent(getContext(), SearchActivity.class);
+//                            intent.putExtra("mSource", 0);
+//                            startActivity(intent);
+//                        } else {
+//                            Intent intent = new Intent(getContext(), SearchGroupActivity.class);
+//                            intent.putExtra("mSource", 0);
+//                            startActivity(intent);
+//                        }
 //                    }
 //                })
-                .showTopSearch()
                 .showTopAdd()
-                .setTopSearchClickListener(new View.OnClickListener() {
+                .setTopAddClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (isSOS) {
                             return;
                         }
-                        if (isFreadList) {
-                            Log.d(this.getClass().getName(), "onClick");
-                            Intent intent = new Intent(getContext(), SearchActivity.class);
-                            intent.putExtra("mSource", 0);
-                            startActivity(intent);
-                        } else {
-                            Log.d(this.getClass().getName(), "onClick");
-                            Intent intent = new Intent(getContext(), SearchGroupActivity.class);
-                            intent.putExtra("mSource", 0);
-                            startActivity(intent);
-                        }
+                        showChatMoreStylePopupWindow(v);
                     }
-                }).setTopAddClickListener(new View.OnClickListener() {
+                });
+
+        et_key.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
-                if (isSOS) {
-                    return;
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String s = et_key.getText().toString();
+                    if (s != null && s.length() > 0) {
+                        showData(s.toString());
+                    } else {
+                        showData("");
+                    }
+                    return true;
                 }
-                showChatMoreStylePopupWindow(v);
+                return false;
             }
         });
-
+        rct_view_suozai.setNestedScrollingEnabled(false);
+        rct_view.setNestedScrollingEnabled(false);
+        rct_view_dept.setNestedScrollingEnabled(false);
         refresh_view.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.blue),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimary));
         rct_view.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
         adapter = new LiteBaseAdapter<>(getActivity(),
                 mCustomContacts,
-                ContactsViewHolder.class,
-                R.layout.item_contacts_person,
+                ContactsViewDeptHolder.class,
+                R.layout.item_contacts_person_changyong,
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        User user = (User) v.getTag();
+                        ChangyongLianXiRenBean user = (ChangyongLianXiRenBean) v.getTag();
                         Intent intent = new Intent(getActivity(), ContactDetailNewActivity.class);
-                        intent.putExtra("nUser", user);
+                        intent.putExtra("nUser", ChangyongLianXiRenBean.converToUser(user));
                         startActivity(intent);
                     }
                 }, "false");
+        rct_view.setAdapter(adapter);
 
-        mGroupitemAdapter = new GroupContactsItemAdapter(getActivity(), mlstGroupInfo, false, null);
-        mGroupitemAdapter.setOnItemClickLinstener(new GroupContactsItemAdapter.OnItemClickLinstener() {
-            @Override
-            public void onClick(int position, GroupInfo user) {
-                Intent intent = new Intent(getActivity(), ChatGroupActivityNew.class);
-                CreateGroupContactData contactsBean = new CreateGroupContactData();
-                contactsBean.strGroupID = mlstGroupInfo.get(position).strGroupID;
-                contactsBean.strGroupDomainCode = mlstGroupInfo.get(position).strGroupDomainCode;
-                intent.putExtra("mContactsBean", contactsBean);
-                startActivity(intent);
-            }
-        });
+        rct_view_dept.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
+        adapterDomain = new LiteBaseAdapter<>(getActivity(),
+                domainData,
+                ContactsDomainViewHolder.class,
+                R.layout.item_contacts_domain_view,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DomainInfoList.DomainInfo domainInfo = (DomainInfoList.DomainInfo) v.getTag();
+                        ArrayList<String> titleName = new ArrayList<>();
+                        titleName.add(domainInfo.strDomainName);
+                        Intent intent = new Intent(getActivity(), DeptListActivity.class);
+                        intent.putExtra("domainName", domainInfo.strDomainName);
+                        intent.putExtra("titleName", titleName);
+                        intent.putExtra("domain", domainInfo);
+                        startActivity(intent);
+                    }
+                }, "false");
+        rct_view_dept.setAdapter(adapterDomain);
+
+        rct_view_suozai.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
+        adapterAt = new LiteBaseAdapter<>(getActivity(),
+                atData,
+                ContactsDeptViewHolder.class,
+                R.layout.item_contacts_person_chat,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DeptData deptData = (DeptData) v.getTag();
+                        if (v.getId() == R.id.tv_message) {
+                            new DeptChatUtils().startGroup(getActivity(), deptData);
+                            return;
+                        }
+                        DomainInfoList.DomainInfo domain = null;
+                        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+                            for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
+                                if (temp.strDomainCode.equals(AppAuth.get().getDomainCode())) {
+                                    domain = temp;
+                                    break;
+                                }
+                            }
+                        }
+                        deptData.strDomainCode = domain == null ? "" : domain.strDomainCode;
+                        ArrayList<String> titleName = new ArrayList<>();
+                        titleName.add(domain == null ? "" : domain.strDomainName);
+                        titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
+                        Intent intent = new Intent(getActivity(), DeptDeepListActivity.class);
+                        intent.putExtra("domainName", (domain == null ? "" : domain.strDomainName));
+                        intent.putExtra("titleName", titleName);
+                        intent.putExtra("deptData", deptData);
+                        startActivity(intent);
+
+                    }
+                }, "false");
+        rct_view_suozai.setAdapter(adapterAt);
 
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (isFreadList) {
-                    requestContacts();
-                } else {
-                    requestGroupContacts();
-                }
-            }
-        });
-
-        contacts_retrieval_bar.setTextView(tv_letter_high_fidelity_item);
-        contacts_retrieval_bar.setOnTouchingLetterChangedListener(new FastRetrievalBar.OnTouchingLetterChangedListener() {
-            @Override
-            public void onTouchingLetterChanged(String s) {
-                int position = -1;
-                if (mCustomContacts.size() <= 0) {
-                    return;
-                }
-                for (int i = 0; i < mCustomContacts.size(); i++) {
-                    if (s.equals(String.valueOf(mCustomContacts.get(i).pinyin))) {
-                        position = i;
-                        break;
-                    }
-                }
-                if (position == -1) {
-                    return;
-                }
-                if (position == 0) {
-                    rct_view.scrollToPosition(0);
-                } else {
-                    rct_view.scrollToPosition(position);
-                }
-            }
-
-            @Override
-            public void setSidePressed() {
-
-            }
-
-            @Override
-            public void setSideUnPressed() {
-
+                refresh_view.setRefreshing(true);
+                initData();
             }
         });
 
@@ -252,23 +254,59 @@ public class FragmentContacts extends AppBaseFragment {
     }
 
     private void initData() {
-        requestContacts();
-        requestGroupContacts();
-
+        requestSelfDept();
+        requestDept();
+        requestChangYong();
     }
 
-    private void requestContacts() {
-        Log.i(this.getClass().getName(), "requestContacts");
+    private void showData(String str) {
+        mCustomContacts.clear();
+        for (ChangyongLianXiRenBean temp : mAllContacts) {
+            if (TextUtils.isEmpty(str)) {
+                mCustomContacts.add(temp);
+            } else if (temp.strUserName.contains(str) || temp.strLoginName.contains(str)) {
+                mCustomContacts.add(temp);
+            }
+        }
+        domainData.clear();
+        for (DomainInfoList.DomainInfo temp : allDomainDatas) {
+            if (TextUtils.isEmpty(str)) {
+                domainData.add(temp);
+            } else if (temp.strDomainName.contains(str) || temp.strDomainCode.contains(str)) {
+                domainData.add(temp);
+            }
+        }
+        adapter.notifyDataSetChanged();
+        adapterDomain.notifyDataSetChanged();
 
-        /* -1表示不分页，即获取所有联系人 */
-        ModelApis.Contacts().requestBuddyContacts(-1, 0, AppDatas.Auth().getDomainCode(), 0, new ModelCallback<ContactsBean>() {
+        refresh_view.setRefreshing(false);
+    }
+
+    private void requestDept() {
+        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+            allDomainDatas.clear();
+            allDomainDatas.addAll(VIMApp.getInstance().mDomainInfoList);
+            showData(et_key.getText().toString());
+        }
+    }
+
+    private void requestSelfDept() {
+        ModelApis.Contacts().requestBuddyContacts(new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
                 if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                    mAllContacts.clear();
-                    mAllContacts.addAll(contactsBean.userList);
-                    if (isFreadList) {
-                        updateContacts(true);
+                    for (User temp : contactsBean.userList) {
+                        if (temp.strUserID.equals(AppAuth.get().getUserID())) {
+                            atData.clear();
+                            if (temp.getUserDept() != null) {
+                                atData.addAll(temp.getUserDept());
+                                tv_dept_at.setVisibility(View.VISIBLE);
+                            } else {
+                                tv_dept_at.setVisibility(View.GONE);
+                            }
+                            adapterAt.notifyDataSetChanged();
+                            break;
+                        }
                     }
                 }
             }
@@ -281,272 +319,39 @@ public class FragmentContacts extends AppBaseFragment {
         });
     }
 
-    private void getUserInfos(ArrayList<User> userList) {
-        new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal<Map<String, List<String>>>() {
-            @Override
-            public Map<String, List<String>> doOnThread() {
-                Map<String, List<String>> groups = groupBystrDomainCode(userList);
-                return groups;
-            }
-
-            @Override
-            public void doOnMain(Map<String, List<String>> data) {
-                for (Map.Entry<String, List<String>> entry : data.entrySet()) {
-                    String mapKey = entry.getKey();
-                    List<String> mapValue = entry.getValue();
-                    ContactsApi.get().requestUserInfoList(mapKey, mapValue, new ModelCallback<ContactsBean>() {
-                        @Override
-                        public void onSuccess(ContactsBean contactsBean) {
-
-                            if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                                AppDatas.MsgDB().getFriendListDao().insertAll(contactsBean.userList);
-                                refreshUserData(contactsBean.userList);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-
-
-    }
-
-    private void refreshUserData(List<User> users) {
-        new RxUtils<List<User>>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal<List<User>>() {
-            @Override
-            public List<User> doOnThread() {
-                if (null != mAllContacts && mAllContacts.size() > 0 && null != users && users.size() > 0) {
-                    for (User userAll : mAllContacts) {
-                        for (User user : users) {
-                            if (userAll.strDomainCode.equals(user.strDomainCode) && userAll.strUserID.equals(user.strUserID)) {
-                                mAllContacts.set(mAllContacts.indexOf(userAll), user);
-                                continue;
-                            }
-                        }
-                    }
-
-                }
-                return mAllContacts;
-            }
-
-            @Override
-            public void doOnMain(List<User> data) {
-
-                if (null != adapter) {
-                    adapter.notifyDataSetChanged();
-                    if (isFreadList) {
-                        updateContacts(false);
-                    }
-                }
-            }
-        });
-
+    private void requestChangYong() {
+        mAllContacts.clear();
+        mAllContacts.addAll(AppDatas.MsgDB().getChangYongLianXiRen().queryAll(AppAuth.get().getUserID(), AppAuth.get().getDomainCode()));
+        showData(et_key.getText().toString());
     }
 
     private void refreshCurrentUserData(User user) {
-        new RxUtils<List<User>>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal<List<User>>() {
+        new RxUtils<List<ChangyongLianXiRenBean>>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal<List<ChangyongLianXiRenBean>>() {
             @Override
-            public List<User> doOnThread() {
+            public List<ChangyongLianXiRenBean> doOnThread() {
                 if (null != mAllContacts && mAllContacts.size() > 0 && null != user) {
-                    for (User userAll : mAllContacts) {
+                    for (ChangyongLianXiRenBean userAll : mAllContacts) {
                         if (userAll.strDomainCode.equals(user.strDomainCode) && userAll.strUserID.equals(user.strUserID)) {
-                            mAllContacts.set(mAllContacts.indexOf(userAll), user);
+                            ChangyongLianXiRenBean lianxiren = ChangyongLianXiRenBean.converToChangyongLianXiRen(user);
+                            mAllContacts.set(mAllContacts.indexOf(userAll), lianxiren);
+                            mCustomContacts.set(mCustomContacts.indexOf(userAll), lianxiren);
+                            AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), user.strUserID, TextUtils.isEmpty(user.strDomainCode) ? user.strUserDomainCode : user.strDomainCode);
+                            AppDatas.MsgDB().getChangYongLianXiRen().insertAll(lianxiren);
                             continue;
                         }
                     }
-
                 }
                 return mAllContacts;
             }
 
             @Override
-            public void doOnMain(List<User> data) {
-
+            public void doOnMain(List<ChangyongLianXiRenBean> data) {
                 if (null != adapter) {
                     adapter.notifyDataSetChanged();
-                    if (isFreadList) {
-                        updateContacts(false);
-                    }
                 }
             }
         });
 
-    }
-
-    private Map<String, List<String>> groupBystrDomainCode(List<User> userList) {
-        Map<String, List<String>> groupBy = new HashMap<>();
-        for (User nUser : userList) {
-            if (groupBy.containsKey(nUser.strDomainCode)) {
-                groupBy.get(nUser.strDomainCode).add(nUser.strUserID);
-            } else {
-                List<String> users = new ArrayList<>();
-                users.add(nUser.strUserID);
-                groupBy.put(nUser.strDomainCode, users);
-            }
-        }
-        return groupBy;
-    }
-
-    private void requestGroupContacts() {
-        Log.i(this.getClass().getName(), "requestGroupContacts");
-        /* -1表示不分页，即获取所有联系人 */
-        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
-            refresh_view.setRefreshing(true);
-            requestCount = VIMApp.getInstance().mDomainInfoList.size();
-            currentRequestTime = 0;
-            for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
-                ModelApis.Contacts().requestGroupBuddyContacts(-1, 0, 0, null, domainInfo.strDomainCode, new ModelCallback<ContactsGroupChatListBean>() {
-                    @Override
-                    public void onSuccess(final ContactsGroupChatListBean contactsBean) {
-                        if (currentRequestTime == 0) {
-                            mlstGroupInfo.clear();
-                        }
-                        ++currentRequestTime;
-                        mlstGroupInfo.addAll(contactsBean.lstGroupInfo);
-                        updateMsgTopNoDisturb(contactsBean.lstGroupInfo);
-                        if (!isFreadList) {
-                            updateGroupContacts();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(HTTPResponse httpResponse) {
-                        super.onFailure(httpResponse);
-                        ++currentRequestTime;
-                    }
-
-                    @Override
-                    public void onCancel(HTTPRequest httpRequest) {
-                        super.onCancel(httpRequest);
-                        ++currentRequestTime;
-                    }
-
-                    @Override
-                    public void onFinish(HTTPResponse httpResponse) {
-                        super.onFinish(httpResponse);
-                        if (requestCount == currentRequestTime) {
-                            refresh_view.setRefreshing(false);
-                            if (null != mlstGroupInfo && mlstGroupInfo.size() > 0) {
-                                AppDatas.MsgDB().getGroupListDao().insertAll(mlstGroupInfo);
-                                Logger.debug(TAG, AppDatas.MsgDB().getGroupListDao().getGroupList().size() + "");
-                            }
-                        }
-                    }
-                });
-            }
-        } else {
-            refresh_view.setRefreshing(false);
-            VIMApp.getInstance().getDomainCodeList();
-        }
-
-    }
-
-    private void updateMsgTopNoDisturb(ArrayList<GroupInfo> lstGroupInfo) {
-        if (null != lstGroupInfo && lstGroupInfo.size() > 0) {
-            new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-                @Override
-                public Object doOnThread() {
-                    for (GroupInfo groupInfo : lstGroupInfo) {
-                        VimMessageListMessages.get().updateNoDisturb(groupInfo.strGroupDomainCode + groupInfo.strGroupID, groupInfo.nNoDisturb);
-                        SP.putInt(groupInfo.strGroupDomainCode + groupInfo.strGroupID + AppUtils.SP_SETTING_NODISTURB, groupInfo.nNoDisturb);
-                        if (groupInfo.nMsgTop == SP.getInteger(groupInfo.strGroupDomainCode + groupInfo.strGroupID + AppUtils.SP_SETTING_MSG_TOP, 0)) {
-                            continue;
-                        }
-                        VimMessageListMessages.get().updateMsgTop(groupInfo.strGroupDomainCode + groupInfo.strGroupID, groupInfo.nMsgTop);
-                        SP.putInt(groupInfo.strGroupDomainCode + groupInfo.strGroupID + AppUtils.SP_SETTING_MSG_TOP, groupInfo.nMsgTop);
-                        SP.putLong(groupInfo.strGroupDomainCode + groupInfo.strGroupID + AppUtils.SP_SETTING_MSG_TOP_TIME, System.currentTimeMillis());
-                    }
-                    return "";
-                }
-
-                @Override
-                public void doOnMain(Object data) {
-
-                }
-            });
-        }
-    }
-
-    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
-        if (data == null || data.size() <= 0) {
-            return null;
-        }
-        for (User item : data) {
-            String upPinYin = "";
-            item.isSelected = false;
-            for (User temp : VimChoosedContacts.get().getContacts()) {
-                if (temp.strUserName.equals(item.strUserName)) {
-                    item.isSelected = true;
-                    break;
-                }
-            }
-            if (TextUtils.isEmpty(item.strUserNamePinYin)) {
-                item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
-                upPinYin = item.strUserNamePinYin.toUpperCase();
-            } else {
-                upPinYin = item.strUserNamePinYin.toUpperCase();
-            }
-            String a = "#";
-            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
-        }
-
-        return data;
-    }
-
-    public void updateContacts(boolean isNeedRefreshUserInfo) {
-        new RxUtils<List<User>>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-            @Override
-            public Object doOnThread() {
-                mCustomContacts.clear();
-                mCustomContacts.addAll(getCustomContacts(mAllContacts));
-                return mCustomContacts;
-            }
-
-            @Override
-            public void doOnMain(Object data) {
-                rct_view.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
-                if (isNeedRefreshUserInfo) {
-                    getUserInfos(mAllContacts);
-                }
-            }
-        });
-
-
-    }
-
-    public void updateGroupContacts() {
-
-        rct_view.setAdapter(mGroupitemAdapter);
-        mGroupitemAdapter.setDatas(mlstGroupInfo);
-        mGroupitemAdapter.notifyDataSetChanged();
-    }
-
-    private void switchOnline() {
-        /*切换是否显示全部联系人*/
-        AppDatas.Constants().switchShowAllContacts();
-
-        updateContacts(false);
-    }
-
-    private ArrayList<User> getOnlineContacts() {
-        mOnlineContacts.clear();
-        for (User item : mAllContacts) {
-            if (item.nStatus > 0) {
-                mOnlineContacts.add(item);
-            }
-        }
-        return mOnlineContacts;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-       /* if (isFreadList) {
-            requestContacts();
-        } else {
-            requestGroupContacts();
-        }*/
     }
 
     @OnClick({R.id.tv_group})
@@ -558,6 +363,24 @@ public class FragmentContacts extends AppBaseFragment {
         startActivity(intent);
     }
 
+    @OnClick({R.id.tv_dept_title})
+    public void onClickTitle(View view) {
+        if (isSOS) {
+            return;
+        }
+        isShow = !isShow;
+        adapterDomain.notifyDataSetChanged();
+    }
+
+    @OnClick({R.id.ll_search, R.id.et_key})
+    public void onClickSearch(View view) {
+        if (isSOS) {
+            return;
+        }
+        Intent intent = new Intent(getContext(), SearchDeptUserListActivity.class);
+        startActivity(intent);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(final MessageEvent messageEvent) {
         if (null == messageEvent) {
@@ -566,53 +389,12 @@ public class FragmentContacts extends AppBaseFragment {
         switch (messageEvent.what) {
             case AppUtils.EVENT_CREATE_GROUP_SUCCESS_ADDGROUP_TO_LIST:
             case AppUtils.EVENT_MESSAGE_MODIFY_GROUP:
-                new RxUtils().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-                    @Override
-                    public Object doOnThread() {
-                        if (null != mlstGroupInfo && !TextUtils.isEmpty(messageEvent.msgContent)) {
-                            ContactsGroupUserListBean nContactsGroupUserListBean = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(messageEvent.msgContent);
-                            boolean needAddGroup = true;
-                            if (null != nContactsGroupUserListBean) {
-                                for (GroupInfo nGroupInfo : mlstGroupInfo) {
-                                    if (nGroupInfo.strGroupID.equals(messageEvent.msgContent)) {
-                                        nGroupInfo.strHeadUrl = nContactsGroupUserListBean.strHeadUrl;
-                                    }
-                                    if (messageEvent.msgContent.equals(nGroupInfo.strGroupID)) {
-                                        needAddGroup = false;
-                                        break;
-                                    }
-                                }
-                                if (needAddGroup) {
-                                    GroupInfo nGroupInfo = new GroupInfo();
-                                    nGroupInfo.strGroupDomainCode = nContactsGroupUserListBean.strGroupDomainCode;
-                                    nGroupInfo.strGroupID = nContactsGroupUserListBean.strGroupID;
-                                    nGroupInfo.strGroupName = nContactsGroupUserListBean.strGroupName;
-                                    nGroupInfo.strHeadUrl = nContactsGroupUserListBean.strHeadUrl;
-                                    mlstGroupInfo.add(nGroupInfo);
-                                }
-                            }
-
-                        }
-                        return mlstGroupInfo;
-                    }
-
-                    @Override
-                    public void doOnMain(Object data) {
-                        if (null != mGroupitemAdapter && !isFreadList) {
-                            mGroupitemAdapter.notifyDataSetChanged();
-                        }
-
-                    }
-                });
-
                 break;
             case AppUtils.EVENT_MESSAGE_ADD_FRIEND:
             case AppUtils.EVENT_MESSAGE_DEL_FRIEND:
-                requestContacts();
                 break;
             case AppUtils.EVENT_DEL_GROUP_SUCCESS:
             case AppUtils.EVENT_LEAVE_GROUP_SUCCESS:
-                requestGroupContacts();
                 break;
             case AppUtils.EVENT_MESSAGE_MODIFY_HEAD_PIC:
                 User user = (User) messageEvent.obj1;
@@ -632,5 +414,21 @@ public class FragmentContacts extends AppBaseFragment {
 
     public void setSos(boolean isSOS) {
         this.isSOS = isSOS;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initData();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if(hidden) {
+
+        } else {
+            initData();
+        }
     }
 }

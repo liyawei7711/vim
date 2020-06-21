@@ -36,6 +36,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import huaiye.com.vim.BuildConfig;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
@@ -407,6 +408,9 @@ public class FragmentSettings extends AppBaseFragment {
                 AppDatas.MsgDB().getGroupListDao().clearData();
                 AppDatas.MsgDB().getSendUserListDao().clearData();
                 AppDatas.MsgDB().getFileLocalListDao().clearData();
+                if(BuildConfig.DEBUG) {
+                    AppDatas.MsgDB().getChangYongLianXiRen().clearData();
+                }
                 AppDatas.Messages().clear();
                 VimMessageListMessages.get().clear();
                 if (issecuritylogout) {

@@ -179,7 +179,7 @@
     <string name="config_server">设置服务器</string>
     <string name="config_cm_id">安全设置</string>
     <string name="home_tab_meeting">消息</string>
-    <string name="home_tab_contacts">联系人</string>
+    <string name="home_tab_contacts">组织架构</string>
     <string name="home_tab_my">我的</string>
     <string name="create_meeting">创建会议</string>
     <string name="create_order_meeting">创建预约会议</string>

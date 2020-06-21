@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_checklayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_dept_name"
+        android:layout_width="wrap_content"
+        android:layout_height="55dp"
+        android:layout_centerVertical="true"
+        android:drawableLeft="@drawable/main_level"
+        android:drawablePadding="15dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="2"
+        android:paddingLeft="10dp"
+        android:text="B 同事"
+        android:textColor="@color/black333"
+        android:textSize="17sp" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_data"
+        android:paddingLeft="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <View
+        android:id="@+id/view_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="60dp"
+        android:background="@color/back_gray" />
+</LinearLayout>

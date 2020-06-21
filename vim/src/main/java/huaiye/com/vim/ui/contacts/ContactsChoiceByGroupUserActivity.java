@@ -295,7 +295,7 @@ public class ContactsChoiceByGroupUserActivity extends AppBaseActivity {
 
     private ArrayList<User> getCustomContacts(ArrayList<ContactsGroupUserListBean.LstGroupUser> data) {
         if (data == null || data.size() <= 0) {
-            return null;
+            return new ArrayList<>();
         }
         ArrayList<User> users = new ArrayList<>();
         for (ContactsGroupUserListBean.LstGroupUser temp : data) {

@@ -12,6 +12,8 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.constant.CommonConstant;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
+import huaiye.com.vim.dao.msgs.LstOutUserBean;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.CommonResult;
 import huaiye.com.vim.models.ModelCallback;
@@ -59,17 +61,60 @@ public class ContactsApi {
     /**
      * 获取通讯录
      */
-    public void requestContacts(int page, long nDepID, ModelCallback<ContactsBean> callback) {
+    public void requestContacts(String strDomainCode, String strDepID, ModelCallback<ContactsBean> callback) {
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
 
         Https.post(URL)
                 .addHeader("Connection", "close")
-                .addParam("strDomainCode", AppDatas.Auth().getDomainCode())
-                .addParam("nPage", page)
+                .addParam("strDomainCode", strDomainCode)
+                .addParam("nPage", -1)
                 .addParam("nSize", CommonConstant.MEET_NUM)
                 .addParam("nOrderByID", 0)
                 .addParam("nAscOrDesc", 0)
-                .addParam("nDepID", nDepID)
+                .addParam("strDepID", strDepID)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+
+    }
+    /**
+     * 获取联系人
+     */
+    public void requestContactsByKey(String strDomainCode, String strKeywords,ModelCallback<ContactsBean> callback) {
+        String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strDomainCode", strDomainCode)
+                .addParam("strKeywords", strKeywords)
+                .addParam("nPage", -1)
+                .addParam("nSize", CommonConstant.MEET_NUM)
+                .addParam("nOrderByID", 0)
+                .addParam("nAscOrDesc", 0)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+
+    }
+
+    /**
+     * 添加人员
+     *
+     * @param strDepID
+     * @param callback
+     */
+    public void addUserToDept(String strDepID, ArrayList<LstOutUserBean> lstUser, ModelCallback<CustomResponse> callback) {
+        String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/invite_user_join_department";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strDepID", strDepID)
+                .addParam("strInviterDomainCode", AppAuth.get().getDomainCode())
+                .addParam("strInviterID", AppAuth.get().getUserID())
+                .addParam("strInviterName", AppAuth.get().getUserName())
+                .addParam("lstUser", lstUser)
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
                 .setHttpCallback(callback)
                 .build()
@@ -86,21 +131,58 @@ public class ContactsApi {
         Https.post(URL)
                 .addHeader("Connection", "close")
                 .addParam("strDomainCode", TextUtils.isEmpty(strDomainCode) ? AppDatas.Auth().getDomainCode() : strDomainCode)
+                .addParam("strUserID", AppDatas.Auth().getUserID())
+                .addParam("nAscOrDesc", 0)
+                .addHeader("strKeywords", "")
+                .addParam("nRouteType", nRouteType)
                 .addParam("nPage", page)
                 .addParam("nSize", CommonConstant.MEET_NUM)
                 .addParam("nOrderByID", 0)
-                .addParam("nAscOrDesc", 0)
-                .addParam("nDepID", nDepID)
-                .addParam("strUserID", AppDatas.Auth().getUserID())
-                .addParam("nRouteType", nRouteType)
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
 
     }
 
+    public void requestBuddyContacts(ModelCallback<ContactsBean> callback) {
+        String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strDomainCode", AppDatas.Auth().getDomainCode())
+                .addParam("nPage", -1)
+                .addParam("nSize", CommonConstant.MEET_NUM)
+                .addParam("nOrderByID", 0)
+                .addParam("nAscOrDesc", 0)
+                .addParam("nDepID", 0)
+                .addParam("strUserID", AppDatas.Auth().getUserID())
+                .addParam("nRouteType", 0)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .addHeader("strKeywords", AppDatas.Auth().getUserID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+
+    }
+
+    public void requestSendDeptMessage(String strDomainCode, String nDepID, String strMsg, ModelCallback<CommonResult> callback) {
+        String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/send_department_msg";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strDomainCode", strDomainCode)
+                .addParam("strUserID", AppDatas.Auth().getUserID())
+                .addParam("nDepID", nDepID)
+                .addParam("strMsg", strMsg)
+                .addParam("strMsgID", System.currentTimeMillis() + "," + AppDatas.Auth().getUserID())
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .addHeader("strKeywords", AppDatas.Auth().getUserID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+
+    }
 
     /**
      * 获取域列表
@@ -147,6 +229,24 @@ public class ContactsApi {
 
     }
 
+    /**
+     * 获取群聊列表
+     */
+    public void requestGroupByDept(String strGroupDomainCode, String strKeywords, ModelCallback<ContactsGroupChatListBean> callback) {
+        String URL = AppDatas.Constants().getChatBaseURL() + "vim/httpjson/query_group_chat_list";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strUserDomainCode", AppDatas.Auth().getDomainCode())
+                .addParam("strUserID", AppDatas.Auth().getUserID())
+                .addParam("strGroupDomainCode", strGroupDomainCode)
+                .addParam("strKeywords", strKeywords)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+
+    }
 
     /**
      * 创建群
@@ -473,7 +573,7 @@ public class ContactsApi {
      *
      * @param callback
      */
-    public void requestOrganization(String eywords, final ModelCallback<ContactOrganizationBean> callback) {
+    public void requestOrganization(String strDomainCode, String strKeywords, final ModelCallback<ContactOrganizationBean> callback) {
         if (mCachedOrganization != null) {
             callback.onSuccess(mCachedOrganization);
             return;
@@ -486,7 +586,8 @@ public class ContactsApi {
                 .addHeader("Connection", "close")
                 .addParam("nOrderByID", 0)
                 .addParam("nAscOrDesc", 1)
-                .addParam("strKeywords", eywords)//可选
+                .addParam("strDomainCode", strDomainCode)
+                .addParam("strKeywords", strKeywords)//可选
                 /*.addParam("methodName", "getEntContacts")
                 .addParam("entCode", entCode)
                 .addParam("userId", AppDatas.Auth().getUserID())*/

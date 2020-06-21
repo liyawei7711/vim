@@ -63,7 +63,9 @@ import huaiye.com.vim.common.ErrorMsg;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.AppMessages;
+import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
 import huaiye.com.vim.ui.meet.MeetNewActivity;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -148,13 +150,23 @@ public class TalkVoiceActivity extends AppBaseActivity {
         EventBus.getDefault().register(this);
         HYClient.getHYCapture().setCameraConferenceMode(HYCapture.CameraConferenceMode.PORTRAIT);
 
+        try{
+            if(toUser == null) {
+                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), strInviteName, strInviteUserDomain);
+                AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(strInviteName, strInviteUserId, strInviteUserDomain));
+            } else {
+                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), toUser.strToUserID, toUser.strToUserDomainCode);
+                AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(toUser.strToUserName, toUser.strToUserID, toUser.strToUserDomainCode));
+            }
+        } catch (Exception e){
+
+        }
 
         if (isTalkStarter) {
             createTalk();
         } else {
             joinTalk();
         }
-
 
     }
 
