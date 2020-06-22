@@ -7,12 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ttyy.commonanno.anno.BindLayout;
@@ -24,6 +22,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import huaiye.com.vim.R;
@@ -47,11 +47,9 @@ import huaiye.com.vim.ui.contacts.ContactDetailNewActivity;
 import huaiye.com.vim.ui.contacts.DeptChatUtils;
 import huaiye.com.vim.ui.contacts.DeptDeepListActivity;
 import huaiye.com.vim.ui.contacts.DeptListActivity;
-import huaiye.com.vim.ui.contacts.FriendActivity;
 import huaiye.com.vim.ui.contacts.GroupListActivity;
 import huaiye.com.vim.ui.contacts.SearchDeptUserListActivity;
 import huaiye.com.vim.ui.home.adapter.ContactsDeptViewHolder;
-import huaiye.com.vim.ui.home.adapter.ContactsDomainViewHolder;
 import huaiye.com.vim.ui.home.adapter.ContactsViewDeptHolder;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
@@ -76,12 +74,8 @@ public class FragmentContacts extends AppBaseFragment {
     RelativeLayout rct_view_layout;*/
     @BindView(R.id.ll_search)
     View ll_search;
-    @BindView(R.id.tv_dept_at)
-    View tv_dept_at;
     @BindView(R.id.rct_view_suozai)
     RecyclerView rct_view_suozai;
-    @BindView(R.id.rct_view_dept)
-    RecyclerView rct_view_dept;
     @BindView(R.id.rct_view)
     RecyclerView rct_view;
     @BindView(R.id.view_list)
@@ -92,19 +86,15 @@ public class FragmentContacts extends AppBaseFragment {
     TextView tv_letter_high_fidelity_item;
 
     LiteBaseAdapter<ChangyongLianXiRenBean> adapter;
-    LiteBaseAdapter<DomainInfoList.DomainInfo> adapterDomain;
     LiteBaseAdapter<DeptData> adapterAt;
 
     private ArrayList<ChangyongLianXiRenBean> mCustomContacts = new ArrayList<>();//常用联系人
-    private ArrayList<DomainInfoList.DomainInfo> domainData = new ArrayList<>();//部门
     private ArrayList<DeptData> atData = new ArrayList<>();//所在部门
 
-    private ArrayList<DomainInfoList.DomainInfo> allDomainDatas = new ArrayList<>();//all部门
     private ArrayList<ChangyongLianXiRenBean> mAllContacts = new ArrayList<>();//常用联系人
 
     private boolean isFreadList = true;
     private boolean isSOS;
-    public static boolean isShow = true;
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -165,7 +155,6 @@ public class FragmentContacts extends AppBaseFragment {
         });
         rct_view_suozai.setNestedScrollingEnabled(false);
         rct_view.setNestedScrollingEnabled(false);
-        rct_view_dept.setNestedScrollingEnabled(false);
         refresh_view.setColorSchemeColors(ContextCompat.getColor(getActivity(), R.color.blue),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimary));
         rct_view.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
@@ -183,26 +172,6 @@ public class FragmentContacts extends AppBaseFragment {
                     }
                 }, "false");
         rct_view.setAdapter(adapter);
-
-        rct_view_dept.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
-        adapterDomain = new LiteBaseAdapter<>(getActivity(),
-                domainData,
-                ContactsDomainViewHolder.class,
-                R.layout.item_contacts_domain_view,
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        DomainInfoList.DomainInfo domainInfo = (DomainInfoList.DomainInfo) v.getTag();
-                        ArrayList<String> titleName = new ArrayList<>();
-                        titleName.add(domainInfo.strDomainName);
-                        Intent intent = new Intent(getActivity(), DeptListActivity.class);
-                        intent.putExtra("domainName", domainInfo.strDomainName);
-                        intent.putExtra("titleName", titleName);
-                        intent.putExtra("domain", domainInfo);
-                        startActivity(intent);
-                    }
-                }, "false");
-        rct_view_dept.setAdapter(adapterDomain);
 
         rct_view_suozai.setLayoutManager(new SafeLinearLayoutManager(getActivity()));
         adapterAt = new LiteBaseAdapter<>(getActivity(),
@@ -255,7 +224,6 @@ public class FragmentContacts extends AppBaseFragment {
 
     private void initData() {
         requestSelfDept();
-        requestDept();
         requestChangYong();
     }
 
@@ -268,26 +236,9 @@ public class FragmentContacts extends AppBaseFragment {
                 mCustomContacts.add(temp);
             }
         }
-        domainData.clear();
-        for (DomainInfoList.DomainInfo temp : allDomainDatas) {
-            if (TextUtils.isEmpty(str)) {
-                domainData.add(temp);
-            } else if (temp.strDomainName.contains(str) || temp.strDomainCode.contains(str)) {
-                domainData.add(temp);
-            }
-        }
         adapter.notifyDataSetChanged();
-        adapterDomain.notifyDataSetChanged();
 
         refresh_view.setRefreshing(false);
-    }
-
-    private void requestDept() {
-        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
-            allDomainDatas.clear();
-            allDomainDatas.addAll(VIMApp.getInstance().mDomainInfoList);
-            showData(et_key.getText().toString());
-        }
     }
 
     private void requestSelfDept() {
@@ -300,9 +251,7 @@ public class FragmentContacts extends AppBaseFragment {
                             atData.clear();
                             if (temp.getUserDept() != null) {
                                 atData.addAll(temp.getUserDept());
-                                tv_dept_at.setVisibility(View.VISIBLE);
                             } else {
-                                tv_dept_at.setVisibility(View.GONE);
                             }
                             adapterAt.notifyDataSetChanged();
                             break;
@@ -322,6 +271,20 @@ public class FragmentContacts extends AppBaseFragment {
     private void requestChangYong() {
         mAllContacts.clear();
         mAllContacts.addAll(AppDatas.MsgDB().getChangYongLianXiRen().queryAll(AppAuth.get().getUserID(), AppAuth.get().getDomainCode()));
+        Collections.sort(mAllContacts, new Comparator<ChangyongLianXiRenBean>() {
+            @Override
+            public int compare(ChangyongLianXiRenBean o1, ChangyongLianXiRenBean o2) {
+                if(TextUtils.isEmpty(o1.saveTime)) {
+                    o1.saveTime = "0";
+                }
+                if(TextUtils.isEmpty(o2.saveTime)) {
+                    o2.saveTime = "0";
+                }
+                long t1 = Long.parseLong(o1.saveTime);
+                long t2 = Long.parseLong(o2.saveTime);
+                return (int) (t2 - t1);
+            }
+        });
         showData(et_key.getText().toString());
     }
 
@@ -368,8 +331,8 @@ public class FragmentContacts extends AppBaseFragment {
         if (isSOS) {
             return;
         }
-        isShow = !isShow;
-        adapterDomain.notifyDataSetChanged();
+        Intent intent = new Intent(getActivity(), DeptListActivity.class);
+        startActivity(intent);
     }
 
     @OnClick({R.id.ll_search, R.id.et_key})
@@ -425,7 +388,7 @@ public class FragmentContacts extends AppBaseFragment {
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-        if(hidden) {
+        if (hidden) {
 
         } else {
             initData();

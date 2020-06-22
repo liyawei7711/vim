@@ -198,7 +198,7 @@ public class MainActivity extends AppBaseActivity {
         if (isSOS) {
             clearSafe();
         }
-
+        VIMApp.getInstance().getDomainCodeList();
         startService(new Intent(this, MusicService.class));
 
         if (!TextUtils.isEmpty(from)) {

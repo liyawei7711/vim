@@ -133,8 +133,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
             }
         });
 
-        requestUser();
-        requestDept();
+//        requestUser();
+//        requestDept();
     }
 
     private void requestUser() {

@@ -21,8 +21,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="false"
-            android:background="@drawable/search_bar_bg">
+            android:background="@drawable/search_bar_bg"
+            android:clickable="false">
 
             <TextView
                 android:id="@+id/et_key"
@@ -64,37 +64,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ScrollView
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rct_view_dept"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rct_view_item"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp" />
-
-                    <huaiye.com.vim.views.MaxRecyclerView
-                        android:id="@+id/rct_view_dept"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp" />
-
-                    <huaiye.com.vim.views.MaxRecyclerView
-                        android:id="@+id/rct_view_user"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="10dp" />
-                </LinearLayout>
-
-            </ScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <ImageView

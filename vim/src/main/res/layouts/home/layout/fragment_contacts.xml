@@ -120,32 +120,15 @@
 
                 <TextView
                     android:id="@+id/tv_dept_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@drawable/main_zuzhijiagou"
                     android:drawablePadding="20dp"
                     android:paddingLeft="20dp"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
-                    android:textColor="#333333"
                     android:text="组织架构"
-                    android:textSize="16sp" />
-
-                <huaiye.com.vim.views.MaxRecyclerView
-                    android:id="@+id/rct_view_dept"
-                    android:paddingLeft="15dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/tv_dept_at"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="15dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
                     android:textColor="#333333"
-                    android:text="所在部门"
                     android:textSize="16sp" />
 
                 <huaiye.com.vim.views.MaxRecyclerView

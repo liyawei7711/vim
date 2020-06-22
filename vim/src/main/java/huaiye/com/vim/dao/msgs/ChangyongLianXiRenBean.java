@@ -185,6 +185,8 @@ public class ChangyongLianXiRenBean implements Serializable {
     public String nPostID;
     @ColumnInfo
     public String strDept;
+    @ColumnInfo
+    public String saveTime;
 
     @Ignore
     public ArrayList<DeptData> lstDepartment;
@@ -281,6 +283,7 @@ public class ChangyongLianXiRenBean implements Serializable {
         user1.nPostID = bean.nPostID;
         user1.strPostName = bean.strPostName;
         user1.strDept = bean.getStrDept();
+        user1.saveTime = System.currentTimeMillis()+"";
         return user1;
     }
     public static ChangyongLianXiRenBean converToChangyongLianXiRen(String strToUserName, String strToUserID, String strToUserDomainCode) {
@@ -290,6 +293,7 @@ public class ChangyongLianXiRenBean implements Serializable {
         user1.strUserID = strToUserID;
         user1.strUserName = strToUserName;
         user1.strDomainCode = strToUserDomainCode;
+        user1.saveTime = System.currentTimeMillis()+"";
         return user1;
     }
 

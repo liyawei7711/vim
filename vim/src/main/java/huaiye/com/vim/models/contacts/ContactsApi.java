@@ -16,6 +16,7 @@ import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.LstOutUserBean;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.CommonResult;
+import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.ModelSDKErrorResp;
 import huaiye.com.vim.models.contacts.bean.CommonContacts;
@@ -1208,5 +1209,20 @@ public class ContactsApi {
                 .requestAsync();
     }
 
+    public void requestAllContacts(String strDomainCode, ModelCallback<ContactsBean> callback) {
+        String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strDomainCode", strDomainCode)
+                .addParam("nPage", -1)
+                .addParam("nSize", CommonConstant.MEET_NUM)
+                .addParam("nOrderByID", 0)
+                .addParam("nAscOrDesc", 0)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+    }
 
 }

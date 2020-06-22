@@ -25,7 +25,7 @@ import ttyy.com.sp.multiprocess.StoreIntf;
 
 public class AppDatas {
 
-    static final int VERSION = 11;
+    static final int VERSION = 12;
     static final String DBNAME = "VIM";
 
     static AppConstants CONSTANTS;
@@ -61,7 +61,7 @@ public class AppDatas {
         db = Room.databaseBuilder(context, AppDatabase.class, "vim_db")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
-                .addMigrations(migration_1_new, migration_2_new, migration_3_new, migration_4_new, migration_7_8_new, migration_8_9_new, migration_9_11_new)
+                .addMigrations(migration_1_new, migration_2_new, migration_3_new, migration_4_new, migration_7_8_new, migration_8_9_new, migration_9_11_new, migration_11_12_new)
                 .build();
 
         CONSTANTS = new AppConstants();
@@ -152,7 +152,7 @@ public class AppDatas {
         }
     };
 
-    static Migration migration_9_11_new = new Migration(9, VERSION) {
+    static Migration migration_9_11_new = new Migration(9, 11) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             try {
@@ -164,6 +164,17 @@ public class AppDatas {
                 );
                 database.execSQL("ALTER TABLE tb_friend_list "
                         + " ADD COLUMN strDept STRING"
+                );
+            } catch (Exception e) {
+            }
+        }
+    };
+    static Migration migration_11_12_new = new Migration(11, VERSION) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            try {
+                database.execSQL("ALTER TABLE tb_user_changyong_lianxi "
+                        + " ADD COLUMN saveTime STRING"
                 );
             } catch (Exception e) {
             }

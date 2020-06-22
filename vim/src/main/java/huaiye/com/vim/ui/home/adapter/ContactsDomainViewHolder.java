@@ -12,6 +12,8 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,8 +28,8 @@ import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.contacts.DeptChatUtils;
 import huaiye.com.vim.ui.contacts.DeptDeepListActivity;
+import huaiye.com.vim.ui.contacts.DeptListActivity;
 import huaiye.com.vim.ui.contacts.viewholder.DepeContactItemViewHolder;
-import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 public class ContactsDomainViewHolder extends LiteViewHolder {
@@ -60,54 +62,56 @@ public class ContactsDomainViewHolder extends LiteViewHolder {
         itemView.setOnClickListener(ocl);
         tv_dept_name.setText(domain.strDomainName);
 
-        if (FragmentContacts.isShow) {
-            rv_data.setVisibility(View.VISIBLE);
-            ModelApis.Contacts().requestOrganization(domain.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
-                @Override
-                public void onSuccess(final ContactOrganizationBean contactsBean) {
-                    if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {
-                        ArrayList<DeptData> datas = new ArrayList<>();
-                        for(DeptData temp : contactsBean.departmentInfoList) {
-                            if("0".equals(temp.strParentID) || "".equals(temp.strParentID)) {
-                                datas.add(temp);
-                            }
+        ModelApis.Contacts().requestOrganization(domain.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
+            @Override
+            public void onSuccess(final ContactOrganizationBean contactsBean) {
+                if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {
+                    ArrayList<DeptData> datas = new ArrayList<>();
+                    for (DeptData temp : contactsBean.departmentInfoList) {
+                        if ("0".equals(temp.strParentID) || "".equals(temp.strParentID)) {
+                            datas.add(temp);
                         }
-                        LiteBaseAdapter<DeptData> deptAdapter = new LiteBaseAdapter<>(context,
-                                datas,
-                                DepeContactItemViewHolder.class,
-                                R.layout.item_dept_view,
-                                new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        DeptData deptData = (DeptData) v.getTag();
-                                        deptData.strDomainCode = domain.strDomainCode;
-                                        if (v.getId() == R.id.tv_message) {
-                                            new DeptChatUtils().startGroup(context, deptData);
-                                            return;
-                                        }
-                                        ArrayList<String> titleName = new ArrayList<>();
-                                        titleName.add(domain.strDomainName);
-                                        titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
-                                        Intent intent = new Intent(context, DeptDeepListActivity.class);
-                                        intent.putExtra("domainName", domain.strDomainName);
-                                        intent.putExtra("titleName", titleName);
-                                        intent.putExtra("deptData", deptData);
-                                        context.startActivity(intent);
-                                    }
-                                }, "false");
-                        rv_data.setAdapter(deptAdapter);
-                        rv_data.setLayoutManager(new SafeLinearLayoutManager(context));
                     }
+                    Collections.sort(datas, new Comparator<DeptData>() {
+                        @Override
+                        public int compare(DeptData o1, DeptData o2) {
+                            return o1.nPriority - o2.nPriority;
+                        }
+                    });
+                    LiteBaseAdapter<DeptData> deptAdapter = new LiteBaseAdapter<>(context,
+                            datas,
+                            DepeContactItemViewHolder.class,
+                            R.layout.item_dept_view,
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    DeptData deptData = (DeptData) v.getTag();
+                                    deptData.strDomainCode = domain.strDomainCode;
+                                    if (v.getId() == R.id.tv_message) {
+                                        new DeptChatUtils().startGroup(context, deptData);
+                                        return;
+                                    }
+                                    ArrayList<String> titleName = new ArrayList<>();
+                                    titleName.add(domain.strDomainName);
+                                    titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
+                                    Intent intent = new Intent(context, DeptDeepListActivity.class);
+                                    intent.putExtra("domainName", domain.strDomainName);
+                                    intent.putExtra("titleName", titleName);
+                                    intent.putExtra("deptData", deptData);
+                                    intent.putExtra("map", ((DeptListActivity)context).map);
+                                    context.startActivity(intent);
+                                }
+                            }, "false");
+                    rv_data.setAdapter(deptAdapter);
+                    rv_data.setLayoutManager(new SafeLinearLayoutManager(context));
                 }
+            }
 
-                @Override
-                public void onFinish(HTTPResponse httpResponse) {
-                    super.onFinish(httpResponse);
-                }
-            });
-        } else {
-            rv_data.setVisibility(View.GONE);
-        }
+            @Override
+            public void onFinish(HTTPResponse httpResponse) {
+                super.onFinish(httpResponse);
+            }
+        });
 
         if (position == datas.size() - 1) {
             view_divider.setVisibility(View.GONE);

@@ -90,6 +90,7 @@ public class FriendActivity extends AppBaseActivity {
     private boolean isFreadList = true;
     private int requestCount = 0;
     private int currentRequestTime = 0;
+    private int totalRequest = 0;
 
     private void initData() {
         requestContacts();
@@ -97,27 +98,36 @@ public class FriendActivity extends AppBaseActivity {
     }
 
     private void requestContacts() {
-        Log.i(this.getClass().getName(), "requestContacts");
-
-        /* -1表示不分页，即获取所有联系人 */
-        ModelApis.Contacts().requestBuddyContacts(-1, 0, AppDatas.Auth().getDomainCode(), 0, new ModelCallback<ContactsBean>() {
-            @Override
-            public void onSuccess(final ContactsBean contactsBean) {
-                if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                    mAllContacts.clear();
-                    mAllContacts.addAll(contactsBean.userList);
-                    if (isFreadList) {
-                        updateContacts(true);
+        mAllContacts.clear();
+        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+            totalRequest++;
+            for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
+                ModelApis.Contacts().requestAllContacts(domainInfo.strDomainCode, new ModelCallback<ContactsBean>() {
+                    @Override
+                    public void onSuccess(ContactsBean contactsBean) {
+                        if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                            mAllContacts.addAll(contactsBean.userList);
+                        }
+                        doCallBack();
                     }
-                }
-            }
 
-            @Override
-            public void onFinish(HTTPResponse httpResponse) {
-                super.onFinish(httpResponse);
-                refresh_view.setRefreshing(false);
+                    @Override
+                    public void onFinish(HTTPResponse httpResponse) {
+                        doCallBack();
+                    }
+                });
             }
-        });
+        }
+    }
+
+    private void doCallBack() {
+        totalRequest--;
+        if(totalRequest == 0) {
+            refresh_view.setRefreshing(false);
+            if (isFreadList) {
+                updateContacts(true);
+            }
+        }
     }
 
     private void getUserInfos(ArrayList<User> userList) {

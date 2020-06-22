@@ -22,8 +22,6 @@ import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
 
 public class ContactsViewDeptHolder extends LiteViewHolder {
-    @BindView(R.id.tv_checklayout)
-    CheckableLinearLayout tv_checklayout;
     @BindView(R.id.iv_user_head)
     ImageView iv_user_head;
     @BindView(R.id.tv_user_name)

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import huaiye.com.vim.R;
+import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
@@ -41,6 +42,7 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.CustomContacts;
+import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
@@ -70,6 +72,8 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
 
     private ArrayList<CustomContacts.LetterStructure> mCustomContacts;
     private ArrayList<User> mAllContacts = new ArrayList<>();
+
+    private int totalRequest = 0;
 
     @BindExtra
     String strUserDomainCode;
@@ -190,30 +194,52 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     }
 
     private void requestContacts() {
-        Log.i(this.getClass().getName(), "requestContacts");
-
-        /* -1表示不分页，即获取所有联系人 */
-        ModelApis.Contacts().requestBuddyContacts(-1, 0, AppDatas.Auth().getDomainCode(), 0, new ModelCallback<ContactsBean>() {
-            @Override
-            public void onSuccess(final ContactsBean contactsBean) {
-                if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                    mAllContacts.clear();
-                    for (User temp : contactsBean.userList) {
-//                        if (!data.sessionID.equals(TextUtils.isEmpty(temp.strDomainCode) ? temp.strUserDomainCode : temp.strDomainCode + temp.strUserID)) {
-                            temp.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(temp.strUserID, TextUtils.isEmpty(temp.strDomainCode) ? temp.strUserDomainCode : temp.strDomainCode);
-                            mAllContacts.add(temp);
-//                        }
+        mAllContacts.clear();
+        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+            totalRequest++;
+            for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
+                ModelApis.Contacts().requestAllContacts(domainInfo.strDomainCode, new ModelCallback<ContactsBean>() {
+                    @Override
+                    public void onSuccess(ContactsBean contactsBean) {
+                        if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                            mAllContacts.addAll(contactsBean.userList);
+                        }
+                        doCallBack();
                     }
-                    updateContacts();
-                }
-            }
 
-            @Override
-            public void onFinish(HTTPResponse httpResponse) {
-                super.onFinish(httpResponse);
-                refresh_view.setRefreshing(false);
+                    @Override
+                    public void onFinish(HTTPResponse httpResponse) {
+                        doCallBack();
+                    }
+                });
             }
-        });
+        }
+    }
+
+    private void doCallBack() {
+        totalRequest--;
+        if(totalRequest == 0) {
+            refresh_view.setRefreshing(false);
+            new RxUtils<ArrayList<User>>()
+                    .doOnThreadObMain(new RxUtils.IThreadAndMainDeal<ArrayList<User>>() {
+                        @Override
+                        public ArrayList<User> doOnThread() {
+                            ArrayList<User> userList = new ArrayList<>();
+                            for (User item : mAllContacts) {
+                                if (!item.strUserID.equals(AppDatas.Auth().getUserID())) {
+                                    item.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(item.strUserID, item.strDomainCode);
+                                    userList.add(item);
+                                }
+                            }
+                            return userList;
+                        }
+
+                        @Override
+                        public void doOnMain(ArrayList<User> data) {
+                            updateContacts();
+                        }
+                    });
+        }
     }
 
     private void refreshCurrentUserData(User user) {

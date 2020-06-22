@@ -19,6 +19,8 @@ import com.ttyy.commonanno.anno.OnClick;
 import com.ttyy.commonanno.anno.route.BindExtra;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,8 +145,10 @@ public class DeptDeepListActivity extends AppBaseActivity {
                 }, "false");
         rct_view_item.setAdapter(strAdapter);
         rct_view_item.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
         rct_view_dept.setAdapter(deptAdapter);
         rct_view_dept.setLayoutManager(new SafeLinearLayoutManager(this));
+
         rct_view_user.setAdapter(userAdapter);
         rct_view_user.setLayoutManager(new SafeLinearLayoutManager(this));
 
@@ -219,11 +223,12 @@ public class DeptDeepListActivity extends AppBaseActivity {
 
     private void showData(String str) {
         userInfos.clear();
+        deptDatas.clear();
         if (TextUtils.isEmpty(str)) {
             userInfos.addAll(allUserInfos);
             deptDatas.addAll(allDeptDatas);
         } else {
-            for (User temp : userInfos) {
+            for (User temp : allUserInfos) {
                 if (temp.strUserName.contains(str) ||
                         temp.strLoginName.contains(str)) {
                     userInfos.add(temp);
@@ -235,6 +240,12 @@ public class DeptDeepListActivity extends AppBaseActivity {
                 }
             }
         }
+        Collections.sort(userInfos, new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.nPriority - o2.nPriority;
+            }
+        });
         userAdapter.notifyDataSetChanged();
         deptAdapter.notifyDataSetChanged();
     }

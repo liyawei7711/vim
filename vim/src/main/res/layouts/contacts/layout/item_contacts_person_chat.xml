@@ -16,6 +16,8 @@
             android:id="@+id/tv_user_name"
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:drawableLeft="@drawable/main_level"
+            android:drawablePadding="15dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="25dp"

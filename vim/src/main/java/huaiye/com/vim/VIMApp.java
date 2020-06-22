@@ -180,6 +180,9 @@ public class VIMApp extends MultiDexApplication {
     }
 
     public void getDomainCodeList() {
+        if (!mDomainInfoList.isEmpty()) {
+            return;
+        }
         ContactsApi.get().requestGetDomainInfo(new ModelCallback<DomainInfoList>() {
             @Override
             public void onSuccess(DomainInfoList domainInfoList) {
