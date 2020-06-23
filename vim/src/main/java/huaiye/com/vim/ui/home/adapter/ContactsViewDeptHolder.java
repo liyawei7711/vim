@@ -57,11 +57,17 @@ public class ContactsViewDeptHolder extends LiteViewHolder {
                 .into(iv_user_head);
 
         tv_user_name.setText(user.strUserName);
-        StringBuilder sb = new StringBuilder();
-        for (DeptData temp : user.getUserDept()) {
-            sb.append(temp.strDepName + " ");
+//        StringBuilder sb = new StringBuilder();
+//        for (DeptData temp : user.getUserDept()) {
+//            sb.append(temp.strDepName + " ");
+//        }
+//        tv_choose_added.setText((TextUtils.isEmpty(user.strPostName) ? "" : (user.strPostName) + ",") + sb);
+        tv_choose_added.setText(user.strPostName);
+        if(TextUtils.isEmpty(user.strPostName)) {
+            tv_choose_added.setVisibility(View.GONE);
+        } else {
+            tv_choose_added.setVisibility(View.VISIBLE);
         }
-        tv_choose_added.setText((TextUtils.isEmpty(user.strPostName) ? "" : (user.strPostName) + ",") + sb);
         itemView.setOnClickListener(ocl);
 
         if (position == datas.size() - 1) {

@@ -49,6 +49,9 @@ import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.VimMessageBean;
 import huaiye.com.vim.dao.msgs.VimMessageListBean;
 import huaiye.com.vim.dao.msgs.VimMessageListMessages;
+import huaiye.com.vim.models.ModelApis;
+import huaiye.com.vim.models.ModelCallback;
+import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.push.MessageNotify;
@@ -57,8 +60,10 @@ import huaiye.com.vim.ui.auth.SettingAddressSafeActivity;
 import huaiye.com.vim.ui.chat.holder.ChatListViewHolder;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import huaiye.com.vim.ui.meet.ChatSingleActivity;
+import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static android.support.v7.widget.helper.ItemTouchHelper.Callback.makeMovementFlags;
+import static huaiye.com.vim.common.AppBaseActivity.showToast;
 import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 
 /**
@@ -151,7 +156,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                             showEmpty();
 
                             VimMessageListMessages.get().del(data.sessionID);
-                            if (data.groupType == 1) {
+                            if (data.groupType == 1 || data.groupType == 2) {
                                 SP.putInt(data.sessionID + AppUtils.SP_SETTING_NODISTURB, 0);
                                 AppDatas.MsgDB()
                                         .chatGroupMsgDao()
@@ -229,14 +234,20 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
         }
         VimMessageListBean bean = (VimMessageListBean) v.getTag();
         bean.isRead = 1;
+        VimMessageListMessages.get().isRead(bean);
+        adapter.notifyItemChanged(datas.indexOf(bean));
+
         Intent intent;
-        if (bean.groupType == 1) {
+        if (bean.groupType == 2) {
+            requestUser(bean);
+        } else if (bean.groupType == 1) {
             intent = new Intent(getActivity(), ChatGroupActivityNew.class);
             CreateGroupContactData contactsBean = new CreateGroupContactData();
             contactsBean.strGroupDomainCode = bean.groupDomainCode;
             contactsBean.strGroupID = bean.groupID;
             contactsBean.sessionName = bean.sessionName;
             intent.putExtra("mContactsBean", contactsBean);
+            startActivity(intent);
         } else {
             intent = new Intent(getActivity(), ChatSingleActivity.class);
             intent.putExtra("mOtherUserName", bean.sessionName);
@@ -253,17 +264,43 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                 nUser.strUserID = bean.sessionUserList.get(1).strUserID;
                 nUser.strUserDomainCode = bean.sessionUserList.get(1).strUserDomainCode;
                 nUser.strDomainCode = bean.sessionUserList.get(1).strUserDomainCode;
-
             }
 
             intent.putExtra("nUser", nUser);
             intent.putExtra("sessionUserList", bean.sessionUserList);
             intent.putExtra("mOtherUserDomainCode", nUser.strUserDomainCode);
+            startActivity(intent);
         }
-        VimMessageListMessages.get().isRead(bean);
+    }
 
-        startActivity(intent);
-        adapter.notifyItemChanged(datas.indexOf(bean));
+    private void requestUser(VimMessageListBean bean) {
+        ((AppBaseActivity)getActivity()).mZeusLoadView.loadingText("正在加载").setLoading();
+        ModelApis.Contacts().requestContacts(bean.groupDomainCode, bean.groupID, new ModelCallback<ContactsBean>() {
+            @Override
+            public void onSuccess(final ContactsBean contactsBean) {
+                if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                    Intent intent = new Intent(getActivity(), ChatGroupActivityNew.class);
+                    CreateGroupContactData groupContactData = new CreateGroupContactData();
+                    groupContactData.strGroupDomainCode = bean.groupDomainCode;
+                    groupContactData.strGroupID = bean.groupID;
+                    groupContactData.sessionName = bean.sessionName;
+                    groupContactData.userList = contactsBean.userList;
+                    intent.putExtra("mContactsBean", groupContactData);
+                    startActivity(intent);
+                    ((AppBaseActivity)getActivity()).mZeusLoadView.dismiss();
+                } else {
+                    ((AppBaseActivity)getActivity()).mZeusLoadView.dismiss();
+                    showToast("获取部门联系人失败");
+                }
+            }
+
+            @Override
+            public void onFailure(HTTPResponse httpResponse) {
+                super.onFailure(httpResponse);
+                ((AppBaseActivity)getActivity()).mZeusLoadView.dismiss();
+                showToast("获取部门联系人失败");
+            }
+        });
     }
 
     public void refMessage() {
@@ -280,7 +317,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
             public List<VimMessageListBean> doOnThread() {
                 List<VimMessageListBean> allBean = VimMessageListMessages.get().getMessages();
                 for (VimMessageListBean vimMessageListBean : allBean) {
-                    if (vimMessageListBean.groupType == 1) {
+                    if (vimMessageListBean.groupType == 1 || vimMessageListBean.groupType == 2) {
                         vimMessageListBean.strHeadUrl = AppDatas.MsgDB().getGroupListDao().getGroupHeadPic(vimMessageListBean.groupID, vimMessageListBean.groupDomainCode);
                     } else {
                         ArrayList<SendUserBean> messageUsers = vimMessageListBean.sessionUserList;

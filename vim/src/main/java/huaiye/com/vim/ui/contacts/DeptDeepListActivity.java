@@ -186,6 +186,9 @@ public class DeptDeepListActivity extends AppBaseActivity {
                 if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
                     allUserInfos.clear();
                     allUserInfos.addAll(contactsBean.userList);
+                    for(User temp : allUserInfos) {
+                        temp.strDomainCode = deptData.strDomainCode;
+                    }
                     showData(et_key.getText().toString());
                 }
             }

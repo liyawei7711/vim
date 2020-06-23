@@ -15,6 +15,7 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
+import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 /**
@@ -27,10 +28,13 @@ public class DepeItemViewHolder extends LiteViewHolder {
     TextView tv_name;
     @BindView(R.id.tv_num)
     TextView tv_num;
+    @BindView(R.id.tv_message)
+    TextView tv_message;
 
     public DepeItemViewHolder(Context context, View view, View.OnClickListener ocl) {
         super(context, view, ocl);
         itemView.setOnClickListener(ocl);
+        tv_message.setOnClickListener(ocl);
     }
 
     @SuppressLint("SetTextI18n")
@@ -38,9 +42,27 @@ public class DepeItemViewHolder extends LiteViewHolder {
     public void bindData(Object holder, int position, Object data, int size, List datas, Object extr) {
         DeptData deptData = (DeptData) data;
         itemView.setTag(deptData);
+        tv_message.setTag(deptData);
+
+        tv_message.setVisibility(View.GONE);
+        for (DeptData temp : FragmentContacts.atData) {
+            if (temp.strDepID.equals(deptData.strDepID)) {
+                tv_message.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
 
         tv_name.setText(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
         tv_num.setText("(0)");
+
+        tv_message.setVisibility(View.GONE);
+        for (DeptData temp : FragmentContacts.atData) {
+            if (temp.strDepID.equals(deptData.strDepID)) {
+                tv_message.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
+
 
         ModelApis.Contacts().requestContacts(deptData.strDomainCode, deptData.strDepID, new ModelCallback<ContactsBean>() {
             @Override

@@ -185,7 +185,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //        } else {
 //            view_point.setVisibility(View.VISIBLE);
 //        }
-        if (bean.groupType == 1) {
+        if (bean.groupType == 1 || bean.groupType == 2) {
             int num = AppDatas.MsgDB()
                     .chatGroupMsgDao()
                     .getGroupUnreadNum(bean.groupID);
@@ -292,7 +292,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void setHeadImage(ImageView headPicView, VimMessageListBean bean) {
         Glide.with(mContext)
                 .load(AppDatas.Constants().getAddressWithoutPort() + bean.strHeadUrl)
-                .apply(bean.groupType == 1 ? requestGroupHeadOptions : requestFriendHeadOptions)
+                .apply((bean.groupType == 1 || bean.groupType == 2) ? requestGroupHeadOptions : requestFriendHeadOptions)
                 .into(headPicView);
     }
 

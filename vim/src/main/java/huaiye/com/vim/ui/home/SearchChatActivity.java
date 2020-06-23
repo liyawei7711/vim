@@ -32,6 +32,8 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import huaiye.com.vim.R;
+import huaiye.com.vim.common.AppBaseActivity;
+import huaiye.com.vim.common.dialog.ZeusLoadView;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -57,6 +59,8 @@ import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
 import ttyy.com.recyclerexts.tags.TagsAdapter;
 
+import static huaiye.com.vim.common.AppBaseActivity.showToast;
+
 /**
  * Created by Administrator on 2018\3\14 0014.
  */
@@ -79,6 +83,7 @@ public class SearchChatActivity extends Activity {
     ArrayList<VimMessageListBean> datas = new ArrayList<>();
     Map<String, VimMessageListBean> maps = new HashMap<>();
     String mSearchKey;
+    public ZeusLoadView mZeusLoadView;
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -86,6 +91,10 @@ public class SearchChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_home_meetings_search);
         ButterKnife.bind(this);
+
+        mZeusLoadView = new ZeusLoadView(this);
+        mZeusLoadView.setCancelable(true);
+
         initListener();
         initData();
     }
@@ -109,14 +118,20 @@ public class SearchChatActivity extends Activity {
     private void dealAdapterItemClick(View v) {
         VimMessageListBean bean = (VimMessageListBean) v.getTag();
         bean.isRead = 1;
+        VimMessageListMessages.get().isRead(bean);
+        adapter.notifyDataSetChanged();
+
         Intent intent;
-        if (bean.groupType == 1) {
+        if(bean.groupType == 2) {
+            requestUser(bean);
+        } else if (bean.groupType == 1) {
             intent = new Intent(this, ChatGroupActivityNew.class);
             CreateGroupContactData contactsBean = new CreateGroupContactData();
             contactsBean.strGroupDomainCode = bean.groupDomainCode;
             contactsBean.strGroupID = bean.groupID;
             contactsBean.sessionName = bean.sessionName;
             intent.putExtra("mContactsBean", contactsBean);
+            startActivity(intent);
         } else {
             intent = new Intent(this, ChatSingleActivity.class);
             intent.putExtra("mOtherUserName", bean.sessionName);
@@ -139,11 +154,38 @@ public class SearchChatActivity extends Activity {
             intent.putExtra("nUser", nUser);
             intent.putExtra("sessionUserList", bean.sessionUserList);
             intent.putExtra("mOtherUserDomainCode", nUser.strUserDomainCode);
+            startActivity(intent);
         }
-        VimMessageListMessages.get().isRead(bean);
+    }
 
-        startActivity(intent);
-        adapter.notifyDataSetChanged();
+    private void requestUser(VimMessageListBean bean) {
+        mZeusLoadView.loadingText("正在加载").setLoading();
+        ModelApis.Contacts().requestContacts(bean.groupDomainCode, bean.groupID, new ModelCallback<ContactsBean>() {
+            @Override
+            public void onSuccess(final ContactsBean contactsBean) {
+                if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                    Intent intent = new Intent(SearchChatActivity.this, ChatGroupActivityNew.class);
+                    CreateGroupContactData groupContactData = new CreateGroupContactData();
+                    groupContactData.strGroupDomainCode = bean.groupDomainCode;
+                    groupContactData.strGroupID = bean.groupID;
+                    groupContactData.sessionName = bean.sessionName;
+                    groupContactData.userList = contactsBean.userList;
+                    intent.putExtra("mContactsBean", groupContactData);
+                    startActivity(intent);
+                    mZeusLoadView.dismiss();
+                } else {
+                    mZeusLoadView.dismiss();
+                    showToast("获取部门联系人失败");
+                }
+            }
+
+            @Override
+            public void onFailure(HTTPResponse httpResponse) {
+                super.onFailure(httpResponse);
+                mZeusLoadView.dismiss();
+                showToast("获取部门联系人失败");
+            }
+        });
     }
 
     private void initListener() {
@@ -184,7 +226,7 @@ public class SearchChatActivity extends Activity {
             public List<VimMessageListBean> doOnThread() {
                 List<VimMessageListBean> allBean = VimMessageListMessages.get().getMessages();
                 for (VimMessageListBean vimMessageListBean : allBean) {
-                    if (vimMessageListBean.groupType == 1) {
+                    if (vimMessageListBean.groupType == 1 || vimMessageListBean.groupType == 2) {
                         vimMessageListBean.strHeadUrl = AppDatas.MsgDB().getGroupListDao().getGroupHeadPic(vimMessageListBean.groupID, vimMessageListBean.groupDomainCode);
                     } else {
                         ArrayList<SendUserBean> messageUsers = vimMessageListBean.sessionUserList;

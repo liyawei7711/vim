@@ -47,6 +47,10 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     RecyclerView rct_view_dept;
     @BindView(R.id.rct_view_user)
     RecyclerView rct_view_user;
+    @BindView(R.id.tv_dept_title)
+    View tv_dept_title;
+    @BindView(R.id.tv_user_title)
+    View tv_user_title;
     @BindView(R.id.iv_empty_view)
     View iv_empty_view;
     @BindView(R.id.refresh_view)
@@ -81,6 +85,10 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     }
 
     private void initView() {
+
+        rct_view_dept.setNestedScrollingEnabled(false);
+        rct_view_user.setNestedScrollingEnabled(false);
+
         deptAdapter = new LiteBaseAdapter<>(this,
                 deptDatas,
                 DepeItemViewHolder.class,
@@ -146,10 +154,13 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                     public void onSuccess(final ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
                             userInfos.addAll(contactsBean.userList);
-                            userInfos.addAll(contactsBean.userList);
-                            userInfos.addAll(contactsBean.userList);
-                            userInfos.addAll(contactsBean.userList);
                             userAdapter.notifyDataSetChanged();
+                        }
+
+                        if(userInfos.isEmpty()) {
+                            tv_user_title.setVisibility(View.GONE);
+                        } else {
+                            tv_user_title.setVisibility(View.VISIBLE);
                         }
                     }
 
@@ -192,20 +203,23 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                             }
                         }
                         deptDatas.addAll(contactsBean.departmentInfoList);
-                        deptDatas.addAll(contactsBean.departmentInfoList);
-                        deptDatas.addAll(contactsBean.departmentInfoList);
-                        deptDatas.addAll(contactsBean.departmentInfoList);
                         deptAdapter.notifyDataSetChanged();
+
+                        if(deptDatas.isEmpty()) {
+                            tv_dept_title.setVisibility(View.GONE);
+                        } else {
+                            tv_dept_title.setVisibility(View.VISIBLE);
+                        }
                     }
 
                     @Override
                     public void onFinish(HTTPResponse httpResponse) {
                         super.onFinish(httpResponse);
+                        refresh_view.setRefreshing(false);
                     }
                 });
             }
         }
-        deptAdapter.notifyDataSetChanged();
     }
 
     private void jumpToNext(DeptData deptData) {

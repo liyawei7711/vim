@@ -156,7 +156,7 @@ public class ContactsApi {
                 .addParam("nSize", CommonConstant.MEET_NUM)
                 .addParam("nOrderByID", 0)
                 .addParam("nAscOrDesc", 0)
-                .addParam("nDepID", 0)
+                .addParam("strDepID", 0)
                 .addParam("strUserID", AppDatas.Auth().getUserID())
                 .addParam("nRouteType", 0)
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())

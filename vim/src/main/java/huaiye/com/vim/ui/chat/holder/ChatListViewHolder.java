@@ -203,7 +203,7 @@ public class ChatListViewHolder extends LiteViewHolder {
 //        } else {
 //            view_point.setVisibility(View.VISIBLE);
 //        }
-        if (bean.groupType == 1) {
+        if (bean.groupType == 1 || bean.groupType == 2) {
             int num = AppDatas.MsgDB()
                     .chatGroupMsgDao()
                     .getGroupUnreadNum(bean.groupID);
@@ -311,7 +311,7 @@ public class ChatListViewHolder extends LiteViewHolder {
     private void setHeadImage(ImageView headPicView, VimMessageListBean bean) {
         Glide.with(context)
                 .load(AppDatas.Constants().getAddressWithoutPort() + bean.strHeadUrl)
-                .apply(bean.groupType == 1 ? requestGroupHeadOptions : requestFriendHeadOptions)
+                .apply((bean.groupType == 1 || bean.groupType == 2) ? requestGroupHeadOptions : requestFriendHeadOptions)
                 .into(headPicView);
         /*if(!TextUtils.isEmpty(bean.strHeadUrl)){
 

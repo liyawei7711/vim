@@ -1,6 +1,9 @@
 package huaiye.com.vim.models.contacts.bean;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+
+import huaiye.com.vim.dao.msgs.User;
 
 
 /**
@@ -18,5 +21,5 @@ public class CreateGroupContactData implements Serializable {
     public String strGroupDomainCode;
     public String strGroupID;
     public String sessionName;
-
+    public ArrayList<User> userList;
 }

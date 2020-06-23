@@ -248,4 +248,11 @@ public class User implements Serializable {
         strUserDomainCode = source.readString();
     }
 
+    public String getDomainCode() {
+        if(TextUtils.isEmpty(strDomainCode)) {
+            return strUserDomainCode;
+        } else {
+            return strDomainCode;
+        }
+    }
 }

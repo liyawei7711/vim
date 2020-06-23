@@ -97,7 +97,7 @@ public class VimMessageListMessages {
                 List<VimMessageListBean> data = VimMessageListMessages.get().getMessages();
                 int total = 0;
                 for (VimMessageListBean bean : data) {
-                    if (bean.groupType == 1) {
+                    if (bean.groupType == 1 || bean.groupType == 2) {
                         total += AppDatas.MsgDB()
                                 .chatGroupMsgDao()
                                 .getGroupUnreadNum(bean.groupID);

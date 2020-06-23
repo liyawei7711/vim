@@ -38,6 +38,6 @@ public class DeptData implements Serializable {
 
     public DomainInfoList.DomainInfo domainInfo;
     public String getName() {
-        return TextUtils.isEmpty(strName) ? strName : strName;
+        return TextUtils.isEmpty(strName) ? strDepName : strName;
     }
 }

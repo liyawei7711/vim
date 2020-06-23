@@ -12,6 +12,7 @@ import butterknife.BindView;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.recycle.LiteViewHolder;
 import huaiye.com.vim.models.contacts.bean.DeptData;
+import huaiye.com.vim.ui.home.FragmentContacts;
 
 /**
  * Created by ywt on 2019/2/25.
@@ -38,6 +39,14 @@ public class DepeContactItemViewHolder extends LiteViewHolder {
         DeptData deptData = (DeptData) data;
         itemView.setTag(deptData);
         tv_message.setTag(deptData);
+
+        tv_message.setVisibility(View.GONE);
+        for (DeptData temp : FragmentContacts.atData) {
+            if (temp.strDepID.equals(deptData.strDepID)) {
+                tv_message.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
 
         tv_name.setText(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
         tv_num.setText("");

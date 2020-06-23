@@ -28,16 +28,10 @@ import huaiye.com.vim.models.contacts.bean.DeptData;
 
 public class DeptUserItemViewHolder extends LiteViewHolder {
 
-    @BindView(R.id.tv_checklayout)
-    CheckableLinearLayout tv_checklayout;
-    @BindView(R.id.iv_choice)
-    ImageView iv_choice;
     @BindView(R.id.iv_user_head)
     ImageView iv_user_head;
     @BindView(R.id.tv_user_name)
     TextView tv_user_name;
-    @BindView(R.id.tv_user_master)
-    TextView tv_user_master;
     @BindView(R.id.tv_choose_added)
     TextView tv_choose_added;
     @BindView(R.id.view_divider)
@@ -70,22 +64,28 @@ public class DeptUserItemViewHolder extends LiteViewHolder {
                 .into(iv_user_head);
 
         tv_user_name.setText(user.strUserName);
-        StringBuilder sb = new StringBuilder();
-        for (DeptData temp : user.getUserDept()) {
-            sb.append(temp.strDepName + " ");
+//        StringBuilder sb = new StringBuilder();
+//        for (DeptData temp : user.getUserDept()) {
+//            sb.append(temp.strDepName + " ");
+//        }
+//        StringBuilder sbStr = new StringBuilder();
+//        if (!TextUtils.isEmpty(user.strPostName)) {
+//            sbStr.append(user.strPostName);
+//        }
+//        if (!TextUtils.isEmpty(sb)) {
+//            if (!TextUtils.isEmpty(sbStr)) {
+//                sbStr.append("," + sb);
+//            } else {
+//                sbStr.append(sb);
+//            }
+//        }
+//        tv_choose_added.setText(sbStr);
+        tv_choose_added.setText(user.strPostName);
+        if(TextUtils.isEmpty(user.strPostName)) {
+            tv_choose_added.setVisibility(View.GONE);
+        } else {
+            tv_choose_added.setVisibility(View.VISIBLE);
         }
-        StringBuilder sbStr = new StringBuilder();
-        if (!TextUtils.isEmpty(user.strPostName)) {
-            sbStr.append(user.strPostName);
-        }
-        if (!TextUtils.isEmpty(sb)) {
-            if (!TextUtils.isEmpty(sbStr)) {
-                sbStr.append("," + sb);
-            } else {
-                sbStr.append(sb);
-            }
-        }
-        tv_choose_added.setText(sbStr);
 
         if (position == datas.size() - 1) {
             view_divider.setVisibility(View.GONE);

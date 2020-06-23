@@ -89,7 +89,7 @@ public class ZhuanFaListViewHolder extends LiteViewHolder {
     private void setHeadImage(ImageView headPicView, VimMessageListBean bean) {
         Glide.with(context)
                 .load(AppDatas.Constants().getAddressWithoutPort() + bean.strHeadUrl)
-                .apply(bean.groupType == 1 ? requestGroupHeadOptions : requestFriendHeadOptions)
+                .apply((bean.groupType == 1 || bean.groupType == 2) ? requestGroupHeadOptions : requestFriendHeadOptions)
                 .into(headPicView);
     }
 

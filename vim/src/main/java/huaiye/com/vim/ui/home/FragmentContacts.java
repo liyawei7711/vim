@@ -89,7 +89,7 @@ public class FragmentContacts extends AppBaseFragment {
     LiteBaseAdapter<DeptData> adapterAt;
 
     private ArrayList<ChangyongLianXiRenBean> mCustomContacts = new ArrayList<>();//常用联系人
-    private ArrayList<DeptData> atData = new ArrayList<>();//所在部门
+    public static ArrayList<DeptData> atData = new ArrayList<>();//所在部门
 
     private ArrayList<ChangyongLianXiRenBean> mAllContacts = new ArrayList<>();//常用联系人
 
@@ -182,6 +182,7 @@ public class FragmentContacts extends AppBaseFragment {
                     @Override
                     public void onClick(View v) {
                         DeptData deptData = (DeptData) v.getTag();
+                        deptData.strDomainCode = AppAuth.get().getDomainCode();
                         if (v.getId() == R.id.tv_message) {
                             new DeptChatUtils().startGroup(getActivity(), deptData);
                             return;

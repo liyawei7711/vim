@@ -452,7 +452,7 @@ public class MessageReceiver {
                         boolean isGroup = false;
                         String ID = "";
                         String DomainCode = "";
-                        if (chatMessageBean.groupType == 1) {
+                        if (chatMessageBean.groupType == 1 || chatMessageBean.groupType == 2) {
                             isGroup = true;
                         } else {
                             for (SendUserBean temp : chatMessageBean.sessionUserList) {
@@ -975,7 +975,7 @@ public class MessageReceiver {
         if (!TextUtils.isEmpty(time)) {
             serTime = WeiXinDateFormat.getLongTime(time, WeiXinDateFormat.DATA_FORMATE);
         }
-        if (chatMessageBean.groupType == 1) {
+        if (chatMessageBean.groupType == 1 || chatMessageBean.groupType == 2) {
             //群聊
             ChatGroupMsgBean groupMsgBean = ChatGroupMsgBean.from(chatMessageBean);
             if (chatMessageBean.fromUserId.equals(AppAuth.get().getUserID())) {
