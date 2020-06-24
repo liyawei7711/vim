@@ -180,6 +180,9 @@ public class DeptDeepListActivity extends AppBaseActivity {
     }
 
     private void requestUser() {
+        if(deptData.nDepType == 0) {
+            return;
+        }
         ModelApis.Contacts().requestContacts(deptData.strDomainCode, deptData.strDepID, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {

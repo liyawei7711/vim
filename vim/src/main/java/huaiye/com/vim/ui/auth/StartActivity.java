@@ -190,9 +190,9 @@ public class StartActivity extends AppBaseActivity {
 //                            encryptInit();
                             view_load.setVisibility(View.GONE);
                             boolean isReSetPwd = SP.getBoolean(STRING_KEY_resetpwd, false);
-                            if(BuildConfig.DEBUG) {
+//                            if(BuildConfig.DEBUG) {
                                 isReSetPwd = true;
-                            }
+//                            }
                             if (isReSetPwd) {
                                 AppAuth.get().setAutoLogin(true);
                                 Intent intent = getIntent();
