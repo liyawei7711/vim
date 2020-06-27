@@ -97,9 +97,11 @@ public class FragmentContacts extends AppBaseFragment {
 
     private boolean isFreadList = true;
     private boolean isSOS;
-    int totalRequest = 0;
-    HashMap<String, ArrayList<DeptData>> map = new HashMap<>();
-    ArrayList<DeptData> allDeptDatas = new ArrayList<>();
+
+    static int totalRequest = 0;
+    public static HashMap<String, ArrayList<DeptData>> map = new HashMap<>();
+    static ArrayList<DeptData> allDeptDatas = new ArrayList<>();
+    static boolean isReq;
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -313,7 +315,18 @@ public class FragmentContacts extends AppBaseFragment {
 
     }
 
-    private void requestDeptAll() {
+    public static synchronized void requestDeptAll() {
+        if(isReq) {
+            return;
+        }
+        isReq = true;
+
+        if(!map.isEmpty()) {
+            isReq = false;
+            return;
+        }
+
+
         allDeptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
@@ -322,6 +335,9 @@ public class FragmentContacts extends AppBaseFragment {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {
+                            for(DeptData temp : contactsBean.departmentInfoList){
+                                temp.strDomainCode = domainInfo.strDomainCode;
+                            }
                             allDeptDatas.addAll(contactsBean.departmentInfoList);
                         }
                         doCallBack(domainInfo);
@@ -331,7 +347,6 @@ public class FragmentContacts extends AppBaseFragment {
                     public void onFailure(HTTPResponse httpResponse) {
                         super.onFailure(httpResponse);
                         doCallBack(domainInfo);
-                        refresh_view.setRefreshing(false);
                     }
                 });
             }
@@ -339,7 +354,7 @@ public class FragmentContacts extends AppBaseFragment {
 
     }
 
-    private void doCallBack(DomainInfoList.DomainInfo domainInfo) {
+    static void doCallBack(DomainInfoList.DomainInfo domainInfo) {
         totalRequest--;
         if (totalRequest == 0) {
             map.clear();
@@ -355,6 +370,7 @@ public class FragmentContacts extends AppBaseFragment {
                 }
             }
         }
+        isReq = false;
     }
 
     @OnClick({R.id.tv_group})

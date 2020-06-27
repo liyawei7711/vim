@@ -23,6 +23,7 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactOrganizationBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
+import huaiye.com.vim.ui.home.FragmentContacts;
 import huaiye.com.vim.ui.home.adapter.ContactsDomainViewHolder;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
@@ -47,9 +48,6 @@ public class DeptListActivity extends AppBaseActivity {
 
     LiteBaseAdapter<DomainInfoList.DomainInfo> adapterDomain;
     ArrayList<DomainInfoList.DomainInfo> domainData = new ArrayList<>();//部门
-
-    public HashMap<String, ArrayList<DeptData>> map = new HashMap<>();
-    ArrayList<DeptData> allDeptDatas = new ArrayList<>();
 
     @Override
     protected void initActionBar() {
@@ -89,53 +87,12 @@ public class DeptListActivity extends AppBaseActivity {
             @Override
             public void onRefresh() {
                 requestDept();
+                FragmentContacts.requestDeptAll();
             }
         });
 
         requestDept();
-        requestDeptAll();
-    }
-
-    private void requestDeptAll() {
-        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
-            for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
-                totalRequest++;
-                ModelApis.Contacts().requestOrganization("deptlist 103 ", domainInfo.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
-                    @Override
-                    public void onSuccess(final ContactOrganizationBean contactsBean) {
-                        if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {
-                            allDeptDatas.addAll(contactsBean.departmentInfoList);
-                        }
-                        doCallBack(domainInfo);
-                    }
-
-                    @Override
-                    public void onFailure(HTTPResponse httpResponse) {
-                        super.onFailure(httpResponse);
-                        doCallBack(domainInfo);
-                    }
-                });
-            }
-        }
-
-    }
-
-    private void doCallBack(DomainInfoList.DomainInfo domainInfo) {
-        totalRequest--;
-        if (totalRequest == 0) {
-            map.clear();
-            for (DeptData temp : allDeptDatas) {
-                temp.strDomainCode = domainInfo.strDomainCode;
-                if (map.containsKey(temp.strParentID)) {
-                    ArrayList<DeptData> datas = map.get(temp.strParentID);
-                    datas.add(temp);
-                } else {
-                    ArrayList<DeptData> datas = new ArrayList<>();
-                    datas.add(temp);
-                    map.put(temp.strParentID, datas);
-                }
-            }
-        }
+        FragmentContacts.requestDeptAll();
     }
 
     private void requestDept() {

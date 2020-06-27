@@ -30,6 +30,7 @@ import huaiye.com.vim.ui.contacts.DeptChatUtils;
 import huaiye.com.vim.ui.contacts.DeptDeepListActivity;
 import huaiye.com.vim.ui.contacts.DeptListActivity;
 import huaiye.com.vim.ui.contacts.viewholder.DepeContactItemViewHolder;
+import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 public class ContactsDomainViewHolder extends LiteViewHolder {
@@ -68,6 +69,7 @@ public class ContactsDomainViewHolder extends LiteViewHolder {
                 if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {
                     ArrayList<DeptData> datas = new ArrayList<>();
                     for (DeptData temp : contactsBean.departmentInfoList) {
+                        temp.strDomainCode = domain.strDomainCode;
                         if ("0".equals(temp.strParentID) || "".equals(temp.strParentID)) {
                             datas.add(temp);
                         }
@@ -98,7 +100,7 @@ public class ContactsDomainViewHolder extends LiteViewHolder {
                                     intent.putExtra("domainName", domain.strDomainName);
                                     intent.putExtra("titleName", titleName);
                                     intent.putExtra("deptData", deptData);
-                                    intent.putExtra("map", ((DeptListActivity)context).map);
+                                    intent.putExtra("map", FragmentContacts.map);
                                     context.startActivity(intent);
                                 }
                             }, "false");

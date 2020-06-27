@@ -3,7 +3,6 @@ package huaiye.com.vim.ui.contacts;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
@@ -31,6 +29,7 @@ import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.contacts.viewholder.DepeItemViewHolder;
 import huaiye.com.vim.ui.contacts.viewholder.DeptUserItemViewHolder;
+import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 
@@ -61,7 +60,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     LiteBaseAdapter<User> userAdapter;
     ArrayList<User> userInfos = new ArrayList<>();
 
-    HashMap<String, ArrayList<DeptData>> map = new HashMap<>();
+    int totalRequest = 0;
+    ArrayList<DeptData> allDeptDatas = new ArrayList<>();
 
     @Override
     protected void initActionBar() {
@@ -101,6 +101,12 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                             new DeptChatUtils().startGroup(SearchDeptUserListActivity.this, deptData);
                             return;
                         }
+                        for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
+                            if (temp.strDomainCode.equals(deptData.strDomainCode)) {
+                                deptData.domainInfo = temp;
+                                break;
+                            }
+                        }
                         jumpToNext(deptData);
                     }
                 }, "false");
@@ -133,6 +139,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    FragmentContacts.requestDeptAll();
                     requestUser();
                     requestDept();
                     return true;
@@ -143,6 +150,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
 
 //        requestUser();
 //        requestDept();
+        FragmentContacts.requestDeptAll();
     }
 
     private void requestUser() {
@@ -157,7 +165,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                             userAdapter.notifyDataSetChanged();
                         }
 
-                        if(userInfos.isEmpty()) {
+                        if (userInfos.isEmpty()) {
                             tv_user_title.setVisibility(View.GONE);
                         } else {
                             tv_user_title.setVisibility(View.VISIBLE);
@@ -177,26 +185,14 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     private void requestDept() {
         deptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
-            for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
-                ModelApis.Contacts().requestOrganization("search 181 ", temp.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactOrganizationBean>() {
+            for (DomainInfoList.DomainInfo info : VIMApp.getInstance().mDomainInfoList) {
+                ModelApis.Contacts().requestOrganization("search 181 ", info.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactOrganizationBean>() {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
-                        map.clear();
                         for (DeptData deptData : contactsBean.departmentInfoList) {
-                            deptData.strDomainCode = temp.strDomainCode;
-                            if (map.containsKey(deptData.strParentID)) {
-                                ArrayList<DeptData> datas = map.get(deptData.strParentID);
-                                datas.add(deptData);
-                            } else {
-                                ArrayList<DeptData> datas = new ArrayList<>();
-                                datas.add(deptData);
-                                map.put(deptData.strParentID, datas);
-                            }
-                        }
-
-                        for(DeptData deptData : contactsBean.departmentInfoList) {
+                            deptData.strDomainCode = info.strDomainCode;
                             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
-                                if(temp.strDomainCode.equals(deptData.strDomainCode)) {
+                                if (temp.strDomainCode.equals(deptData.strDomainCode)) {
                                     deptData.domainInfo = temp;
                                     break;
                                 }
@@ -205,7 +201,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                         deptDatas.addAll(contactsBean.departmentInfoList);
                         deptAdapter.notifyDataSetChanged();
 
-                        if(deptDatas.isEmpty()) {
+                        if (deptDatas.isEmpty()) {
                             tv_dept_title.setVisibility(View.GONE);
                         } else {
                             tv_dept_title.setVisibility(View.VISIBLE);
@@ -226,11 +222,11 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
         ArrayList<String> titleName = new ArrayList<>();
         titleName.add(deptData.domainInfo.strDomainName);
         titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
-        Intent intent = new Intent(this, SearchDeptUserListActivity.class);
+        Intent intent = new Intent(this, DeptDeepListActivity.class);
         intent.putExtra("domainName", deptData.domainInfo.strDomainName);
         intent.putExtra("titleName", titleName);
         intent.putExtra("deptData", deptData);
-        intent.putExtra("map", map);
+        intent.putExtra("map", FragmentContacts.map);
         startActivity(intent);
     }
 

@@ -261,7 +261,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     }
 
     private void initdata() {
-        if (mContactsBean.userList != null) {
+        if (mContactsBean != null && mContactsBean.userList != null) {
             mContactsGroupUserListBean = new ContactsGroupUserListBean();
             mContactsGroupUserListBean.lstGroupUser = new ArrayList<>();
             mContactsGroupUserListBean.strGroupName = mContactsBean.sessionName;
@@ -316,7 +316,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                     mDataList.add(del);
                     isGroupOwner = true;
                 } else {
-                    if (!nEncryptIMEnable && mContactsBean.userList == null) {
+                    if (!nEncryptIMEnable && (mContactsBean != null && mContactsBean.userList == null)) {
                         User add = new User();
                         add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
                         mDataList.add(add);
