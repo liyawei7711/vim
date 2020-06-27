@@ -61,7 +61,15 @@ public class AppDatas {
         db = Room.databaseBuilder(context, AppDatabase.class, "vim_db")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
-                .addMigrations(migration_1_new, migration_2_new, migration_3_new, migration_4_new, migration_7_8_new, migration_8_9_new, migration_9_11_new, migration_11_12_new)
+                .addMigrations(migration_1_new,
+                        migration_2_new,
+                        migration_3_new,
+                        migration_4_new,
+                        migration_7_8_new,
+                        migration_8_9_new,
+                        migration_9_11_new,
+                        migration_11_12_new,
+                        migration_9_12_new)
                 .build();
 
         CONSTANTS = new AppConstants();
@@ -169,7 +177,27 @@ public class AppDatas {
             }
         }
     };
-    static Migration migration_11_12_new = new Migration(11, VERSION) {
+    static Migration migration_9_12_new = new Migration(9, 12) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            try {
+                database.execSQL("ALTER TABLE tb_friend_list "
+                        + " ADD COLUMN strPostName STRING"
+                );
+                database.execSQL("ALTER TABLE tb_friend_list "
+                        + " ADD COLUMN nPostID INTEGER"
+                );
+                database.execSQL("ALTER TABLE tb_friend_list "
+                        + " ADD COLUMN strDept STRING"
+                );
+                database.execSQL("ALTER TABLE tb_user_changyong_lianxi "
+                        + " ADD COLUMN saveTime STRING"
+                );
+            } catch (Exception e) {
+            }
+        }
+    };
+    static Migration migration_11_12_new = new Migration(11, 12) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             try {

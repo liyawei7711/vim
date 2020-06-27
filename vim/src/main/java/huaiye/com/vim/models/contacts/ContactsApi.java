@@ -4,6 +4,8 @@ import android.text.TextUtils;
 
 import com.huaiye.sdk.sdpmsgs.social.SendUserBean;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,7 +136,7 @@ public class ContactsApi {
                 .addParam("strDomainCode", TextUtils.isEmpty(strDomainCode) ? AppDatas.Auth().getDomainCode() : strDomainCode)
                 .addParam("strUserID", AppDatas.Auth().getUserID())
                 .addParam("nAscOrDesc", 0)
-                .addHeader("strKeywords", "")
+                .addParam("strKeywords", "")
                 .addParam("nRouteType", nRouteType)
                 .addParam("nPage", page)
                 .addParam("nSize", CommonConstant.MEET_NUM)
@@ -149,21 +151,25 @@ public class ContactsApi {
     public void requestBuddyContacts(ModelCallback<ContactsBean> callback) {
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
 
-        Https.post(URL)
-                .addHeader("Connection", "close")
-                .addParam("strDomainCode", AppDatas.Auth().getDomainCode())
-                .addParam("nPage", -1)
-                .addParam("nSize", CommonConstant.MEET_NUM)
-                .addParam("nOrderByID", 0)
-                .addParam("nAscOrDesc", 0)
-                .addParam("strDepID", 0)
-                .addParam("strUserID", AppDatas.Auth().getUserID())
-                .addParam("nRouteType", 0)
-                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", AppDatas.Auth().getUserName())
-                .setHttpCallback(callback)
-                .build()
-                .requestAsync();
+        try {
+            Https.post(URL)
+                    .addHeader("Connection", "close")
+                    .addParam("strDomainCode", AppDatas.Auth().getDomainCode())
+                    .addParam("nPage", -1)
+                    .addParam("nSize", CommonConstant.MEET_NUM)
+                    .addParam("nOrderByID", 0)
+                    .addParam("nAscOrDesc", 0)
+                    .addParam("strDepID", 0)
+                    .addParam("strUserID", AppDatas.Auth().getUserID())
+                    .addParam("nRouteType", 0)
+                    .addParam("strKeywords", AppDatas.Auth().getUserName())
+                    .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                    .setHttpCallback(callback)
+                    .build()
+                    .requestAsync();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -177,8 +183,8 @@ public class ContactsApi {
                 .addParam("nDepID", nDepID)
                 .addParam("strMsg", strMsg)
                 .addParam("strMsgID", System.currentTimeMillis() + "," + AppDatas.Auth().getUserID())
+                .addParam("strKeywords", AppDatas.Auth().getUserName())
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", AppDatas.Auth().getUserID())
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -283,9 +289,8 @@ public class ContactsApi {
                 .addParam("strUserDomainCode", AppDatas.Auth().getDomainCode())
                 .addParam("strUserID", AppDatas.Auth().getUserID())
                 .addParam("strUserName", AppDatas.Auth().getUserName())
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -302,9 +307,8 @@ public class ContactsApi {
                 .addHeader("Connection", "close")
                 .addParam("strGroupDomainCode", strGroupDomainCode)
                 .addParam("strGroupID", strGroupID)
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -376,7 +380,6 @@ public class ContactsApi {
                 .addParam("strUserID", AppDatas.Auth().getUserID())
                 .addParam("strHeadUrl", strHeadUrl)
                 .addParam("nRouteType", 0)
-
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
                 .setHttpCallback(callback)
                 .build()
@@ -406,10 +409,8 @@ public class ContactsApi {
                 .addParam("strGroupName", strGroupName)
                 .addParam("nBeinviteMode", 0)//强制加群
                 .addParam("lstGroupUser", sessionUserList)
-
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -436,10 +437,8 @@ public class ContactsApi {
                 .addParam("strGroupDomainCode", strGroupDomainCode)
                 .addParam("strGroupID", strGroupID)
                 .addParam("lstOutUser", sessionUserList)
-
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -459,10 +458,8 @@ public class ContactsApi {
                 .addParam("strUserID", AppDatas.Auth().getUserID())
                 .addParam("strGroupDomainCode", strGroupDomainCode)
                 .addParam("strGroupID", strGroupID)
-
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -483,10 +480,8 @@ public class ContactsApi {
                 .addParam("strUserName", AppDatas.Auth().getUserName())
                 .addParam("strGroupDomainCode", strGroupDomainCode)
                 .addParam("strGroupID", strGroupID)
-
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -522,9 +517,8 @@ public class ContactsApi {
                 .addParam("strUserID", AppDatas.Auth().getUserID())
                 .addParam("strGroupDomainCode", strGroupDomainCode)
                 .addParam("strGroupID", strGroupID)
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback);
         if (!TextUtils.isEmpty(strGroupName)) {
             mHTTPRequestPostBuilder.addParam("strGroupName", strGroupName);
@@ -558,10 +552,8 @@ public class ContactsApi {
                 .addParam("strGroupID", strGroupID)
                 .addParam("nMsgTop", nMsgTop)
                 .addParam("nNoDisturb", nNoDisturb)
-
+                .addParam("strKeywords", "")
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", "")
-                .addHeader("Connection", "close")
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
