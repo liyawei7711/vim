@@ -149,7 +149,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
         userInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
-                ModelApis.Contacts().requestContacts(temp.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactsBean>() {
+                ModelApis.Contacts().requestContactsByKey(temp.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactsBean>() {
                     @Override
                     public void onSuccess(final ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
@@ -178,7 +178,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
         deptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
-                ModelApis.Contacts().requestOrganization(temp.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactOrganizationBean>() {
+                ModelApis.Contacts().requestOrganization("search 181 ", temp.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactOrganizationBean>() {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
                         map.clear();

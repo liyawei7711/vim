@@ -160,7 +160,7 @@ public class ContactsApi {
                 .addParam("strUserID", AppDatas.Auth().getUserID())
                 .addParam("nRouteType", 0)
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
-                .addHeader("strKeywords", AppDatas.Auth().getUserID())
+                .addHeader("strKeywords", AppDatas.Auth().getUserName())
                 .setHttpCallback(callback)
                 .build()
                 .requestAsync();
@@ -574,12 +574,12 @@ public class ContactsApi {
      *
      * @param callback
      */
-    public void requestOrganization(String strDomainCode, String strKeywords, final ModelCallback<ContactOrganizationBean> callback) {
+    public void requestOrganization(String from, String strDomainCode, String strKeywords, final ModelCallback<ContactOrganizationBean> callback) {
         if (mCachedOrganization != null) {
             callback.onSuccess(mCachedOrganization);
             return;
         }
-
+        System.out.println("ddddddddddddddddddddddddddd "+from);
 //        String URL = AppDatas.Constants().getAddressBaseURL() + "busidataexchange/getBusiData.action";
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_department_info";
 
@@ -587,6 +587,7 @@ public class ContactsApi {
                 .addHeader("Connection", "close")
                 .addParam("nOrderByID", 0)
                 .addParam("nAscOrDesc", 1)
+                .addParam("from", from)
                 .addParam("strDomainCode", strDomainCode)
                 .addParam("strKeywords", strKeywords)//可选
                 /*.addParam("methodName", "getEntContacts")
@@ -596,7 +597,6 @@ public class ContactsApi {
                 .setHttpCallback(new ModelCallback<ContactOrganizationBean>() {
                     @Override
                     public void onPreStart(HTTPRequest httpRequest) {
-                        super.onPreStart(httpRequest);
                         if (callback != null) {
                             callback.onPreStart(httpRequest);
                         }

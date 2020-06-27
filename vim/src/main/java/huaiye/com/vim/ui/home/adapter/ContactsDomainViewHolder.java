@@ -62,7 +62,7 @@ public class ContactsDomainViewHolder extends LiteViewHolder {
         itemView.setOnClickListener(ocl);
         tv_dept_name.setText(domain.strDomainName);
 
-        ModelApis.Contacts().requestOrganization(domain.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
+        ModelApis.Contacts().requestOrganization("adapter 65 ", domain.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
             @Override
             public void onSuccess(final ContactOrganizationBean contactsBean) {
                 if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {

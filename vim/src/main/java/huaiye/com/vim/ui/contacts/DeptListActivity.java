@@ -100,7 +100,7 @@ public class DeptListActivity extends AppBaseActivity {
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
                 totalRequest++;
-                ModelApis.Contacts().requestOrganization(domainInfo.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
+                ModelApis.Contacts().requestOrganization("deptlist 103 ", domainInfo.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {

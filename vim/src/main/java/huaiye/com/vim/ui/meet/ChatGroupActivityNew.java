@@ -1132,6 +1132,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 List<String> imagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
                 mapImg.clear();
                 imageSize = imagePaths.size();
+                mZeusLoadView.loadingText("正在上传").setLoading();
                 for (String image : imagePaths) {
                     final File file = new File(image);
                     if (file.length() > 1028 * 1028 * 50) {
@@ -1188,6 +1189,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     }
 
     private void sendImageFile() {
+        mZeusLoadView.dismiss();
         for (Map.Entry<String, String> entry : mapImg.entrySet()) {
             try {
                 File file = new File(mapLocal.get(entry.getKey()));
@@ -1544,13 +1546,14 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             showToast(AppUtils.getString(R.string.chat_group_not_contains_self));
             return;
         }
-        if(mContactsBean.userList != null) {
-            showToast("当前不是群组，部门信息请在组织架构中查看");
-            return;
-        }
+//        if(mContactsBean.userList != null) {
+//            showToast("当前不是群组，部门信息请在组织架构中查看");
+//            return;
+//        }
         Intent intent = new Intent(ChatGroupActivityNew.this, UserDetailActivity.class);
         intent.putParcelableArrayListExtra("mUserList", null);
         intent.putExtra("mContactsGroupUserListBean", mContactsGroupUserListBean);
+        intent.putExtra("mContactsBean", mContactsBean);
         intent.putExtra("isGroupChat", true);
         intent.putExtra("strGroupDomainCode", mContactsBean.strGroupDomainCode);
         intent.putExtra("strGroupID", mContactsBean.strGroupID);

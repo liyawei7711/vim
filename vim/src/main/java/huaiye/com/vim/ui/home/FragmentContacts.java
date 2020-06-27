@@ -24,6 +24,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import huaiye.com.vim.R;
@@ -40,6 +41,7 @@ import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
+import huaiye.com.vim.models.contacts.bean.ContactOrganizationBean;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
@@ -95,6 +97,9 @@ public class FragmentContacts extends AppBaseFragment {
 
     private boolean isFreadList = true;
     private boolean isSOS;
+    int totalRequest = 0;
+    HashMap<String, ArrayList<DeptData>> map = new HashMap<>();
+    ArrayList<DeptData> allDeptDatas = new ArrayList<>();
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -109,24 +114,6 @@ public class FragmentContacts extends AppBaseFragment {
                     public void onClick(View V) {
                     }
                 })
-//                .showTopSearch()
-//                .setTopSearchClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        if (isSOS) {
-//                            return;
-//                        }
-//                        if (isFreadList) {
-//                            Intent intent = new Intent(getContext(), SearchActivity.class);
-//                            intent.putExtra("mSource", 0);
-//                            startActivity(intent);
-//                        } else {
-//                            Intent intent = new Intent(getContext(), SearchGroupActivity.class);
-//                            intent.putExtra("mSource", 0);
-//                            startActivity(intent);
-//                        }
-//                    }
-//                })
                 .showTopAdd()
                 .setTopAddClickListener(new View.OnClickListener() {
                     @Override
@@ -182,6 +169,12 @@ public class FragmentContacts extends AppBaseFragment {
                     @Override
                     public void onClick(View v) {
                         DeptData deptData = (DeptData) v.getTag();
+                        for (DeptData temp : allDeptDatas) {
+                            if (deptData.strDepID.equals(temp.strDepID)) {
+                                deptData.nDepType = temp.nDepType;
+                                break;
+                            }
+                        }
                         deptData.strDomainCode = AppAuth.get().getDomainCode();
                         if (v.getId() == R.id.tv_message) {
                             new DeptChatUtils().startGroup(getActivity(), deptData);
@@ -204,6 +197,7 @@ public class FragmentContacts extends AppBaseFragment {
                         intent.putExtra("domainName", (domain == null ? "" : domain.strDomainName));
                         intent.putExtra("titleName", titleName);
                         intent.putExtra("deptData", deptData);
+                        intent.putExtra("map", map);
                         startActivity(intent);
 
                     }
@@ -226,6 +220,7 @@ public class FragmentContacts extends AppBaseFragment {
     private void initData() {
         requestSelfDept();
         requestChangYong();
+        requestDeptAll();
     }
 
     private void showData(String str) {
@@ -275,10 +270,10 @@ public class FragmentContacts extends AppBaseFragment {
         Collections.sort(mAllContacts, new Comparator<ChangyongLianXiRenBean>() {
             @Override
             public int compare(ChangyongLianXiRenBean o1, ChangyongLianXiRenBean o2) {
-                if(TextUtils.isEmpty(o1.saveTime)) {
+                if (TextUtils.isEmpty(o1.saveTime)) {
                     o1.saveTime = "0";
                 }
-                if(TextUtils.isEmpty(o2.saveTime)) {
+                if (TextUtils.isEmpty(o2.saveTime)) {
                     o2.saveTime = "0";
                 }
                 long t1 = Long.parseLong(o1.saveTime);
@@ -316,6 +311,50 @@ public class FragmentContacts extends AppBaseFragment {
             }
         });
 
+    }
+
+    private void requestDeptAll() {
+        allDeptDatas.clear();
+        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+            for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
+                totalRequest++;
+                ModelApis.Contacts().requestOrganization("contacts 321 ", domainInfo.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
+                    @Override
+                    public void onSuccess(final ContactOrganizationBean contactsBean) {
+                        if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {
+                            allDeptDatas.addAll(contactsBean.departmentInfoList);
+                        }
+                        doCallBack(domainInfo);
+                    }
+
+                    @Override
+                    public void onFailure(HTTPResponse httpResponse) {
+                        super.onFailure(httpResponse);
+                        doCallBack(domainInfo);
+                        refresh_view.setRefreshing(false);
+                    }
+                });
+            }
+        }
+
+    }
+
+    private void doCallBack(DomainInfoList.DomainInfo domainInfo) {
+        totalRequest--;
+        if (totalRequest == 0) {
+            map.clear();
+            for (DeptData temp : allDeptDatas) {
+                temp.strDomainCode = domainInfo.strDomainCode;
+                if (map.containsKey(temp.strParentID)) {
+                    ArrayList<DeptData> datas = map.get(temp.strParentID);
+                    datas.add(temp);
+                } else {
+                    ArrayList<DeptData> datas = new ArrayList<>();
+                    datas.add(temp);
+                    map.put(temp.strParentID, datas);
+                }
+            }
+        }
     }
 
     @OnClick({R.id.tv_group})

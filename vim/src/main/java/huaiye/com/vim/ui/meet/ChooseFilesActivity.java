@@ -198,8 +198,9 @@ public class ChooseFilesActivity extends AppBaseActivity {
 
             @Override
             public void onFinish(HTTPResponse httpResponse) {
-                if (mZeusLoadView != null && mZeusLoadView.isShowing())
+                if (mZeusLoadView != null && mZeusLoadView.isShowing()){
                     mZeusLoadView.dismiss();
+                }
             }
         }, file, AppDatas.Constants().getFileUploadUri());
     }

@@ -961,6 +961,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 imagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
                 mapImg.clear();
                 imageSize = imagePaths.size();
+                mZeusLoadView.loadingText("正在上传").setLoading();
                 for (String image : imagePaths) {
                     final File file = new File(image);
                     if (file.length() > 1028 * 1028 * 50) {
@@ -1007,6 +1008,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     }
 
     private void sendImageFile() {
+        mZeusLoadView.dismiss();
         for (String temp : imagePaths) {
             try {
                 String httpFile = mapImg.get(temp);
@@ -1306,24 +1308,13 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             @Override
             public void onFailure(HTTPResponse httpResponse) {
                 super.onFailure(httpResponse);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast(AppUtils.getString(R.string.file_upload_false));
-                    }
-                });
+                showToast(AppUtils.getString(R.string.file_upload_false));
             }
 
             @Override
             public void onFinish(HTTPResponse httpResponse) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                            mZeusLoadView.dismiss();
-                    }
-                });
-
+                if (mZeusLoadView != null && mZeusLoadView.isShowing())
+                    mZeusLoadView.dismiss();
             }
         }, file, AppDatas.Constants().getFileUploadUri());
     }

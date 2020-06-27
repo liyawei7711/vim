@@ -41,6 +41,7 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
+import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.CustomResponse;
 import huaiye.com.vim.ui.chat.ModifyGroupAnnouncementActivity;
 import huaiye.com.vim.ui.chat.ModifyGroupNameActivity;
@@ -103,6 +104,9 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     boolean isGroupChat = false;
 
     @BindExtra
+    CreateGroupContactData mContactsBean;
+
+    @BindExtra
     String strGroupDomainCode;
     @BindExtra
     String strGroupID;
@@ -157,7 +161,16 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             user_detail_group_notice_rel.setVisibility(View.VISIBLE);
             userDetailGroupName.setText(strGroupName + "");
             user_detail_group_user_count_rel.setVisibility(View.VISIBLE);
-            userDetailGroupDel.setVisibility(View.VISIBLE);
+
+            if(mContactsBean.userList != null) {
+                user_detail_group_notice_rel.setVisibility(View.GONE);
+                user_detail_modify_group_head_pic.setVisibility(View.GONE);
+                user_detail_group_name_rel.setVisibility(View.GONE);
+                user_detail_group_user_count_rel.setVisibility(View.GONE);
+                userDetailGroupDel.setVisibility(View.GONE);
+            } else {
+                userDetailGroupDel.setVisibility(View.VISIBLE);
+            }
 
         } else {
             user_detail_group_notice_rel.setVisibility(View.GONE);
@@ -229,8 +242,8 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 //
 //
 //        } else {
-            msgTopSet = SP.getInteger(sessionID + AppUtils.SP_SETTING_MSG_TOP, 0) == 1 ? true : false;
-            noDisturbSet = SP.getInteger(sessionID + AppUtils.SP_SETTING_NODISTURB, 0) == 1 ? true : false;
+        msgTopSet = SP.getInteger(sessionID + AppUtils.SP_SETTING_MSG_TOP, 0) == 1 ? true : false;
+        noDisturbSet = SP.getInteger(sessionID + AppUtils.SP_SETTING_NODISTURB, 0) == 1 ? true : false;
 
 //        }
 
@@ -248,6 +261,20 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     }
 
     private void initdata() {
+        if (mContactsBean.userList != null) {
+            mContactsGroupUserListBean = new ContactsGroupUserListBean();
+            mContactsGroupUserListBean.lstGroupUser = new ArrayList<>();
+            mContactsGroupUserListBean.strGroupName = mContactsBean.sessionName;
+            mContactsGroupUserListBean.strAnnouncement = mContactsBean.sessionName;
+            for (User temp : mContactsBean.userList) {
+                ContactsGroupUserListBean.LstGroupUser temp1 = new ContactsGroupUserListBean.LstGroupUser();
+                temp1.strUserName = temp.strUserName;
+                temp1.strHeadUrl = temp.strHeadUrl;
+                temp1.strUserDomainCode = temp.getDomainCode();
+                temp1.strUserID = temp.strUserID;
+                mContactsGroupUserListBean.lstGroupUser.add(temp1);
+            }
+        }
         mDataList.clear();
         if (!isGroupChat) {
             if (mUserList == null) {
@@ -280,7 +307,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 
         if (isGroupChat) {
             if (null != mContactsGroupUserListBean) {
-                if (mContactsGroupUserListBean.strCreaterID.equals(AppDatas.Auth().getUserID())) {
+                if (AppDatas.Auth().getUserID().equals(mContactsGroupUserListBean.strCreaterID)) {
                     User add = new User();
                     add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
                     mDataList.add(add);
@@ -289,7 +316,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                     mDataList.add(del);
                     isGroupOwner = true;
                 } else {
-                    if(!nEncryptIMEnable) {
+                    if (!nEncryptIMEnable && mContactsBean.userList == null) {
                         User add = new User();
                         add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
                         mDataList.add(add);
@@ -459,6 +486,10 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 
     @OnClick(R.id.user_detail_group_name_rel)
     void modifyGroupName() {
+        if(mContactsBean.userList != null) {
+            showToast("此功能为群组功能");
+            return;
+        }
         if (isGroupOwner) {
             Intent intent = new Intent(getSelf(), ModifyGroupNameActivity.class);
             intent.putExtra("strGroupDomainCode", strGroupDomainCode);
@@ -473,6 +504,10 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 
     @OnClick(R.id.user_detail_group_notice_rel)
     void modifyGroupnotice() {
+        if(mContactsBean.userList != null) {
+            showToast("此功能为群组功能");
+            return;
+        }
         Intent intent = new Intent(getSelf(), ModifyGroupAnnouncementActivity.class);
         intent.putExtra("strGroupDomainCode", strGroupDomainCode);
         intent.putExtra("strGroupID", strGroupID);
