@@ -383,6 +383,7 @@ public class FragmentSettings extends AppBaseFragment {
         HYClient.getModule(ApiAuth.class).logout(null);
         AppAuth.get().setAutoLogin(false);
         VimChoosedContacts.get().destory();
+        VIMApp.getInstance().mDomainInfoList.clear();
         Intent intent = new Intent(getActivity(), StartActivity.class);
         intent.putExtra("from", "");
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

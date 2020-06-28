@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;

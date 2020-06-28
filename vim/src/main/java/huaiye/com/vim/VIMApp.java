@@ -152,7 +152,11 @@ public class VIMApp extends MultiDexApplication {
             }
         };
         //x5内核初始化接口
-        QbSdk.initX5Environment(getApplicationContext(), cb);
+        try {
+            QbSdk.initX5Environment(getApplicationContext(), cb);
+        } catch (Exception e) {
+
+        }
 
         registerActivityLifecycleCallbacks(new ActivityLifecycleListener());
 

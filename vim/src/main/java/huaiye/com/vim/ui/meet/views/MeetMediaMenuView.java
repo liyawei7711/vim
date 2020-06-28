@@ -307,9 +307,9 @@ public class MeetMediaMenuView extends RelativeLayout {
      * 控制视频
      */
     private void toggleVideo() {
-        if (isCloseVideo) {
-            return;
-        }
+//        if (isCloseVideo) {
+//            return;
+//        }
         isVideoOpened = !isVideoOpened;
         Drawable d = ContextCompat.getDrawable(getContext(),
                 isVideoOpened ? R.drawable.huiyi_btn_guanbishipin : R.drawable.huiyi_btn_kaiqiishipin);

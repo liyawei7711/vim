@@ -110,7 +110,7 @@ public class FragmentContacts extends AppBaseFragment {
         EventBus.getDefault().register(this);
         getNavigate().hideLeftIcon()
                 .setReserveStatusbarPlace()
-                .setTitlText("组织架构")
+                .setTitlText("通讯录")
                 .setTitlClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View V) {
@@ -428,6 +428,7 @@ public class FragmentContacts extends AppBaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        map.clear();
         EventBus.getDefault().unregister(this);
     }
 

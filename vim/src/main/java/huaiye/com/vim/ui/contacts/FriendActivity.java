@@ -35,6 +35,7 @@ import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.VimMessageListMessages;
 import huaiye.com.vim.models.ModelApis;
@@ -106,6 +107,12 @@ public class FriendActivity extends AppBaseActivity {
                     @Override
                     public void onSuccess(ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                            for(User user : contactsBean.userList) {
+                                if(user.strUserID.equals(AppAuth.get().getUserID())) {
+                                    contactsBean.userList.remove(user);
+                                    break;
+                                }
+                            }
                             mAllContacts.addAll(contactsBean.userList);
                         }
                         doCallBack();

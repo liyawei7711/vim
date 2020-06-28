@@ -282,6 +282,16 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     }
 
     private void initView() {
+        chat_edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    if(chat_more_function.getVisibility() == View.VISIBLE) {
+                        chat_more_function.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
         mChatContentAdapter = new ChatContentAdapter(this, false, null, null, sessionUserList);
         mChatContentAdapter.setUserInfo(nUser.strUserID, nUser.strDomainCode);
         chat_recycler.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {

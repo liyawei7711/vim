@@ -60,6 +60,7 @@
                 <TextView
                     android:id="@+id/right_yuehoujifeng_look"
                     android:layout_width="wrap_content"
+                    android:visibility="invisible"
                     android:layout_marginRight="2dp"
                     android:textSize="10sp"
                     android:textColor="@color/color_B1B1B1"
