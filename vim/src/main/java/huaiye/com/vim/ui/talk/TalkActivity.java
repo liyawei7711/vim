@@ -47,6 +47,7 @@ import com.huaiye.sdk.sdpmsgs.talk.CStartTalkbackReq;
 import com.huaiye.sdk.sdpmsgs.talk.CStartTalkbackRsp;
 import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
+import com.ttyy.commonanno.anno.OnClick;
 import com.ttyy.commonanno.anno.route.BindExtra;
 
 import org.greenrobot.eventbus.EventBus;
@@ -69,7 +70,6 @@ import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.AppMessages;
 import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
-import huaiye.com.vim.ui.meet.MeetActivity;
 import huaiye.com.vim.ui.meet.MeetNewActivity;
 
 import static huaiye.com.vim.common.AppUtils.STRING_KEY_VGA;
@@ -181,15 +181,15 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
             texture_smaller.getLayoutParams().width = AppUtils.getSize(90);
         }
 
-        try{
-            if(toUser == null) {
-                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), strInviteUserId, strInviteUserDomain);
+        try {
+            if (toUser == null) {
+                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), strInviteUserId, strInviteUserDomain);
                 AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(strInviteName, strInviteUserId, strInviteUserDomain));
             } else {
-                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), toUser.strToUserID, toUser.strToUserDomainCode);
+                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), toUser.strToUserID, toUser.strToUserDomainCode);
                 AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(toUser.strToUserName, toUser.strToUserID, toUser.strToUserDomainCode));
             }
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
 
@@ -267,7 +267,7 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
                         }
                     });
         } else {
-            if(nEncryptIMEnable) {
+            if (nEncryptIMEnable) {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 finish();
                 return;
@@ -385,7 +385,7 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
                         }
                     });
         } else {
-            if(nEncryptIMEnable) {
+            if (nEncryptIMEnable) {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 finish();
                 return;
@@ -748,7 +748,7 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
         onViewClicked(v);
     }
 
-    //    @OnClick({R.id.ll_mic, R.id.ll_speaker, R.id.tv_end_talk, R.id.iv_change_camera, R.id.ll_camera})
+    @OnClick({R.id.ll_mic, R.id.ll_speaker, R.id.tv_end_talk, R.id.iv_change_camera, R.id.ll_camera})
     void onViewClicked(View v) {
         if (v.getId() == R.id.tv_end_talk) {
             Log.d("VIMApp", "tv_end_talk");
@@ -891,7 +891,7 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
 
     @Override
     public void onBackPressed() {
-        if(isTalkStarter && isTalking) {
+        if (isTalkStarter && isTalking) {
             getLogicDialog()
                     .setTitleText("提醒")
                     .setMessageText("是否退出本次对讲?")

@@ -200,6 +200,9 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                     AppDatas.MsgDB()
                             .chatGroupMsgDao()
                             .deleteBySessionID(sessionID);
+                    AppDatas.MsgDB()
+                            .chatGroupMsgDao()
+                            .deleteGroup(sessionID);
                 } else {
                     AppDatas.MsgDB()
                             .chatSingleMsgDao()

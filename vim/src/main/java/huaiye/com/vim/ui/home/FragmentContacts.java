@@ -321,11 +321,14 @@ public class FragmentContacts extends AppBaseFragment {
         }
         isReq = true;
 
+        if(allDeptDatas.isEmpty()) {
+            map.clear();
+        }
+
         if(!map.isEmpty()) {
             isReq = false;
             return;
         }
-
 
         allDeptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
@@ -350,6 +353,8 @@ public class FragmentContacts extends AppBaseFragment {
                     }
                 });
             }
+        } else {
+            isReq = false;
         }
 
     }

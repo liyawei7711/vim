@@ -234,6 +234,10 @@ public class VimMessageListMessages {
                 .addWhereColumn("sessionID", key)
                 .addUpdateColumn("type", -1)
                 .update();
+        AppDatas.DB().updateQuery(VimMessageListBean.class)
+                .addWhereColumn("groupID", key)
+                .addUpdateColumn("type", -1)
+                .update();
     }
 
 

@@ -181,6 +181,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     ArrayList<ChatGroupMsgBean> data = new ArrayList<>();
     ArrayList<Long> sessionId = new ArrayList<>();
     ArrayList<String> msgChatId = new ArrayList<>();
+    ArrayList<String> msgChatIdUnEncrypt = new ArrayList<>();
 
     Map<String, String> mapImg = new HashMap<>();
     Map<String, String> mapLocal = new HashMap<>();
@@ -445,9 +446,20 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                                 public Integer doOnThread() {
                                     int scroll2position = allMsg.size();
                                     mChatGroupMsgBeans.clear();
-                                    List<ChatGroupMsgBean> nChatGroupMsgBean = AppDatas.MsgDB()
+
+                                    msgChatIdUnEncrypt.clear();
+
+                                    List<ChatGroupMsgBean> nChatGroupMsgBean = new ArrayList<>();
+                                    List<ChatGroupMsgBean> datas = AppDatas.MsgDB()
                                             .chatGroupMsgDao()
                                             .queryPagingItemWithoutLive(mContactsBean.strGroupID, allMsg.size(), PAGE_SIZE);
+                                    for(ChatGroupMsgBean temp : datas) {
+                                        if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                                            msgChatIdUnEncrypt.add(temp.msgID);
+                                            nChatGroupMsgBean.add(temp);
+                                        }
+                                    }
+
                                     if (null != nChatGroupMsgBean && nChatGroupMsgBean.size() > 0) {
                                         int i = 0;
                                         for (ChatGroupMsgBean temp : nChatGroupMsgBean) {
@@ -571,14 +583,23 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
     private void loadPageData(final int index, final int limit) {
         isLoadingData = true;
+        msgChatIdUnEncrypt.clear();
         new RxUtils<List<ChatGroupMsgBean>>()
                 .doOnThreadObMain(new RxUtils.IThreadAndMainDeal<List<ChatGroupMsgBean>>() {
                     @Override
                     public List<ChatGroupMsgBean> doOnThread() {
                         List<ChatGroupMsgBean> mLocalBeans = new ArrayList<>();
-                        List<ChatGroupMsgBean> nChatGroupMsgBeans = AppDatas.MsgDB()
+                        List<ChatGroupMsgBean> nChatGroupMsgBeans = new ArrayList<>();
+                        List<ChatGroupMsgBean> datas = AppDatas.MsgDB()
                                 .chatGroupMsgDao()
                                 .queryPagingItemWithoutLive(mContactsBean.strGroupID, index, limit);
+                        for(ChatGroupMsgBean temp : datas) {
+                            if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                                msgChatIdUnEncrypt.add(temp.msgID);
+                                nChatGroupMsgBeans.add(temp);
+                            }
+                        }
+
                         if (null != nChatGroupMsgBeans && nChatGroupMsgBeans.size() > 0) {
                             for (ChatGroupMsgBean temp : nChatGroupMsgBeans) {
                                 if (!msgChatId.contains(temp.msgID)) {

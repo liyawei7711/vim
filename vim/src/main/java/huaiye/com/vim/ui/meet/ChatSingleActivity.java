@@ -181,6 +181,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     ArrayList<ChatSingleMsgBean> data = new ArrayList<>();
     ArrayList<Long> sessionId = new ArrayList<>();
     ArrayList<String> msgChatId = new ArrayList<>();
+    ArrayList<String> msgChatIdUnEncrypt = new ArrayList<>();
 
     List<String> imagePaths;
     Map<String, String> mapImg = new HashMap<>();
@@ -254,23 +255,6 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     }
 
     private void initNavigateView(String mOtherUserName) {
-        /*getNavigate().setTitlText(mOtherUserName)
-                .setRight3Icon(R.drawable.selector_navi_right_imgbtn)
-                .setLeftClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finish();
-                    }
-                }).setRight3ClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ChatSingleActivity.this, UserDetailActivity.class);
-                intent.putParcelableArrayListExtra("mUserList", getUserList());
-                intent.putExtra("isGroupChat", false);
-                intent.putExtra("sessionID", getSessionId());
-                ChatSingleActivity.this.startActivity(intent);
-            }
-        });*/
         getNavigate().setVisibility(View.GONE);
         chatTitleBarTitle.setText(mOtherUserName);
     }
@@ -323,9 +307,19 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                 public Integer doOnThread() {
                                     int scroll2position = allMsg.size();
                                     mChatSingleMsgBeans.clear();
-                                    List<ChatSingleMsgBean> nChatSingleMsgBeans = AppDatas.MsgDB()
+                                    msgChatIdUnEncrypt.clear();
+
+                                    List<ChatSingleMsgBean> nChatSingleMsgBeans = new ArrayList<>();
+                                    List<ChatSingleMsgBean> datas = AppDatas.MsgDB()
                                             .chatSingleMsgDao()
                                             .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", allMsg.size(), PAGE_SIZE);
+                                    for(ChatSingleMsgBean temp : datas) {
+                                        if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                                            msgChatIdUnEncrypt.add(temp.msgID);
+                                            nChatSingleMsgBeans.add(temp);
+                                        }
+                                    }
+
                                     if (null != nChatSingleMsgBeans && nChatSingleMsgBeans.size() > 0) {
                                         int i = 0;
                                         for (ChatSingleMsgBean temp : nChatSingleMsgBeans) {
@@ -440,14 +434,23 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 
     private void loadPageData(final int index, final int limit) {
         isLoadingData = true;
+        msgChatIdUnEncrypt.clear();
         new RxUtils<List<ChatSingleMsgBean>>()
                 .doOnThreadObMain(new RxUtils.IThreadAndMainDeal<List<ChatSingleMsgBean>>() {
                     @Override
                     public List<ChatSingleMsgBean> doOnThread() {
                         List<ChatSingleMsgBean> mLocalBeans = new ArrayList<>();
-                        List<ChatSingleMsgBean> nChatSingleMsgBeans = AppDatas.MsgDB()
+                        List<ChatSingleMsgBean> nChatSingleMsgBeans = new ArrayList<>();
+                        List<ChatSingleMsgBean> datas = AppDatas.MsgDB()
                                 .chatSingleMsgDao()
                                 .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", index, limit);
+                        for(ChatSingleMsgBean temp : datas) {
+                            if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                                msgChatIdUnEncrypt.add(temp.msgID);
+                                nChatSingleMsgBeans.add(temp);
+                            }
+                        }
+
                         if (null != nChatSingleMsgBeans && nChatSingleMsgBeans.size() > 0) {
                             for (ChatSingleMsgBean temp : nChatSingleMsgBeans) {
                                 if (!msgChatId.contains(temp.msgID)) {

@@ -161,6 +161,9 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                                 AppDatas.MsgDB()
                                         .chatGroupMsgDao()
                                         .deleteBySessionID(data.sessionID);
+                                AppDatas.MsgDB()
+                                        .chatGroupMsgDao()
+                                        .deleteGroup(data.sessionID);
                             } else {
                                 AppDatas.MsgDB()
                                         .chatSingleMsgDao()
