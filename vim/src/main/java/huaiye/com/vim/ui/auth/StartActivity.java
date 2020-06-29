@@ -68,6 +68,7 @@ public class StartActivity extends AppBaseActivity {
     private AlertDialog nAlertDialog;
     private LocationService locationService;
 
+    boolean isFromLogin = false;
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -110,6 +111,21 @@ public class StartActivity extends AppBaseActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 edt_password.setText("");
+            }
+        });
+        edt_password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                isFromLogin = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
 
@@ -197,7 +213,7 @@ public class StartActivity extends AppBaseActivity {
                                 AppAuth.get().setAutoLogin(true);
                                 Intent intent = getIntent();
                                 intent.setClass(getSelf(), MainActivity.class);
-                                intent.putExtra("isFromLogin", true);
+                                intent.putExtra("isFromLogin", isFromLogin);
                                 startActivity(intent);
                             } else {
                                 startActivity(new Intent(getSelf(), ChangePwdActivity.class).putExtra("isQiangZhi", true));

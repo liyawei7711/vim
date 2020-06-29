@@ -689,7 +689,7 @@ public class MessageReceiver {
     }
 
     private void sendUserGps(ChatMessageBean chatMessageBean) {
-        if (!SP.getBoolean(SP_ENABLE_DINGYUE_GPS, true)) {
+        if (SP.getBoolean(SP_ENABLE_DINGYUE_GPS, true)) {
             return;
         }
         JsonObject json = new JsonObject();
@@ -869,9 +869,9 @@ public class MessageReceiver {
     private void dealModifyGroup(ChatMessageBean chatMessageBean, Gson gson) {
         ContactsGroupUserListBean nContactsGroupUserListBeanNew = gson.fromJson(chatMessageBean.content, ContactsGroupUserListBean.class);
         if (null != nContactsGroupUserListBeanNew) {
-            if (null != ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID)) {
+//            if (null != ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID)) {
 
-                ContactsGroupUserListBean currentContactsGroupUserListBean = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID);
+                ContactsGroupUserListBean currentContactsGroupUserListBean = new ContactsGroupUserListBean();//ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID);
                 currentContactsGroupUserListBean.strGroupDomainCode = nContactsGroupUserListBeanNew.strGroupDomainCode;
 
                 currentContactsGroupUserListBean.strGroupID = nContactsGroupUserListBeanNew.strGroupID;
@@ -916,7 +916,7 @@ public class MessageReceiver {
                 addGroupNotice(event.argStr1, groupInfo.strGroupDomainCode + groupInfo.strGroupID, groupInfo.strGroupID, groupInfo.strGroupDomainCode, groupInfo.strGroupName);
                 EventBus.getDefault().post(event);
                 EventBus.getDefault().post(currentContactsGroupUserListBean);//刷新页面name
-            }
+//            }
 
             if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strGroupName)) {
                 VimMessageListMessages.get().updateGroupName(nContactsGroupUserListBeanNew.strGroupDomainCode + nContactsGroupUserListBeanNew.strGroupID, nContactsGroupUserListBeanNew.strGroupName);
@@ -950,6 +950,7 @@ public class MessageReceiver {
         bean.type = CHAT_CONTENT_CUSTOM_NOTICE_ITEM;
         bean.sessionID = sessionID;
         bean.groupID = groupID;
+        bean.msgID = groupID+System.currentTimeMillis();
         bean.groupDomainCode = groupDomain;
         if (!TextUtils.isEmpty(sessionName)) {
             bean.sessionName = sessionName;

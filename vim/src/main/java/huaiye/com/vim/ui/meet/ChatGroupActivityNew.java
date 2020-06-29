@@ -400,9 +400,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     }
 
     private void initNavigateView(String mOtherUserName) {
-        if (TextUtils.isEmpty(mOtherUserName)) {
-            return;
-        }
+//        if (TextUtils.isEmpty(mOtherUserName)) {
+//            return;
+//        }
         getNavigate().setVisibility(View.GONE);
         chatTitleBarTitle.setText(mOtherUserName);
         chatTitleBarVoiceChatBtn.setVisibility(View.GONE);
@@ -970,9 +970,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     private String getGroupSessionId() {
         if (null != mContactsBean) {
             if(mContactsBean.userList == null) {
-                return mContactsBean.strGroupID;
-            } else {
                 return mContactsBean.strGroupDomainCode + mContactsBean.strGroupID;
+            } else {
+                return mContactsBean.strGroupID;
             }
         } else {
             return null;

@@ -303,5 +303,9 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
         }, file);
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.stopRecordVideo();
+    }
 }
