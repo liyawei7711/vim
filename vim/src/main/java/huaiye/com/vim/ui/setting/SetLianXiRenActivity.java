@@ -111,6 +111,9 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
             mUserList.addAll(AppDatas.MsgDB()
                     .getJinJiLianXiRenDao().queryOneItem(AppAuth.get().getUserID(), AppAuth.get().getDomainCode()).getUserRel());
         }
+        for(User temp : mUserList) {
+            temp.canDel = false;
+        }
         initAdd();
 
     }

@@ -71,7 +71,9 @@ public class ChuanShuShowActivity extends AppBaseActivity {
                         temps.add(temp);
                     }
                 }
-                EventBus.getDefault().post(new StartTransFileBean(temps));
+                if(!temps.isEmpty()) {
+                    EventBus.getDefault().post(new StartTransFileBean(temps));
+                }
             }
 
         });

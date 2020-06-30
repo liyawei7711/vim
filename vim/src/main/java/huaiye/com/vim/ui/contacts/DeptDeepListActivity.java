@@ -18,6 +18,10 @@ import com.ttyy.commonanno.anno.BindView;
 import com.ttyy.commonanno.anno.OnClick;
 import com.ttyy.commonanno.anno.route.BindExtra;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,9 +29,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import huaiye.com.vim.R;
+import huaiye.com.vim.bus.MessageEvent;
+import huaiye.com.vim.bus.NumBeanRef;
 import huaiye.com.vim.common.AppBaseActivity;
+import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
+import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -77,6 +85,9 @@ public class DeptDeepListActivity extends AppBaseActivity {
     ArrayList<DeptData> deptDatas = new ArrayList<>();
     LiteBaseAdapter<User> userAdapter;
     ArrayList<User> userInfos = new ArrayList<>();
+
+    static int totalRequestNum = 0;
+    public static HashMap<String, String> allNum = new HashMap<>();
 
     @Override
     protected void initActionBar() {
@@ -188,8 +199,13 @@ public class DeptDeepListActivity extends AppBaseActivity {
             public void onSuccess(final ContactsBean contactsBean) {
                 if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
                     allUserInfos.clear();
-                    allUserInfos.addAll(contactsBean.userList);
-                    for(User temp : allUserInfos) {
+                    for(User temp : contactsBean.userList) {
+                        for(DeptData dept : temp.getUserDept()) {
+                            if(dept.strDepID.equals(deptData.strDepID)) {
+                                allUserInfos.add(temp);
+                                break;
+                            }
+                        }
                         temp.strDomainCode = deptData.strDomainCode;
                     }
                     showData(et_key.getText().toString());
@@ -212,7 +228,33 @@ public class DeptDeepListActivity extends AppBaseActivity {
         if(map.get(deptData.strDepID) != null) {
             allDeptDatas.addAll(map.get(deptData.strDepID));
         }
+//        requestNum();
         showData(et_key.getText().toString());
+    }
+
+    private void requestNum() {
+        for (DeptData temp : allDeptDatas) {
+            totalRequestNum++;
+            System.out.println("ccccccccccccccc req "+temp.getName() + "  "+totalRequestNum);
+            ModelApis.Contacts().requestContacts(temp.strDomainCode, temp.strDepID, new ModelCallback<ContactsBean>() {
+                @Override
+                public void onSuccess(final ContactsBean contactsBean) {
+                    totalRequestNum--;
+                    allNum.put(temp.strDepID, contactsBean.nTotalSize + "");
+                    System.out.println("ccccccccccccccc rsp "+temp.getName()+"  "+ contactsBean.nTotalSize + "  "+totalRequestNum);
+                    deptAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onFailure(HTTPResponse httpResponse) {
+                    super.onFailure(httpResponse);
+                    totalRequestNum--;
+                    allNum.put(temp.strDepID, "0");
+                    System.out.println("ccccccccccccccc  error ");
+                    deptAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     private void jumpToNext(DeptData deptData) {

@@ -37,6 +37,7 @@ import huaiye.com.vim.models.contacts.ContactsApi;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.MenuListRole;
 import huaiye.com.vim.models.map.bean.DaoHangAppInfo;
+import huaiye.com.vim.ui.Capture.CaptureGuanMoOrPushActivity;
 import huaiye.com.vim.ui.auth.StartActivity;
 import huaiye.com.vim.ui.guide.WelcomeActivity;
 import huaiye.com.vim.ui.jiesuo.JieSuoActivity;
@@ -79,6 +80,7 @@ public class VIMApp extends MultiDexApplication {
 
     public LocationService locationService;
     public List<DomainInfoList.DomainInfo> mDomainInfoList = new ArrayList<>();
+    public CaptureGuanMoOrPushActivity guanMoOrPushActivity;
     public List<DaoHangAppInfo> daoHangAppInfoList;
     public List<DaoHangAppInfo> alldaoHangAppInfoList;
 

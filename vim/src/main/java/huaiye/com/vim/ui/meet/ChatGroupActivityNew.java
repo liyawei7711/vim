@@ -1348,8 +1348,11 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             case AppUtils.EVENT_UPDATE_GROUP_DETAIL:
             case AppUtils.EVENT_MESSAGE_MODIFY_GROUP:
                 if (!TextUtils.isEmpty(messageEvent.msgContent) && messageEvent.msgContent.equals(mContactsBean.strGroupID)) {//只有当前正在聊天的群成员有变动才刷新用户信息
-                    mContactsGroupUserListBean = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(mContactsBean.strGroupID);
-                    setMessageUsersDate(mContactsGroupUserListBean, false);
+                    ContactsGroupUserListBean tempGroup = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(mContactsBean.strGroupID);
+                    if(tempGroup.lstGroupUser == null) {
+                        tempGroup.lstGroupUser = mContactsGroupUserListBean.lstGroupUser;
+                    }
+                    setMessageUsersDate(tempGroup, false);
                 }
 
                 if (AppUtils.EVENT_MESSAGE_MODIFY_GROUP == messageEvent.what) {

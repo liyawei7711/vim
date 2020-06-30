@@ -12,6 +12,7 @@ import com.ttyy.commonanno.anno.BindView;
 import com.ttyy.commonanno.anno.OnClick;
 
 import huaiye.com.vim.R;
+import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.dao.AppDatas;
@@ -81,7 +82,7 @@ public class SettingAddressActivity extends AppBaseActivity {
 
     @OnClick(R.id.setting_ok)
     void updateAddress() {
-
+        VIMApp.getInstance().mDomainInfoList.clear();
         if (TextUtils.isEmpty(edt_address_ip.getText())
                 || TextUtils.isEmpty(edt_address_port.getText())) {
             showToast("IP / Port 不能为空");

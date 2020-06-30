@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import huaiye.com.vim.R;
+import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.common.AlarmMediaPlayer;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.ErrorMsg;
@@ -160,6 +161,10 @@ public class InviteAlarmActivity extends AppBaseActivity {
                 break;
             case R.id.view_accept:
                 // 接受邀请
+                if (VIMApp.getInstance().guanMoOrPushActivity != null) {
+                    VIMApp.getInstance().guanMoOrPushActivity.closeThisFunction();
+                    VIMApp.getInstance().guanMoOrPushActivity.finish();
+                }
                 accept();
                 finish();
                 break;
@@ -272,23 +277,25 @@ public class InviteAlarmActivity extends AppBaseActivity {
         currentTalkData.clear();
 
     }
+
     public void onMeetInviteCancel(CNotifyInviteUserCancelJoinMeeting data, long millis) {
-        if(data == null) {
+        if (data == null) {
             return;
         }
 
-        for(CNotifyInviteUserJoinMeeting temp : currentData) {
-            if(temp.nMeetingID == data.nMeetingID && temp.strMeetingDomainCode.equals(data.strMeetingDomainCode)) {
+        for (CNotifyInviteUserJoinMeeting temp : currentData) {
+            if (temp.nMeetingID == data.nMeetingID && temp.strMeetingDomainCode.equals(data.strMeetingDomainCode)) {
                 currentData.remove(temp);
                 finish();
                 return;
             }
         }
 
-        if(nMeetID == data.nMeetingID && strMeetDomainCode.equals(data.strMeetingDomainCode)) {
+        if (nMeetID == data.nMeetingID && strMeetDomainCode.equals(data.strMeetingDomainCode)) {
             finish();
         }
     }
+
     @Override
     public void onMeetInvite(final CNotifyInviteUserJoinMeeting data, final long millisLocal) {
         if (data == null) {

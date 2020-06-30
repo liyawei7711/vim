@@ -52,8 +52,8 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
 
     @BindView(R.id.fl_root)
     View fl_root;
-    @BindView(R.id.rct_view)
-    RecyclerView rct_view;
+    @BindView(R.id.rct_view_create)
+    RecyclerView rct_view_create;
     @BindView(R.id.iv_empty_view)
     View iv_empty_view;
     @BindView(R.id.refresh_view)
@@ -115,8 +115,8 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
                 zhuanFaGroupPopupWindow.showData(ZhuanFaGroupListActivity.this.data);
             }
         });
-        rct_view.setAdapter(mGroupitemAdapter);
-        rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
+        rct_view_create.setAdapter(mGroupitemAdapter);
+        rct_view_create.setLayoutManager(new SafeLinearLayoutManager(this));
 
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -133,7 +133,7 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
 
     public void updateGroupContacts() {
 
-        rct_view.setAdapter(mGroupitemAdapter);
+        rct_view_create.setAdapter(mGroupitemAdapter);
         mGroupitemAdapter.setDatas(mlstGroupInfo);
         mGroupitemAdapter.notifyDataSetChanged();
     }

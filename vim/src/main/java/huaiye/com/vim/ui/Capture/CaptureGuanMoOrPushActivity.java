@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
+import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
@@ -53,9 +54,8 @@ public class CaptureGuanMoOrPushActivity extends AppBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-
+        VIMApp.getInstance().guanMoOrPushActivity = this;
     }
-
 
     @Override
     public void doInitDelay() {
@@ -169,7 +169,11 @@ public class CaptureGuanMoOrPushActivity extends AppBaseActivity {
         super.onDestroy();
         AppUtils.isCaptureLayoutShowing = true;
         EventBus.getDefault().unregister(this);
+        VIMApp.getInstance().guanMoOrPushActivity = null;
+    }
 
+    public void closeThisFunction() {
+        captureView.stopCapture(false);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

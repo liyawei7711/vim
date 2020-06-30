@@ -15,6 +15,7 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
+import huaiye.com.vim.ui.contacts.DeptDeepListActivity;
 import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
@@ -53,7 +54,6 @@ public class DepeItemViewHolder extends LiteViewHolder {
         }
 
         tv_name.setText(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
-        tv_num.setText("(0)");
 
         tv_message.setVisibility(View.GONE);
         for (DeptData temp : FragmentContacts.atData) {
@@ -63,22 +63,26 @@ public class DepeItemViewHolder extends LiteViewHolder {
             }
         }
 
+        tv_num.setText(" ");
+//        if(TextUtils.isEmpty(DeptDeepListActivity.allNum.get(deptData.strDepID))) {
+//            ModelApis.Contacts().requestContacts(deptData.strDomainCode, deptData.strDepID, new ModelCallback<ContactsBean>() {
+//                @Override
+//                public void onSuccess(final ContactsBean contactsBean) {
+//                    DeptDeepListActivity.allNum.put(deptData.strDepID, contactsBean.nTotalSize + "");
+//                    tv_num.setText("(" + DeptDeepListActivity.allNum.get(deptData.strDepID) + ")");
+//                }
+//
+//                @Override
+//                public void onFailure(HTTPResponse httpResponse) {
+//                    super.onFailure(httpResponse);
+//                    DeptDeepListActivity.allNum.put(deptData.strDepID, "0");
+//                    tv_num.setText("(" + DeptDeepListActivity.allNum.get(deptData.strDepID) + ")");
+//                }
+//            });
+//        } else {
+//            tv_num.setText("(" + DeptDeepListActivity.allNum.get(deptData.strDepID) + ")");
+//        }
 
-        ModelApis.Contacts().requestContacts(deptData.strDomainCode, deptData.strDepID, new ModelCallback<ContactsBean>() {
-            @Override
-            public void onSuccess(final ContactsBean contactsBean) {
-                if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                    tv_num.setText("(" + contactsBean.userList.size() + ")");
-                } else {
-                    tv_num.setText("(0)");
-                }
-            }
-
-            @Override
-            public void onFinish(HTTPResponse httpResponse) {
-                super.onFinish(httpResponse);
-            }
-        });
     }
 
 }
