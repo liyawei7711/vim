@@ -173,10 +173,7 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
         } else if(isDeling){
             mUserList.remove(item);
             if(mUserList.isEmpty()) {
-                for (User temp : mUserList) {
-                    temp.canDel = false;
-                }
-                initAdd();
+                ll_root.performClick();
                 return;
             }
             adapter.notifyDataSetChanged();

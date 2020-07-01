@@ -23,7 +23,6 @@ public class FileTransferServer extends ChannelInitializer<Channel> {
 
     public static FileTransferServer get() {
         if (SINGLETON == null) {
-            System.out.println("cccccccccccccccccccc FileTransferServer");
             SINGLETON = new FileTransferServer();
         }
         return SINGLETON;

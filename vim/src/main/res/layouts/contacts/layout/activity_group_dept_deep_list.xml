@@ -3,7 +3,7 @@
     android:id="@+id/fl_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/back_gray"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <LinearLayout
@@ -73,11 +73,18 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <huaiye.com.vim.views.MaxRecyclerView
-                        android:id="@+id/rct_view_item"
+                    <LinearLayout
+                        android:background="@color/back_gray"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp" />
+                        android:layout_height="wrap_content">
+                        <huaiye.com.vim.views.MaxRecyclerView
+                            android:id="@+id/rct_view_item"
+                            android:background="@color/white"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
 
                     <huaiye.com.vim.views.MaxRecyclerView
                         android:id="@+id/rct_view_dept"

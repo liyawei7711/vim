@@ -969,11 +969,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
     private String getGroupSessionId() {
         if (null != mContactsBean) {
-            if(mContactsBean.userList == null) {
-                return mContactsBean.strGroupDomainCode + mContactsBean.strGroupID;
-            } else {
-                return mContactsBean.strGroupID;
-            }
+            return mContactsBean.strGroupDomainCode + mContactsBean.strGroupID;
         } else {
             return null;
         }

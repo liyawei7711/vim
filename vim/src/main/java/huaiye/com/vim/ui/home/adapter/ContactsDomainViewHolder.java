@@ -28,7 +28,6 @@ import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.contacts.DeptChatUtils;
 import huaiye.com.vim.ui.contacts.DeptDeepListActivity;
-import huaiye.com.vim.ui.contacts.DeptListActivity;
 import huaiye.com.vim.ui.contacts.viewholder.DepeContactItemViewHolder;
 import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
@@ -77,7 +76,7 @@ public class ContactsDomainViewHolder extends LiteViewHolder {
                     Collections.sort(datas, new Comparator<DeptData>() {
                         @Override
                         public int compare(DeptData o1, DeptData o2) {
-                            return o1.nPriority - o2.nPriority;
+                            return o1.nPpriority - o2.nPpriority;
                         }
                     });
                     LiteBaseAdapter<DeptData> deptAdapter = new LiteBaseAdapter<>(context,
@@ -94,7 +93,7 @@ public class ContactsDomainViewHolder extends LiteViewHolder {
                                         return;
                                     }
                                     ArrayList<String> titleName = new ArrayList<>();
-                                    titleName.add(domain.strDomainName);
+//                                    titleName.add(domain.strDomainName);
                                     titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
                                     Intent intent = new Intent(context, DeptDeepListActivity.class);
                                     intent.putExtra("domainName", domain.strDomainName);

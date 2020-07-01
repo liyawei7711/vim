@@ -235,13 +235,11 @@ public class DeptDeepListActivity extends AppBaseActivity {
     private void requestNum() {
         for (DeptData temp : allDeptDatas) {
             totalRequestNum++;
-            System.out.println("ccccccccccccccc req "+temp.getName() + "  "+totalRequestNum);
             ModelApis.Contacts().requestContacts(temp.strDomainCode, temp.strDepID, new ModelCallback<ContactsBean>() {
                 @Override
                 public void onSuccess(final ContactsBean contactsBean) {
                     totalRequestNum--;
                     allNum.put(temp.strDepID, contactsBean.nTotalSize + "");
-                    System.out.println("ccccccccccccccc rsp "+temp.getName()+"  "+ contactsBean.nTotalSize + "  "+totalRequestNum);
                     deptAdapter.notifyDataSetChanged();
                 }
 
@@ -250,7 +248,6 @@ public class DeptDeepListActivity extends AppBaseActivity {
                     super.onFailure(httpResponse);
                     totalRequestNum--;
                     allNum.put(temp.strDepID, "0");
-                    System.out.println("ccccccccccccccc  error ");
                     deptAdapter.notifyDataSetChanged();
                 }
             });
@@ -259,7 +256,8 @@ public class DeptDeepListActivity extends AppBaseActivity {
 
     private void jumpToNext(DeptData deptData) {
         ArrayList<String> titleName = new ArrayList<>();
-        titleName.add(domainName);
+//        titleName.add(domainName);
+        titleName.addAll(strDatas);
         titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
         Intent intent = new Intent(this, DeptDeepListActivity.class);
         intent.putExtra("domainName", domainName);
@@ -288,6 +286,12 @@ public class DeptDeepListActivity extends AppBaseActivity {
                 }
             }
         }
+        Collections.sort(deptDatas, new Comparator<DeptData>() {
+            @Override
+            public int compare(DeptData o1, DeptData o2) {
+                return o1.nPpriority - o2.nPpriority;
+            }
+        });
         Collections.sort(userInfos, new Comparator<User>() {
             @Override
             public int compare(User o1, User o2) {

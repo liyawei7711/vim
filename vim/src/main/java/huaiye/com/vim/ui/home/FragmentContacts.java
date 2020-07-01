@@ -193,7 +193,7 @@ public class FragmentContacts extends AppBaseFragment {
                         }
                         deptData.strDomainCode = domain == null ? "" : domain.strDomainCode;
                         ArrayList<String> titleName = new ArrayList<>();
-                        titleName.add(domain == null ? "" : domain.strDomainName);
+//                        titleName.add(domain == null ? "" : domain.strDomainName);
                         titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
                         Intent intent = new Intent(getActivity(), DeptDeepListActivity.class);
                         intent.putExtra("domainName", (domain == null ? "" : domain.strDomainName));

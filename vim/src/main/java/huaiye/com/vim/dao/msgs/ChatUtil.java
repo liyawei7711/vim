@@ -22,12 +22,29 @@ import huaiye.com.vim.bus.NewMessage;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.ScreenNotify;
+import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
+import huaiye.com.vim.models.ModelApis;
+import huaiye.com.vim.models.ModelCallback;
+import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
+import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_ADDRESS;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_AUDIO_FILE;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_FILE;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_GROUP_MEET;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_IMG;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_JINJI;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_SHARE;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VIDEO;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_SINGLE_CHAT_VOICE;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_TEXT;
+import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_VIDEO_FILE;
 import static huaiye.com.vim.common.AppUtils.NOTIFICATION_TYPE_DEVICE_PUSH;
 import static huaiye.com.vim.common.AppUtils.NOTIFICATION_TYPE_GUANMO;
 import static huaiye.com.vim.common.AppUtils.NOTIFICATION_TYPE_PERSON_PUSH;
+import static huaiye.com.vim.ui.meet.adapter.ChatContentAdapter.CHAT_CONTENT_CUSTOM_NOTICE_ITEM;
 
 /**
  * author: admin
@@ -126,9 +143,45 @@ public class ChatUtil {
         VimMessageListMessages.get().getMessagesUnReadNum();
 
         if (AppUtils.isHide) {
-            ScreenNotify.get().wakeUpAndUnlock();
-            ScreenNotify.get().openApplicationFromBackground();
-            ScreenNotify.get().showScreenNotify(AppUtils.ctx, "0".equals(bean.sessionID) ? "新的广播消息" : "新的指令调度", bean.sessionName);
+//            ScreenNotify.get().wakeUpAndUnlock();
+//            ScreenNotify.get().openApplicationFromBackground();
+
+            StringBuilder str = new StringBuilder();
+            if (1 == bean.bFire && (AppUtils.MESSAGE_TYPE_TEXT == bean.type || AppUtils.MESSAGE_TYPE_IMG == bean.type || AppUtils.MESSAGE_TYPE_AUDIO_FILE == bean.type || AppUtils.MESSAGE_TYPE_VIDEO_FILE == bean.type)) {
+                str.append("[" + AppUtils.getString(R.string.yuehoujifen) + "]");
+            } else if (bean.type == MESSAGE_TYPE_IMG) {
+                str.append("[" + AppUtils.getString(R.string.img) + "]");
+            } else if (bean.type == MESSAGE_TYPE_FILE) {
+                str.append("[" + AppUtils.getString(R.string.notice_file) + "]");
+            } else if (bean.type == MESSAGE_TYPE_TEXT) {
+                str.append(bean.msgTxt + "");
+            } else if (bean.type == NOTIFICATION_TYPE_PERSON_PUSH || bean.type == NOTIFICATION_TYPE_DEVICE_PUSH) {
+                if (bean.type == NOTIFICATION_TYPE_PERSON_PUSH) {
+                    str.append("[" + AppUtils.getString(R.string.person_share) + "]");
+                } else {
+                    str.append("[" + AppUtils.getString(R.string.device_share) + "]");
+                }
+            } else if (bean.type == MESSAGE_TYPE_AUDIO_FILE) {
+                str.append("[" + AppUtils.getString(R.string.audio) + "]");
+            } else if (bean.type == MESSAGE_TYPE_VIDEO_FILE) {
+                str.append("[" + AppUtils.getString(R.string.video) + "]");
+            } else if (bean.type == MESSAGE_TYPE_SINGLE_CHAT_VOICE) {
+                str.append("[" + AppUtils.getString(R.string.chat_voice_content) + "]");
+            } else if (bean.type == MESSAGE_TYPE_SINGLE_CHAT_VIDEO) {
+                str.append("[" + AppUtils.getString(R.string.chat_video_content) + "]");
+            } else if (bean.type == MESSAGE_TYPE_ADDRESS) {
+                str.append("[" + AppUtils.getString(R.string.chat_address) + "]");
+            } else if (bean.type == MESSAGE_TYPE_GROUP_MEET) {
+                str.append("[" + AppUtils.getString(R.string.chat_group_video) + "]");
+            } else if (bean.type == MESSAGE_TYPE_JINJI) {
+                str.append("[" + AppUtils.getString(R.string.chat_jinji) + "]");
+            } else if (bean.type == MESSAGE_TYPE_SHARE) {
+                str.append("[" + AppUtils.getString(R.string.chat_link) + "]" + "新消息");
+            } else if (bean.type == CHAT_CONTENT_CUSTOM_NOTICE_ITEM) {
+                str.append(bean.msgTxt);
+            }
+
+            ScreenNotify.get().showScreenNotify(AppUtils.ctx, bean.sessionName, str.toString());
         }
     }
 

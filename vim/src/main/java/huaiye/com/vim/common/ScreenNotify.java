@@ -1,7 +1,6 @@
 package huaiye.com.vim.common;
 
 import android.app.ActivityManager;
-import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -20,37 +19,35 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.ui.home.MainActivity;
 
 import static android.content.Context.ACTIVITY_SERVICE;
-import static android.content.Context.KEYGUARD_SERVICE;
 
 /**
  * 在锁屏的情况下弹出通知和清除通知
  */
 public class ScreenNotify {
     private static ScreenNotify mNotify;
-    public static final  int DOWNLOAD_NOTIFICATION_ID = 12;
-    public static  final int NOTIFY_ID = 22;
+    public static final int DOWNLOAD_NOTIFICATION_ID = 12;
+    public static final int NOTIFY_ID = 22;
     public static final int FORGROUND_NOTICE_ID = 32;
 
     private NotificationCompat.Builder notificationBuilder;
 
     public static final String CHANNEL_ID_NAME = "my_channel_01";
 
-    private ScreenNotify(){
+    private ScreenNotify() {
 
     }
 
 
-    public static ScreenNotify get(){
-        if (mNotify == null){
-            synchronized (ScreenNotify.class){
-                if (mNotify == null){
+    public static ScreenNotify get() {
+        if (mNotify == null) {
+            synchronized (ScreenNotify.class) {
+                if (mNotify == null) {
                     mNotify = new ScreenNotify();
                 }
             }
         }
         return mNotify;
     }
-
 
 
     public static void createNotificationChannel(Context context) {
@@ -75,11 +72,11 @@ public class ScreenNotify {
     }
 
 
-    public static void startForegroundService(Service service){
+    public static void startForegroundService(Service service) {
         NotificationCompat.Builder builder;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            builder = new NotificationCompat.Builder(service,CHANNEL_ID_NAME);
-        }else {
+            builder = new NotificationCompat.Builder(service, CHANNEL_ID_NAME);
+        } else {
             builder = new NotificationCompat.Builder(service);
         }
         Notification notification = builder
@@ -95,40 +92,63 @@ public class ScreenNotify {
 
     /**
      * 屏幕锁屏的时候才需要显示
-     * @return  true  需要显示
+     *
+     * @return true  需要显示
      */
-    public boolean needShowScreenNotify(){
-       // KeyguardManager keyguardManager = (KeyguardManager) MCApp.getInstance().getSystemService(KEYGUARD_SERVICE);
-       // return keyguardManager.isKeyguardLocked();
-        return false;
+    public boolean needShowScreenNotify() {
+        // KeyguardManager keyguardManager = (KeyguardManager) MCApp.getInstance().getSystemService(KEYGUARD_SERVICE);
+        // return keyguardManager.isKeyguardLocked();
+        return true;
     }
 
-    public void showScreenNotify(Context context,String title,String msg){
-        if (!needShowScreenNotify()){
+    public void showScreenNotify(Context context, String title, String msg) {
+        if (!needShowScreenNotify()) {
             return;
         }
-        NotificationManager notificationManager = (NotificationManager)context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent intent = new Intent(context,MainActivity.class);
-        PendingIntent pIntent =  PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_ONE_SHOT,null);
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_ONE_SHOT, null);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            notificationBuilder = new NotificationCompat.Builder(context,CHANNEL_ID_NAME);
-        }else {
+            notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID_NAME);
+        } else {
             notificationBuilder = new NotificationCompat.Builder(context);
         }
-         notificationBuilder.setSmallIcon(R.drawable.guanyu_logo)
-                .setContentTitle(title)
-                .setContentText(msg)
-                .setContentIntent(pIntent)
-                .setAutoCancel(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder notification = new Notification.Builder(context)
+                    .setContentTitle(title)
+                    .setContentText(msg)
+                    .setWhen(System.currentTimeMillis())
+                    .setSmallIcon(R.drawable.logo)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.logo))
+                    .setContentIntent(pIntent)
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setChannelId(context.getPackageName());
+            NotificationChannel channel = new NotificationChannel(context.getPackageName(),
+                    "会话消息(掌嗨)",
+                    NotificationManager.IMPORTANCE_DEFAULT                     );
+            notificationManager.createNotificationChannel(channel);
+            notificationManager.notify(0,notification.build());
+        }else{
+            Notification.Builder notification = new Notification.Builder(context)
+                    .setContentTitle(title)
+                    .setContentText(msg)
+                    .setWhen(System.currentTimeMillis())
+                    .setSmallIcon(R.drawable.logo)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.logo))
+                    .setContentIntent(pIntent)
+                    .setWhen(System.currentTimeMillis())
+                    .setDefaults(Notification.DEFAULT_ALL);
+            notificationManager.notify(0,notification.build());
+        }
 
         notificationManager.notify(NOTIFY_ID, notificationBuilder.build());
     }
 
 
-    public void dismissNotify(Context context){
-        NotificationManager notificationManager = (NotificationManager)context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+    public void dismissNotify(Context context) {
+        NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFY_ID);
     }
 
@@ -138,7 +158,7 @@ public class ScreenNotify {
      */
     public void wakeUpAndUnlock() {
         // 获取电源管理器对象
-        PowerManager pm = (PowerManager)AppUtils.ctx.getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager) AppUtils.ctx.getSystemService(Context.POWER_SERVICE);
         boolean screenOn = pm.isScreenOn();
         if (!screenOn) {
             // 获取PowerManager.WakeLock对象,后面的参数|表示同时传入两个值,最后的是LogCat里用的Tag
@@ -159,7 +179,7 @@ public class ScreenNotify {
         ActivityManager mAm = (ActivityManager) AppUtils.ctx.getSystemService(ACTIVITY_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            List<ActivityManager.AppTask > taskList = mAm.getAppTasks();
+            List<ActivityManager.AppTask> taskList = mAm.getAppTasks();
             for (ActivityManager.AppTask rti : taskList) {
                 //找到当前应用的task，并启动task的栈顶activity，达到程序切换到前台
                 if (rti.getTaskInfo().topActivity.getPackageName().equals(AppUtils.ctx.getPackageName())) {
@@ -181,8 +201,8 @@ public class ScreenNotify {
         }
     }
 
-    public static void cancel(Context context,int notifyID){
-        NotificationManager notificationManager = (NotificationManager)context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+    public static void cancel(Context context, int notifyID) {
+        NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(notifyID);
     }
 

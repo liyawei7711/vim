@@ -29,7 +29,7 @@ public class DeptData implements Serializable {
     /**
      * 部门优先级，优先值值小的排序靠前
      */
-    public int nPriority;
+    public int nPpriority;
     /**
      * 部门描述
      */
@@ -39,5 +39,20 @@ public class DeptData implements Serializable {
     public DomainInfoList.DomainInfo domainInfo;
     public String getName() {
         return TextUtils.isEmpty(strName) ? strDepName : strName;
+    }
+
+    public DeptData() {
+    }
+    public DeptData(String strDepID, String strName, String strDepName, int nDepType, String strParentID, String strParentName, int nPpriority, String strDesceribe, String strDomainCode, DomainInfoList.DomainInfo domainInfo) {
+        this.strDepID = strDepID;
+        this.strName = strName;
+        this.strDepName = strDepName;
+        this.nDepType = nDepType;
+        this.strParentID = strParentID;
+        this.strParentName = strParentName;
+        this.nPpriority = nPpriority;
+        this.strDesceribe = strDesceribe;
+        this.strDomainCode = strDomainCode;
+        this.domainInfo = domainInfo;
     }
 }
