@@ -72,7 +72,7 @@
                     <ImageView
                         android:id="@+id/right_yuehoujifeng_img"
                         android:layout_width="107dp"
-                        android:background="@drawable/yuehoujifen_weichakan"
+                        android:background="@drawable/yuehoujifen_chakan"
                         android:layout_height="90dp" />
                     <ProgressBar
                         android:id="@+id/chat_download_pgb"

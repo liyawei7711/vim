@@ -70,7 +70,16 @@ public class ContactsDomainViewHolder extends LiteViewHolder {
                     for (DeptData temp : contactsBean.departmentInfoList) {
                         temp.strDomainCode = domain.strDomainCode;
                         if ("0".equals(temp.strParentID) || "".equals(temp.strParentID)) {
-                            datas.add(temp);
+                            boolean canAdd = true;
+                            for (DeptData dept : datas) {
+                                if (dept.strDepID.equals(temp.strDepID)) {
+                                    canAdd = false;
+                                    break;
+                                }
+                            }
+                            if (canAdd) {
+                                datas.add(temp);
+                            }
                         }
                     }
                     Collections.sort(datas, new Comparator<DeptData>() {

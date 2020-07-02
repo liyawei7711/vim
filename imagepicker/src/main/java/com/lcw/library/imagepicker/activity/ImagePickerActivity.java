@@ -611,6 +611,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
     @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
+        SelectionManager.getInstance().removeAll();//清空选中记录
         super.onBackPressed();
     }
 

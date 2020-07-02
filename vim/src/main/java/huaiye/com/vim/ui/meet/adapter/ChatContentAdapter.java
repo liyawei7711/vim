@@ -730,7 +730,12 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else {
             viewHolder.left_yuehoujifeng_look.setVisibility(View.GONE);
         }
-        viewHolder.left_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_weichakan);
+
+        if(data.read == 1) {
+            viewHolder.left_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_chakan);
+        } else {
+            viewHolder.left_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_weichakan);
+        }
         viewHolder.left_content_yuehoujifeng_lin.setOnClickListener(new OnYueHouJiFengClicked(holder, data, position, true));
         viewHolder.left_content_yuehoujifeng_lin.setOnLongClickListener(onLongClick);
     }

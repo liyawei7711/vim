@@ -1,16 +1,13 @@
 package huaiye.com.vim.ui.contacts;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ttyy.commonanno.anno.BindLayout;
@@ -18,24 +15,15 @@ import com.ttyy.commonanno.anno.BindView;
 import com.ttyy.commonanno.anno.OnClick;
 import com.ttyy.commonanno.anno.route.BindExtra;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 
 import huaiye.com.vim.R;
-import huaiye.com.vim.bus.MessageEvent;
-import huaiye.com.vim.bus.NumBeanRef;
 import huaiye.com.vim.common.AppBaseActivity;
-import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
-import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -191,7 +179,7 @@ public class DeptDeepListActivity extends AppBaseActivity {
     }
 
     private void requestUser() {
-        if(deptData.nDepType == 0) {
+        if (deptData.nDepType == 0 || deptData.nDepType == 1) {
             return;
         }
         ModelApis.Contacts().requestContacts(deptData.strDomainCode, deptData.strDepID, new ModelCallback<ContactsBean>() {
@@ -199,9 +187,9 @@ public class DeptDeepListActivity extends AppBaseActivity {
             public void onSuccess(final ContactsBean contactsBean) {
                 if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
                     allUserInfos.clear();
-                    for(User temp : contactsBean.userList) {
-                        for(DeptData dept : temp.getUserDept()) {
-                            if(dept.strDepID.equals(deptData.strDepID)) {
+                    for (User temp : contactsBean.userList) {
+                        for (DeptData dept : temp.getUserDept()) {
+                            if (dept.strDepID.equals(deptData.strDepID)) {
                                 allUserInfos.add(temp);
                                 break;
                             }
@@ -221,11 +209,11 @@ public class DeptDeepListActivity extends AppBaseActivity {
     }
 
     private void requestDept() {
-        if(map == null) {
+        if (map == null) {
             return;
         }
         allDeptDatas.clear();
-        if(map.get(deptData.strDepID) != null) {
+        if (map.get(deptData.strDepID) != null) {
             allDeptDatas.addAll(map.get(deptData.strDepID));
         }
 //        requestNum();
@@ -272,7 +260,19 @@ public class DeptDeepListActivity extends AppBaseActivity {
         deptDatas.clear();
         if (TextUtils.isEmpty(str)) {
             userInfos.addAll(allUserInfos);
-            deptDatas.addAll(allDeptDatas);
+
+            for (DeptData temp : allDeptDatas) {
+                boolean canAdd = true;
+                for (DeptData dept : deptDatas) {
+                    if (dept.strDepID.equals(temp.strDepID)) {
+                        canAdd = false;
+                        break;
+                    }
+                }
+                if(canAdd) {
+                    deptDatas.add(temp);
+                }
+            }
         } else {
             for (User temp : allUserInfos) {
                 if (temp.strUserName.contains(str) ||
@@ -282,7 +282,16 @@ public class DeptDeepListActivity extends AppBaseActivity {
             }
             for (DeptData temp : allDeptDatas) {
                 if ((TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName).contains(str)) {
-                    deptDatas.add(temp);
+                    boolean canAdd = true;
+                    for (DeptData dept : deptDatas) {
+                        if (dept.strDepID.equals(temp.strDepID)) {
+                            canAdd = false;
+                            break;
+                        }
+                    }
+                    if(canAdd) {
+                        deptDatas.add(temp);
+                    }
                 }
             }
         }

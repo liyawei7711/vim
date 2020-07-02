@@ -869,9 +869,12 @@ public class MessageReceiver {
     private void dealModifyGroup(ChatMessageBean chatMessageBean, Gson gson) {
         ContactsGroupUserListBean nContactsGroupUserListBeanNew = gson.fromJson(chatMessageBean.content, ContactsGroupUserListBean.class);
         if (null != nContactsGroupUserListBeanNew) {
-//            if (null != ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID)) {
-
-                ContactsGroupUserListBean currentContactsGroupUserListBean = new ContactsGroupUserListBean();//ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID);
+            ContactsGroupUserListBean currentContactsGroupUserListBean;
+            if (null != ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID)) {
+                currentContactsGroupUserListBean= ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID);
+            } else {
+                currentContactsGroupUserListBean = new ContactsGroupUserListBean();
+            }
                 currentContactsGroupUserListBean.strGroupDomainCode = nContactsGroupUserListBeanNew.strGroupDomainCode;
 
                 currentContactsGroupUserListBean.strGroupID = nContactsGroupUserListBeanNew.strGroupID;

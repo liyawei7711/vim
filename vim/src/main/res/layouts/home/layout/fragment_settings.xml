@@ -224,6 +224,7 @@
             <RelativeLayout
                 android:id="@+id/view_trans_file"
                 android:layout_width="match_parent"
+                android:visibility="gone"
                 android:layout_height="55dp"
                 android:background="@color/white">
                 <TextView

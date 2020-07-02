@@ -251,6 +251,13 @@ public class FragmentContacts extends AppBaseFragment {
                                 atData.addAll(temp.getUserDept());
                             } else {
                             }
+                            Collections.sort(atData, new Comparator<DeptData>() {
+                                @Override
+                                public int compare(DeptData o1, DeptData o2) {
+                                    return o1.nDepType - o2.nDepType;
+                                }
+                            });
+
                             adapterAt.notifyDataSetChanged();
                             break;
                         }
@@ -316,16 +323,16 @@ public class FragmentContacts extends AppBaseFragment {
     }
 
     public static synchronized void requestDeptAll() {
-        if(isReq) {
+        if (isReq) {
             return;
         }
         isReq = true;
 
-        if(allDeptDatas.isEmpty()) {
+        if (allDeptDatas.isEmpty()) {
             map.clear();
         }
 
-        if(!map.isEmpty()) {
+        if (!map.isEmpty()) {
             isReq = false;
             return;
         }
@@ -338,7 +345,7 @@ public class FragmentContacts extends AppBaseFragment {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.departmentInfoList && contactsBean.departmentInfoList.size() > 0) {
-                            for(DeptData temp : contactsBean.departmentInfoList){
+                            for (DeptData temp : contactsBean.departmentInfoList) {
                                 temp.strDomainCode = domainInfo.strDomainCode;
                             }
                             allDeptDatas.addAll(contactsBean.departmentInfoList);

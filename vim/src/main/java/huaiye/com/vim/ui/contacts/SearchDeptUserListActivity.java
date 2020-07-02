@@ -3,7 +3,9 @@ package huaiye.com.vim.ui.contacts;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -20,16 +22,23 @@ import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
+import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactOrganizationBean;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
+import huaiye.com.vim.models.contacts.bean.ContactsGroupChatListBean;
+import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
+import huaiye.com.vim.models.contacts.bean.GroupInfo;
 import huaiye.com.vim.ui.contacts.viewholder.DepeItemViewHolder;
 import huaiye.com.vim.ui.contacts.viewholder.DeptUserItemViewHolder;
+import huaiye.com.vim.ui.contacts.viewholder.GroupInfoViewHolder;
 import huaiye.com.vim.ui.home.FragmentContacts;
+import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
+import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 
@@ -46,10 +55,14 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     RecyclerView rct_view_dept;
     @BindView(R.id.rct_view_user)
     RecyclerView rct_view_user;
+    @BindView(R.id.rct_view_group)
+    RecyclerView rct_view_group;
     @BindView(R.id.tv_dept_title)
     View tv_dept_title;
     @BindView(R.id.tv_user_title)
     View tv_user_title;
+    @BindView(R.id.tv_group_title)
+    View tv_group_title;
     @BindView(R.id.iv_empty_view)
     View iv_empty_view;
     @BindView(R.id.refresh_view)
@@ -59,6 +72,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     ArrayList<DeptData> deptDatas = new ArrayList<>();
     LiteBaseAdapter<User> userAdapter;
     ArrayList<User> userInfos = new ArrayList<>();
+    LiteBaseAdapter<GroupInfo> groupAdapter;
+    ArrayList<GroupInfo> groupInfos = new ArrayList<>();
 
     int totalRequest = 0;
     ArrayList<DeptData> allDeptDatas = new ArrayList<>();
@@ -88,6 +103,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
 
         rct_view_dept.setNestedScrollingEnabled(false);
         rct_view_user.setNestedScrollingEnabled(false);
+        rct_view_group.setNestedScrollingEnabled(false);
 
         deptAdapter = new LiteBaseAdapter<>(this,
                 deptDatas,
@@ -123,18 +139,57 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                         startActivity(intent);
                     }
                 }, "false");
+        groupAdapter = new LiteBaseAdapter<>(this,
+                groupInfos,
+                GroupInfoViewHolder.class,
+                R.layout.item_contacts_person,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        GroupInfo groupInfo = (GroupInfo) v.getTag();
+                        Intent intent = new Intent(SearchDeptUserListActivity.this, ChatGroupActivityNew.class);
+                        CreateGroupContactData contactsBean = new CreateGroupContactData();
+                        contactsBean.strGroupID = groupInfo.strGroupID;
+                        contactsBean.strGroupDomainCode = groupInfo.strGroupDomainCode;
+                        intent.putExtra("mContactsBean", contactsBean);
+                        startActivity(intent);
+                    }
+                }, "false");
         rct_view_dept.setAdapter(deptAdapter);
         rct_view_dept.setLayoutManager(new SafeLinearLayoutManager(this));
         rct_view_user.setAdapter(userAdapter);
         rct_view_user.setLayoutManager(new SafeLinearLayoutManager(this));
+        rct_view_group.setAdapter(groupAdapter);
+        rct_view_group.setLayoutManager(new SafeLinearLayoutManager(this));
 
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                FragmentContacts.requestDeptAll();
                 requestUser();
+                requestDept();
+                requestGroupContacts();
             }
         });
+        et_key.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                FragmentContacts.requestDeptAll();
+                requestUser();
+                requestDept();
+                requestGroupContacts();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         et_key.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -142,14 +197,13 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                     FragmentContacts.requestDeptAll();
                     requestUser();
                     requestDept();
+                    requestGroupContacts();
                     return true;
                 }
                 return false;
             }
         });
 
-//        requestUser();
-//        requestDept();
         FragmentContacts.requestDeptAll();
     }
 
@@ -215,6 +269,39 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                     }
                 });
             }
+        }
+    }
+
+    private void requestGroupContacts() {
+        groupInfos.clear();
+        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+            for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
+                ModelApis.Contacts().requestGroupBuddyContacts(-1, 0, 0, null, domainInfo.strDomainCode, new ModelCallback<ContactsGroupChatListBean>() {
+                    @Override
+                    public void onSuccess(final ContactsGroupChatListBean contactsBean) {
+                        if(contactsBean != null && contactsBean.lstGroupInfo != null) {
+                            groupInfos.addAll(contactsBean.lstGroupInfo);
+                            groupAdapter.notifyDataSetChanged();
+                        }
+
+                        if (groupInfos.isEmpty()) {
+                            tv_group_title.setVisibility(View.GONE);
+                        } else {
+                            tv_group_title.setVisibility(View.VISIBLE);
+                        }
+
+                    }
+
+                    @Override
+                    public void onFinish(HTTPResponse httpResponse) {
+                        super.onFinish(httpResponse);
+                        refresh_view.setRefreshing(false);
+                    }
+                });
+            }
+        } else {
+            refresh_view.setRefreshing(false);
+            VIMApp.getInstance().getDomainCodeList();
         }
     }
 
