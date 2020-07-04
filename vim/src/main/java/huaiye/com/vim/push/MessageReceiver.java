@@ -384,9 +384,27 @@ public class MessageReceiver {
 
             switch (chatMessageBean.type) {
                 case AppUtils.NOTIFICATION_TYPE_CRESTE_GROUP:
-                    ContactsGroupUserListBean nContactsGroupUserListBean = gson.fromJson(chatMessageBean.content, ContactsGroupUserListBean.class);
-                    ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(nContactsGroupUserListBean.strGroupID + "", nContactsGroupUserListBean);
-                    EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_CREATE_GROUP_SUCCESS_ADDGROUP_TO_LIST, nContactsGroupUserListBean.strGroupID));
+                    final ContactsGroupUserListBean beanCreate = gson.fromJson(chatMessageBean.content, ContactsGroupUserListBean.class);
+                    ModelApis.Contacts().requestqueryGroupChatInfo(beanCreate.strGroupDomainCode, beanCreate.strGroupID,
+                            new ModelCallback<ContactsGroupUserListBean>() {
+                                @Override
+                                public void onSuccess(final ContactsGroupUserListBean contactsBean) {
+                                    if (contactsBean != null) {
+                                        if (null != contactsBean && null != contactsBean.lstGroupUser && contactsBean.lstGroupUser.size() > 0) {
+                                            StringBuilder sb = new StringBuilder("");
+                                            for (ContactsGroupUserListBean.LstGroupUser temp : contactsBean.lstGroupUser) {
+                                                sb.append(temp.strUserName + "、");
+                                            }
+                                            if (null != sb && sb.indexOf("、") >= 0) {
+                                                sb.deleteCharAt(sb.lastIndexOf("、"));
+                                            }
+                                            beanCreate.strGroupName = sb.toString();//2020070410440200148
+                                        }
+                                        ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(beanCreate.strGroupID + "", beanCreate);
+                                    }
+                                    EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_CREATE_GROUP_SUCCESS_ADDGROUP_TO_LIST, beanCreate.strGroupID));
+                                }
+                            });
                     break;
                 case AppUtils.NOTIFICATION_TYPE_DEL_GROUP:
                     NotificationDelGroup nNotificationDelGroup = gson.fromJson(chatMessageBean.content, NotificationDelGroup.class);
@@ -935,7 +953,10 @@ public class MessageReceiver {
      * @param notice
      */
     private void addGroupNotice(String notice, String sessionID, String groupID, String groupDomain, String sessionName) {
-
+        ContactsGroupUserListBean group = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupID);
+        if(!TextUtils.isEmpty(group.strGroupName)) {
+            sessionName = group.strGroupName;
+        }
         if (TextUtils.isEmpty(sessionName)) {
             List<ChatGroupMsgBean> nChatGroupMsgBeans = AppDatas.MsgDB()
                     .chatGroupMsgDao()

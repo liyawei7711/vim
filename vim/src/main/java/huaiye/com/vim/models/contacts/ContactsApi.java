@@ -91,10 +91,33 @@ public class ContactsApi {
                 .addHeader("Connection", "close")
                 .addParam("strDomainCode", strDomainCode)
                 .addParam("strKeywords", strKeywords)
+                .addParam("strUserID", AppDatas.Auth().getUserID())
+                .addParam("strDepID", 0)
                 .addParam("nPage", -1)
                 .addParam("nSize", CommonConstant.MEET_NUM)
                 .addParam("nOrderByID", 0)
                 .addParam("nAscOrDesc", 0)
+                .addParam("nRouteType", 0)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+
+    }
+
+    public void requestContactsByKeyWhithOutUserName(String strDomainCode, String strUserID,ModelCallback<ContactsBean> callback) {
+        String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strDomainCode", strDomainCode)
+                .addParam("strUserID", strUserID)
+                .addParam("strDepID", 0)
+                .addParam("nPage", -1)
+                .addParam("nSize", CommonConstant.MEET_NUM)
+                .addParam("nOrderByID", 0)
+                .addParam("nAscOrDesc", 0)
+                .addParam("nRouteType", 0)
                 .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
                 .setHttpCallback(callback)
                 .build()

@@ -100,7 +100,7 @@ public class FragmentContacts extends AppBaseFragment {
 
     static int totalRequest = 0;
     public static HashMap<String, ArrayList<DeptData>> map = new HashMap<>();
-    static ArrayList<DeptData> allDeptDatas = new ArrayList<>();
+    public static ArrayList<DeptData> allDeptDatas = new ArrayList<>();
     static boolean isReq;
 
     @SuppressLint("ResourceAsColor")
@@ -441,6 +441,7 @@ public class FragmentContacts extends AppBaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         map.clear();
+        allDeptDatas.clear();
         EventBus.getDefault().unregister(this);
     }
 

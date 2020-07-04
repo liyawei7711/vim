@@ -11,7 +11,8 @@
 
     <TextView
         android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/main_level"
         android:drawablePadding="10dp"
@@ -22,10 +23,9 @@
 
     <TextView
         android:id="@+id/tv_num"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_weight="1"
         android:text="(15)"
         android:textColor="@color/black333"
         android:textSize="16sp" />

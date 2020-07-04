@@ -136,6 +136,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                         User user = (User) v.getTag();
                         Intent intent = new Intent(SearchDeptUserListActivity.this, ContactDetailNewActivity.class);
                         intent.putExtra("nUser", user);
+                        intent.putExtra("isHide", true);
                         startActivity(intent);
                     }
                 }, "false");
@@ -167,8 +168,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
             public void onRefresh() {
                 FragmentContacts.requestDeptAll();
                 requestUser();
-                requestDept();
-                requestGroupContacts();
+//                requestDept();
+//                requestGroupContacts();
             }
         });
         et_key.addTextChangedListener(new TextWatcher() {
@@ -181,8 +182,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 FragmentContacts.requestDeptAll();
                 requestUser();
-                requestDept();
-                requestGroupContacts();
+//                requestDept();
+//                requestGroupContacts();
             }
 
             @Override
@@ -196,8 +197,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     FragmentContacts.requestDeptAll();
                     requestUser();
-                    requestDept();
-                    requestGroupContacts();
+//                    requestDept();
+//                    requestGroupContacts();
                     return true;
                 }
                 return false;
@@ -208,6 +209,9 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     }
 
     private void requestUser() {
+        if(TextUtils.isEmpty(et_key.getText().toString())) {
+            return;
+        }
         userInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {

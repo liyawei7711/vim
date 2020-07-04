@@ -112,7 +112,12 @@ public class ChatListViewHolder extends LiteViewHolder {
         time.setVisibility(View.VISIBLE);
         time.setText(WeiXinDateFormat.getChatTime(bean.time));
 
-
+        if (TextUtils.isEmpty(bean.sessionName)) {
+            ContactsGroupUserListBean group = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(bean.groupID);
+            if(group != null) {
+                bean.sessionName = group.strGroupName;
+            }
+        }
         if (TextUtils.isEmpty(bean.sessionName)) {
             if (bean.sessionUserList != null && !bean.sessionUserList.isEmpty()) {
                 StringBuilder sb = new StringBuilder("");
@@ -142,12 +147,15 @@ public class ChatListViewHolder extends LiteViewHolder {
                                     }
                                     bean.sessionName = sb.toString();
                                     item_name.setText(bean.sessionName);
+                                } else {
+                                    item_name.setText("临时群组（0）");
                                 }
                             }
 
                             @Override
                             public void onFailure(HTTPResponse httpResponse) {
                                 super.onFailure(httpResponse);
+                                item_name.setText("临时群组（0）");
                             }
                         });
             }

@@ -41,6 +41,8 @@ import ttyy.com.jinnetwork.core.work.HTTPResponse;
 @BindLayout(R.layout.activity_group_dept_deep_list)
 public class DeptDeepListActivity extends AppBaseActivity {
 
+    @BindView(R.id.ll_search)
+    View ll_search;
     @BindView(R.id.et_key)
     TextView et_key;
 
@@ -55,6 +57,8 @@ public class DeptDeepListActivity extends AppBaseActivity {
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
 
+    @BindExtra
+    boolean isHide;
     @BindExtra
     String domainName;
     @BindExtra
@@ -91,6 +95,12 @@ public class DeptDeepListActivity extends AppBaseActivity {
                         finish();
                     }
                 });
+
+        if(isHide) {
+            ll_search.setVisibility(View.GONE);
+        } else {
+            ll_search.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -139,6 +149,7 @@ public class DeptDeepListActivity extends AppBaseActivity {
                         User user = (User) v.getTag();
                         Intent intent = new Intent(DeptDeepListActivity.this, ContactDetailNewActivity.class);
                         intent.putExtra("nUser", user);
+                        intent.putExtra("isHide", isHide);
                         startActivity(intent);
                     }
                 }, "false");
@@ -179,9 +190,9 @@ public class DeptDeepListActivity extends AppBaseActivity {
     }
 
     private void requestUser() {
-        if (deptData.nDepType == 0 || deptData.nDepType == 1) {
-            return;
-        }
+//        if (deptData.nDepType == 0 || deptData.nDepType == 1) {
+//            return;
+//        }
         ModelApis.Contacts().requestContacts(deptData.strDomainCode, deptData.strDepID, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
@@ -252,6 +263,7 @@ public class DeptDeepListActivity extends AppBaseActivity {
         intent.putExtra("titleName", titleName);
         intent.putExtra("deptData", deptData);
         intent.putExtra("map", map);
+        intent.putExtra("isHide", isHide);
         startActivity(intent);
     }
 

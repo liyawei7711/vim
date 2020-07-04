@@ -177,6 +177,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     private boolean isLoadingData = false;
     private boolean containSelf = false;
     private boolean canSendMsg = true;
+    private boolean isSetTitle = false;
     ArrayList<SdpMessageCmProcessIMReq.UserInfo> users = new ArrayList<>();
     ArrayList<ChatGroupMsgBean> data = new ArrayList<>();
     ArrayList<Long> sessionId = new ArrayList<>();
@@ -223,6 +224,14 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 mMessageUsersDate.add(new SendUserBean(temp.strUserID, temp.getDomainCode(), temp.strUserName));
             }
         }
+
+        if (TextUtils.isEmpty(mContactsBean.sessionName)) {
+            ContactsGroupUserListBean group = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(mContactsBean.strGroupID);
+            if(group != null) {
+                mContactsBean.sessionName = group.strGroupName;
+            }
+        }
+
         initNavigateView(mContactsBean.sessionName);
         initView();
         initData();
@@ -268,16 +277,18 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             @Override
             public void onSuccess(final ContactsGroupUserListBean contactsBean) {
                 if (contactsBean != null) {
+                    if (TextUtils.isEmpty(contactsBean.strGroupName)) {
+                        ContactsGroupUserListBean group = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(mContactsBean.strGroupID);
+                        if(group != null) {
+                            contactsBean.strGroupName = group.strGroupName;
+                        }
+                    }
                     ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(mContactsBean.strGroupID + "", contactsBean);
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mContactsGroupUserListBean = contactsBean;
-                        setMessageUsersDate(mContactsGroupUserListBean, needRefMessage);
-                        getGroupUserHead(mContactsGroupUserListBean, needRefMessage);
-                    }
-                });
+
+                mContactsGroupUserListBean = contactsBean;
+                setMessageUsersDate(mContactsGroupUserListBean, needRefMessage);
+                getGroupUserHead(mContactsGroupUserListBean, needRefMessage);
 
             }
 
@@ -400,12 +411,20 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     }
 
     private void initNavigateView(String mOtherUserName) {
-//        if (TextUtils.isEmpty(mOtherUserName)) {
-//            return;
-//        }
         getNavigate().setVisibility(View.GONE);
-        chatTitleBarTitle.setText(mOtherUserName);
         chatTitleBarVoiceChatBtn.setVisibility(View.GONE);
+        if(TextUtils.isEmpty(mOtherUserName)) {
+            mOtherUserName = "";
+        }
+        if(isSetTitle) {
+            if(TextUtils.isEmpty(mOtherUserName)) {
+                return;
+            } else {
+                chatTitleBarTitle.setText(mOtherUserName);
+            }
+        }
+        isSetTitle = true;
+        chatTitleBarTitle.setText(mOtherUserName);
     }
 
     private void initView() {

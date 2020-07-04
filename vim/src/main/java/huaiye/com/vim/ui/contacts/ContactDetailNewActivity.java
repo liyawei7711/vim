@@ -2,6 +2,8 @@ package huaiye.com.vim.ui.contacts;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,20 +30,34 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import huaiye.com.vim.R;
+import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.recycle.LiteBaseAdapter;
+import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.utils.ChatUtil;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.constants.AppFrequentlyConstants;
+import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
 import huaiye.com.vim.dao.msgs.ChatMessageBean;
 import huaiye.com.vim.dao.msgs.User;
+import huaiye.com.vim.models.ModelApis;
+import huaiye.com.vim.models.ModelCallback;
+import huaiye.com.vim.models.contacts.bean.ContactsBean;
+import huaiye.com.vim.models.contacts.bean.DeptData;
+import huaiye.com.vim.models.contacts.bean.DomainInfoList;
+import huaiye.com.vim.ui.contacts.viewholder.DepeItemViewHolder;
+import huaiye.com.vim.ui.contacts.viewholder.UserDetailDepeItemViewHolder;
+import huaiye.com.vim.ui.home.FragmentContacts;
 import huaiye.com.vim.ui.meet.ChatSingleActivity;
 import huaiye.com.vim.ui.talk.TalkActivity;
 import huaiye.com.vim.ui.talk.TalkVoiceActivity;
@@ -68,6 +84,11 @@ public class ContactDetailNewActivity extends AppBaseActivity {
     TextView contactDetailStrName;
     @BindView(R.id.contact_detail_buttom)
     LinearLayout contactDetailButtom;
+    @BindView(R.id.rv_data)
+    RecyclerView rv_data;
+
+    LiteBaseAdapter<DeptData> adapterAt;
+    ArrayList<DeptData> atData = new ArrayList<>();//所在部门
 
     private RequestOptions requestOptions;
     public String mState;
@@ -78,6 +99,8 @@ public class ContactDetailNewActivity extends AppBaseActivity {
 
     @BindExtra
     User nUser;
+    @BindExtra
+    boolean isHide;
 
     @Override
     protected void initActionBar() {
@@ -107,7 +130,53 @@ public class ContactDetailNewActivity extends AppBaseActivity {
 
     @Override
     public void doInitDelay() {
+        rv_data.setLayoutManager(new SafeLinearLayoutManager(this));
+        adapterAt = new LiteBaseAdapter<>(this,
+                atData,
+                UserDetailDepeItemViewHolder.class,
+                R.layout.item_dept_view,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DeptData deptData = (DeptData) v.getTag();
+                        for (DeptData temp : FragmentContacts.allDeptDatas) {
+                            if (deptData.strDepID.equals(temp.strDepID)) {
+                                deptData.nDepType = temp.nDepType;
+                                break;
+                            }
+                        }
+                        deptData.strDomainCode = AppAuth.get().getDomainCode();
+                        if (v.getId() == R.id.tv_message) {
+                            new DeptChatUtils().startGroup(ContactDetailNewActivity.this, deptData);
+                            return;
+                        }
+                        DomainInfoList.DomainInfo domain = null;
+                        if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+                            for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
+                                if (temp.strDomainCode.equals(AppAuth.get().getDomainCode())) {
+                                    domain = temp;
+                                    break;
+                                }
+                            }
+                        }
+                        deptData.strDomainCode = domain == null ? "" : domain.strDomainCode;
+                        ArrayList<String> titleName = new ArrayList<>();
+//                        titleName.add(domain == null ? "" : domain.strDomainName);
+                        titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
+                        Intent intent = new Intent(ContactDetailNewActivity.this, DeptDeepListActivity.class);
+                        intent.putExtra("domainName", (domain == null ? "" : domain.strDomainName));
+                        intent.putExtra("titleName", titleName);
+                        intent.putExtra("deptData", deptData);
+                        intent.putExtra("isHide", isHide);
+                        intent.putExtra("map", FragmentContacts.map);
+                        startActivity(intent);
+
+                    }
+                }, "false");
+        rv_data.setAdapter(adapterAt);
+
         initView();
+        requestSelfDept();
     }
 
     private void initView() {
@@ -151,6 +220,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
                 .load(AppDatas.Constants().getAddressWithoutPort() + nUser.strHeadUrl)
                 .apply(requestOptions)
                 .into(contactDetailHeadImg);
+
     }
 
     private void bindDtae() {
@@ -158,6 +228,57 @@ public class ContactDetailNewActivity extends AppBaseActivity {
         contactDetailStrName.setText(mState);
     }
 
+    private void requestSelfDept() {
+        atData.clear();
+        if (nUser.getUserDept() != null && !nUser.getUserDept().isEmpty()) {
+            atData.addAll(nUser.getUserDept());
+
+            Collections.sort(atData, new Comparator<DeptData>() {
+                @Override
+                public int compare(DeptData o1, DeptData o2) {
+                    return o1.nDepType - o2.nDepType;
+                }
+            });
+
+            adapterAt.notifyDataSetChanged();
+
+        } else {
+
+            ModelApis.Contacts().requestContactsByKeyWhithOutUserName(nUser.getDomainCode(), nUser.strUserID, new ModelCallback<ContactsBean>() {
+                @Override
+                public void onSuccess(final ContactsBean contactsBean) {
+                    if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                        for (User temp : contactsBean.userList) {
+                            if (temp.strUserID.equals(nUser.strUserID)) {
+                                nUser = temp;
+                                initView();
+
+                                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), nUser.strUserID, nUser.strDomainCode);
+                                AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(nUser));
+
+                                if (temp.getUserDept() != null) {
+                                    atData.addAll(temp.getUserDept());
+                                } else {
+                                }
+                                Collections.sort(atData, new Comparator<DeptData>() {
+                                    @Override
+                                    public int compare(DeptData o1, DeptData o2) {
+                                        return o1.nDepType - o2.nDepType;
+                                    }
+                                });
+
+                                adapterAt.notifyDataSetChanged();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            });
+
+        }
+
+    }
 
     /* 视频通话 */
     @OnClick(R.id.contact_video)
