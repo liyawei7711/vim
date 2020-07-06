@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModel;
 import java.util.List;
 
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.ChatGroupMsgBean;
 import huaiye.com.vim.dao.msgs.ChatSingleMsgBean;
 
@@ -21,7 +22,7 @@ public class ChatMsgViewModel extends ViewModel {
         if(chatGroupMsg == null){
             chatGroupMsg = AppDatas.MsgDB()
                     .chatGroupMsgDao()
-                    .queryAll(meetID);
+                    .queryAll(meetID, AppAuth.get().getUserID());
         }
         return chatGroupMsg;
     }

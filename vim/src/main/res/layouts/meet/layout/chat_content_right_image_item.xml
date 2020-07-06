@@ -73,6 +73,7 @@
                     android:id="@+id/right_content_image"
                     android:layout_width="150dp"
                     android:layout_height="100dp"
+                    android:scaleType="centerCrop"
                     />
             </LinearLayout>
 

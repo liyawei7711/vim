@@ -23,51 +23,49 @@ public interface ChatGroupMsgDao {
     @Insert(onConflict = REPLACE)
     void insertAll(ChatGroupMsgBean... msg);
 
-    @Query("select * from tb_chat_group_msg where groupID=:strGroupID order by time desc limit 1")
-    ChatGroupMsgBean queryLastItem(String strGroupID);
+    @Query("select * from tb_chat_group_msg where groupID=:strGroupID and extend1 =:userId  order by time desc limit 1")
+    ChatGroupMsgBean queryLastItem(String strGroupID, String userId);
 
-    @Query("select * from tb_chat_group_msg where groupID=:strGroupID order by time")
-    LiveData<List<ChatGroupMsgBean>> queryAll(String strGroupID);
+    @Query("select * from tb_chat_group_msg where groupID=:strGroupID and extend1 =:userId order by time")
+    LiveData<List<ChatGroupMsgBean>> queryAll(String strGroupID, String userId);
 
-    @Query("select *from (select * from tb_chat_group_msg where groupID=:strGroupID order by time desc limit :index,:limit) order by time")
-    List<ChatGroupMsgBean> queryPagingItemWithoutLive(String strGroupID,int index,int limit);
+    @Query("select *from (select * from tb_chat_group_msg where groupID=:strGroupID and extend1=:userId order by time desc limit :index,:limit) order by time")
+    List<ChatGroupMsgBean> queryPagingItemWithoutLive(String strGroupID, String userId, int index, int limit);
 
-    @Query("select * from tb_chat_group_msg where groupID=:strGroupID  order by time")
-    List<ChatGroupMsgBean> queryAllGroupChat(String strGroupID);
+    @Query("select * from tb_chat_group_msg where groupID=:strGroupID and extend1 =:userId order by time")
+    List<ChatGroupMsgBean> queryAllGroupChat(String strGroupID, String userId);
 
-    @Query("select count(*) from tb_chat_group_msg where groupID=:strGroupID  AND read=0")
-    int getGroupUnreadNum(String strGroupID);
+    @Query("select count(*) from tb_chat_group_msg where groupID=:strGroupID and extend1 =:userId AND read=0")
+    int getGroupUnreadNum(String strGroupID, String userId);
 
-    @Query("select count(*) from tb_chat_group_msg where (read=0)")
-    int getUnreadNum();
+    @Query("select * from tb_chat_group_msg where groupID=:strGroupID and extend1 =:userId order by time desc limit 1")
+    ChatGroupMsgBean getGroupNewestMsg(String strGroupID, String userId);
 
-    @Query("select * from tb_chat_group_msg where groupID=:strGroupID  order by time desc limit 1")
-    ChatGroupMsgBean getGroupNewestMsg(String strGroupID);
+    @Query("update tb_chat_group_msg set read= 1 where groupID=:strGroupID and extend1 =:userId AND type!=9996 AND bFire!=1")
+    void updateAllRead(String strGroupID, String userId);
 
-    @Query("update tb_chat_group_msg set read= 1 where groupID=:strGroupID AND type!=9996 AND bFire!=1")
-    void updateAllRead(String strGroupID);
-    @Query("update tb_chat_group_msg set read= 1 where sessionID=:sessionID AND type!=9996 AND bFire!=1")
-    void updateSessionIDRead(String sessionID);
+    @Query("update tb_chat_group_msg set read= 1 where sessionID=:sessionID and extend1 =:userId AND type!=9996 AND bFire!=1")
+    void updateSessionIDRead(String sessionID, String userId);
 
-    @Query("update tb_chat_group_msg set read= 1 where groupID=:strGroupID AND msgID=:msgID")
-    void updateReadWithMsgID( String strGroupID,String msgID);
+    @Query("update tb_chat_group_msg set read= 1 where groupID=:strGroupID and extend1 =:userId AND msgID=:msgID")
+    void updateReadWithMsgID(String strGroupID, String msgID, String userId);
 
-    @Query("update tb_chat_group_msg set localFilePath=:localFilePath where groupID=:strGroupID AND id=:messageId")
-    void updateDownloadState(String strGroupID,String localFilePath,long messageId);
+    @Query("update tb_chat_group_msg set localFilePath=:localFilePath where groupID=:strGroupID and extend1 =:userId AND id=:messageId")
+    void updateDownloadState(String strGroupID, String localFilePath, long messageId, String userId);
 
-    @Query("delete from tb_chat_group_msg where groupID=:strGroupID")
-    void deleteGroup(String strGroupID);
+    @Query("delete from tb_chat_group_msg where groupID=:strGroupID and extend1 =:userId")
+    void deleteGroup(String strGroupID, String userId);
 
-    @Query("delete from tb_chat_group_msg where sessionID=:sessionID")
-    void deleteBySessionID(String sessionID);
+    @Query("delete from tb_chat_group_msg where sessionID=:sessionID and extend1 =:userId")
+    void deleteBySessionID(String sessionID, String userId);
 
-    @Query("delete from tb_chat_group_msg where sessionID=:sessionID AND id=:id")
-    void deleteBySessionIDAndId(String sessionID,long id);
+    @Query("delete from tb_chat_group_msg where sessionID=:sessionID and extend1 =:userId AND id=:id")
+    void deleteBySessionIDAndId(String sessionID, long id, String userId);
 
-    @Query("delete from tb_chat_group_msg where sessionID=:sessionID AND msgID=:msgID")
-    void deletByMsgID(String sessionID,String msgID);
+    @Query("delete from tb_chat_group_msg where sessionID=:sessionID and extend1 =:userId AND msgID=:msgID")
+    void deletByMsgID(String sessionID, String msgID, String userId);
 
 
-    @Query("delete from tb_chat_group_msg")
-    void clearData();
+    @Query("delete from tb_chat_group_msg where extend1 =:userId")
+    void clearData(String userId);
 }

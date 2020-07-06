@@ -62,7 +62,7 @@ public class YueHouJiFengTextActivity extends AppBaseActivity {
 
     private void coutTime() {
 
-        mDisposable = Flowable.intervalRange(0, chatMessage.fireTime+1, 0, 1, TimeUnit.SECONDS)
+        mDisposable = Flowable.intervalRange(0, chatMessage.fireTime + 1, 0, 1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(new Consumer<Long>() {
                     @Override
@@ -87,8 +87,14 @@ public class YueHouJiFengTextActivity extends AppBaseActivity {
         if (mDisposable != null) {
             mDisposable.dispose();
         }
-        MessageEvent nMessageEvent=new MessageEvent(AppUtils.EVENT_MESSAGE_YUEHOUJIFENG);
-        nMessageEvent.obj1=chatMessage;
+        MessageEvent nMessageEvent = new MessageEvent(AppUtils.EVENT_MESSAGE_YUEHOUJIFENG);
+        nMessageEvent.obj1 = chatMessage;
+        try {
+            nMessageEvent.groupId = chatMessage.groupID;
+            nMessageEvent.groupDomain = chatMessage.groupDomainCode;
+        } catch (Exception e) {
+
+        }
         EventBus.getDefault().post(nMessageEvent);
     }
 }

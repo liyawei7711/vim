@@ -4,6 +4,7 @@ import android.arch.persistence.room.Entity;
 
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.utils.ChatUtil;
+import huaiye.com.vim.dao.auth.AppAuth;
 
 /**
  * 群组聊天记录
@@ -42,6 +43,9 @@ public class ChatGroupMsgBean extends ChatMessageBase  {
         groupMsgBean.time = System.currentTimeMillis();
         groupMsgBean.read = 0;
         groupMsgBean.localFilePath = ChatLocalPathHelper.getInstance().getChatLoaclPath(groupMsgBean.fileUrl);
+
+        groupMsgBean.extend1 = AppAuth.get().getUserID();
+
         return groupMsgBean;
     }
 

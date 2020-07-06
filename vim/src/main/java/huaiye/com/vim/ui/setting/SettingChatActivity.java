@@ -15,6 +15,7 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 
 /**
  * @author zhangzhen
@@ -80,7 +81,7 @@ public class SettingChatActivity extends AppBaseActivity {
                     public void onClick(View v) {
                         AppDatas.MsgDB()
                                 .chatSingleMsgDao().clearData();
-                        AppDatas.MsgDB().chatGroupMsgDao().clearData();
+                        AppDatas.MsgDB().chatGroupMsgDao().clearData(AppAuth.get().getUserID());
                     }
                 })
                 .show();

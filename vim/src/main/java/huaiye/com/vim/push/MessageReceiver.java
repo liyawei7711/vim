@@ -613,6 +613,8 @@ public class MessageReceiver {
                         String content = str.toString().substring(0, str.length() - 1);
                         me.msgContent = content + "等人被踢出群组";
                     }
+                    me.groupId = groupID;
+                    me.groupDomain = groupDomain;
                     addGroupNotice(me.msgContent, sessionID, groupID, groupDomain, sessionName);
                     EventBus.getDefault().post(me);
                     break;
@@ -889,54 +891,54 @@ public class MessageReceiver {
         if (null != nContactsGroupUserListBeanNew) {
             ContactsGroupUserListBean currentContactsGroupUserListBean;
             if (null != ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID)) {
-                currentContactsGroupUserListBean= ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID);
+                currentContactsGroupUserListBean = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nContactsGroupUserListBeanNew.strGroupID);
             } else {
                 currentContactsGroupUserListBean = new ContactsGroupUserListBean();
             }
-                currentContactsGroupUserListBean.strGroupDomainCode = nContactsGroupUserListBeanNew.strGroupDomainCode;
+            currentContactsGroupUserListBean.strGroupDomainCode = nContactsGroupUserListBeanNew.strGroupDomainCode;
 
-                currentContactsGroupUserListBean.strGroupID = nContactsGroupUserListBeanNew.strGroupID;
+            currentContactsGroupUserListBean.strGroupID = nContactsGroupUserListBeanNew.strGroupID;
 
-                MessageEvent event = new MessageEvent(AppUtils.EVENT_MESSAGE_MODIFY_GROUP, currentContactsGroupUserListBean.strGroupID);
+            MessageEvent event = new MessageEvent(AppUtils.EVENT_MESSAGE_MODIFY_GROUP, currentContactsGroupUserListBean.strGroupID);
 
-                if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strGroupName)) {
-                    if (!nContactsGroupUserListBeanNew.strGroupName.equals(currentContactsGroupUserListBean.strGroupName)) {
-                        event.argStr1 = "群名称修改为:" + nContactsGroupUserListBeanNew.strGroupName;
-                    }
-                    currentContactsGroupUserListBean.strGroupName = nContactsGroupUserListBeanNew.strGroupName;
+            if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strGroupName)) {
+                if (!nContactsGroupUserListBeanNew.strGroupName.equals(currentContactsGroupUserListBean.strGroupName)) {
+                    event.argStr1 = "群名称修改为:" + nContactsGroupUserListBeanNew.strGroupName;
                 }
+                currentContactsGroupUserListBean.strGroupName = nContactsGroupUserListBeanNew.strGroupName;
+            }
 
-                if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strAnnouncement)) {
-                    if (!nContactsGroupUserListBeanNew.strAnnouncement.equals(currentContactsGroupUserListBean.strAnnouncement)) {
-                        event.argStr1 = "群公告修改为:" + nContactsGroupUserListBeanNew.strAnnouncement;
-                    }
-                    currentContactsGroupUserListBean.strAnnouncement = nContactsGroupUserListBeanNew.strAnnouncement;
+            if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strAnnouncement)) {
+                if (!nContactsGroupUserListBeanNew.strAnnouncement.equals(currentContactsGroupUserListBean.strAnnouncement)) {
+                    event.argStr1 = "群公告修改为:" + nContactsGroupUserListBeanNew.strAnnouncement;
                 }
+                currentContactsGroupUserListBean.strAnnouncement = nContactsGroupUserListBeanNew.strAnnouncement;
+            }
 
-                currentContactsGroupUserListBean.nBeinviteMode = nContactsGroupUserListBeanNew.nBeinviteMode;
-                currentContactsGroupUserListBean.nInviteMode = nContactsGroupUserListBeanNew.nInviteMode;
-                currentContactsGroupUserListBean.nTeamMemberLimit = nContactsGroupUserListBeanNew.nTeamMemberLimit;
-                if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strHeadUrl) &&
-                        !nContactsGroupUserListBeanNew.strHeadUrl.equals(currentContactsGroupUserListBean.strHeadUrl)) {
-                    currentContactsGroupUserListBean.strHeadUrl = nContactsGroupUserListBeanNew.strHeadUrl;
-                    event.argStr1 = "群头像已修改";
-                }
+            currentContactsGroupUserListBean.nBeinviteMode = nContactsGroupUserListBeanNew.nBeinviteMode;
+            currentContactsGroupUserListBean.nInviteMode = nContactsGroupUserListBeanNew.nInviteMode;
+            currentContactsGroupUserListBean.nTeamMemberLimit = nContactsGroupUserListBeanNew.nTeamMemberLimit;
+            if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strHeadUrl) &&
+                    !nContactsGroupUserListBeanNew.strHeadUrl.equals(currentContactsGroupUserListBean.strHeadUrl)) {
+                currentContactsGroupUserListBean.strHeadUrl = nContactsGroupUserListBeanNew.strHeadUrl;
+                event.argStr1 = "群头像已修改";
+            }
 
-                GroupInfo groupInfo = AppDatas.MsgDB().getGroupListDao().getGroupInfo(nContactsGroupUserListBeanNew.strGroupID, nContactsGroupUserListBeanNew.strGroupDomainCode);
-                if (null == groupInfo) {
-                    groupInfo = new GroupInfo();
-                }
-                groupInfo.strGroupDomainCode = currentContactsGroupUserListBean.strGroupDomainCode;
-                groupInfo.strGroupID = currentContactsGroupUserListBean.strGroupID;
-                groupInfo.strGroupName = currentContactsGroupUserListBean.strGroupName;
-                groupInfo.strHeadUrl = currentContactsGroupUserListBean.strHeadUrl;
-                event.setGroupDomain(groupInfo.strGroupDomainCode);
-                event.setGroupId(groupInfo.strGroupID);
-                AppDatas.MsgDB().getGroupListDao().insert(groupInfo);
-                ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(currentContactsGroupUserListBean.strGroupID + "", currentContactsGroupUserListBean);
-                addGroupNotice(event.argStr1, groupInfo.strGroupDomainCode + groupInfo.strGroupID, groupInfo.strGroupID, groupInfo.strGroupDomainCode, groupInfo.strGroupName);
-                EventBus.getDefault().post(event);
-                EventBus.getDefault().post(currentContactsGroupUserListBean);//刷新页面name
+            GroupInfo groupInfo = AppDatas.MsgDB().getGroupListDao().getGroupInfo(nContactsGroupUserListBeanNew.strGroupID, nContactsGroupUserListBeanNew.strGroupDomainCode);
+            if (null == groupInfo) {
+                groupInfo = new GroupInfo();
+            }
+            groupInfo.strGroupDomainCode = currentContactsGroupUserListBean.strGroupDomainCode;
+            groupInfo.strGroupID = currentContactsGroupUserListBean.strGroupID;
+            groupInfo.strGroupName = currentContactsGroupUserListBean.strGroupName;
+            groupInfo.strHeadUrl = currentContactsGroupUserListBean.strHeadUrl;
+            event.setGroupDomain(groupInfo.strGroupDomainCode);
+            event.setGroupId(groupInfo.strGroupID);
+            AppDatas.MsgDB().getGroupListDao().insert(groupInfo);
+            ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(currentContactsGroupUserListBean.strGroupID + "", currentContactsGroupUserListBean);
+            addGroupNotice(event.argStr1, groupInfo.strGroupDomainCode + groupInfo.strGroupID, groupInfo.strGroupID, groupInfo.strGroupDomainCode, groupInfo.strGroupName);
+            EventBus.getDefault().post(event);
+            EventBus.getDefault().post(currentContactsGroupUserListBean);//刷新页面name
 //            }
 
             if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strGroupName)) {
@@ -954,13 +956,13 @@ public class MessageReceiver {
      */
     private void addGroupNotice(String notice, String sessionID, String groupID, String groupDomain, String sessionName) {
         ContactsGroupUserListBean group = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(groupID);
-        if(!TextUtils.isEmpty(group.strGroupName)) {
+        if (!TextUtils.isEmpty(group.strGroupName)) {
             sessionName = group.strGroupName;
         }
         if (TextUtils.isEmpty(sessionName)) {
             List<ChatGroupMsgBean> nChatGroupMsgBeans = AppDatas.MsgDB()
                     .chatGroupMsgDao()
-                    .queryPagingItemWithoutLive(groupID, 0, 10);
+                    .queryPagingItemWithoutLive(groupID, AppAuth.get().getUserID(), 0, 10);
             for (ChatGroupMsgBean bean : nChatGroupMsgBeans) {
                 if (!TextUtils.isEmpty(bean.sessionName)) {
                     sessionName = bean.sessionName;
@@ -974,13 +976,15 @@ public class MessageReceiver {
         bean.type = CHAT_CONTENT_CUSTOM_NOTICE_ITEM;
         bean.sessionID = sessionID;
         bean.groupID = groupID;
-        bean.msgID = groupID+System.currentTimeMillis();
+        bean.msgID = groupID + System.currentTimeMillis();
         bean.groupDomainCode = groupDomain;
         if (!TextUtils.isEmpty(sessionName)) {
             bean.sessionName = sessionName;
         }
         bean.msgTxt = notice;
         bean.time = System.currentTimeMillis();
+
+        bean.extend1 = AppAuth.get().getUserID();
 
         AppDatas.MsgDB()
                 .chatGroupMsgDao().insert(bean);
@@ -1084,10 +1088,10 @@ public class MessageReceiver {
         }
 
 
-        sendNotice(sessionId, chatMessageBean.fromUserDomain, chatMessageBean.fromUserId);
+        sendNotice(sessionId, chatMessageBean.fromUserDomain, chatMessageBean.fromUserId, chatMessageBean.groupID, chatMessageBean.groupDomainCode);
     }
 
-    private void sendNotice(String sessionId, String fromUserDomain, String fromUserId) {
+    private void sendNotice(String sessionId, String fromUserDomain, String fromUserId, String strGroupID, String strGroupDomainCode) {
         int nNoDisturb = SP.getInteger(sessionId + AppUtils.SP_SETTING_NODISTURB, 0);
         if (nNoDisturb == 1) {
         } else {
@@ -1100,6 +1104,8 @@ public class MessageReceiver {
 
         MessageEvent messageEvent = new MessageEvent(AppUtils.EVENT_COMING_NEW_MESSAGE);
         messageEvent.obj2 = sessionId;
+        messageEvent.groupId = strGroupID;
+        messageEvent.groupDomain = strGroupDomainCode;
         EventBus.getDefault().post(messageEvent);
     }
 

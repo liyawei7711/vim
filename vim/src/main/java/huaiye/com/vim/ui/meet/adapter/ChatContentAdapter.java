@@ -731,7 +731,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             viewHolder.left_yuehoujifeng_look.setVisibility(View.GONE);
         }
 
-        if(data.read == 1) {
+        if(!TextUtils.isEmpty(data.extend2)) {
             viewHolder.left_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_chakan);
         } else {
             viewHolder.left_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_weichakan);
@@ -760,7 +760,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else {
             viewHolder.right_yuehoujifeng_look.setVisibility(View.GONE);
         }
-        viewHolder.right_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_weichakan);
+        viewHolder.right_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_chakan);
         viewHolder.right_content_yuehoujifeng_lin.setOnLongClickListener(onLongClick);
 
         if (data.needShowTime) {
@@ -1468,15 +1468,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 showToast("信息尚未解密");
                 return;
             }
-            if (data.read == 1) {
+
+            if (!TextUtils.isEmpty(data.extend2)) {
                 showToast("该信息已阅读");
                 return;
             }
-            data.read = 1;
+            data.extend2 = "1";
+
+            notifyItemChanged(mDataList.indexOf(data));
+
             if (isGroup) {
                 AppDatas.MsgDB()
                         .chatGroupMsgDao()
-                        .updateReadWithMsgID(strGroupID, data.msgID);
+                        .updateReadWithMsgID(strGroupID, data.msgID, AppAuth.get().getUserID());
             } else {
                 AppDatas.MsgDB()
                         .chatSingleMsgDao()
@@ -1930,7 +1934,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (!TextUtils.isEmpty(strGroupID)) {
                         AppDatas.MsgDB()
                                 .chatGroupMsgDao()
-                                .updateReadWithMsgID(strGroupID, data.msgID);
+                                .updateReadWithMsgID(strGroupID, data.msgID, AppAuth.get().getUserID());
                     }
 
                 } else {
@@ -2349,7 +2353,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (!TextUtils.isEmpty(strGroupID)) {
                 AppDatas.MsgDB()
                         .chatGroupMsgDao()
-                        .updateDownloadState(strGroupID, data.localFilePath, data.id);
+                        .updateDownloadState(strGroupID, data.localFilePath, data.id, AppAuth.get().getUserID());
             }
 
         } else {
@@ -3265,7 +3269,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (isGroup) {
                 AppDatas.MsgDB()
                         .chatGroupMsgDao()
-                        .deleteBySessionIDAndId(data.sessionID, data.id);
+                        .deleteBySessionIDAndId(data.sessionID, data.id, AppAuth.get().getUserID());
 
             } else {
                 AppDatas.MsgDB()
@@ -3341,10 +3345,10 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 if (isGroup) {
                     AppDatas.MsgDB()
                             .chatGroupMsgDao()
-                            .deleteBySessionIDAndId(data.sessionID, data.id);
+                            .deleteBySessionIDAndId(data.sessionID, data.id, AppAuth.get().getUserID());
                     AppDatas.MsgDB()
                             .chatGroupMsgDao()
-                            .deletByMsgID(data.sessionID, data.msgID);
+                            .deletByMsgID(data.sessionID, data.msgID, AppAuth.get().getUserID());
                 } else {
                     AppDatas.MsgDB()
                             .chatSingleMsgDao()

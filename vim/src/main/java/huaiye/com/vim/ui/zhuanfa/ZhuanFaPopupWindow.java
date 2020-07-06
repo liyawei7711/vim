@@ -862,6 +862,8 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
         MessageEvent messageEvent = new MessageEvent(AppUtils.EVENT_COMING_NEW_MESSAGE);
         messageEvent.obj2 = singleMsgBean.sessionID;
+        messageEvent.groupId = strGroupID;
+        messageEvent.groupDomain = strGroupDomain;
         EventBus.getDefault().post(messageEvent);
 
         ((AppBaseActivity) mContext).mZeusLoadView.dismiss();

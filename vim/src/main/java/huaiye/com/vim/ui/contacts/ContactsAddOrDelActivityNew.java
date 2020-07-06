@@ -337,17 +337,18 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     private String getGroupName() {
         StringBuilder stringGoupName = new StringBuilder();
         if (null != VimChoosedContacts.get().getContacts() && VimChoosedContacts.get().getContacts().size() > 0) {
-            for (User item : VimChoosedContacts.get().getContacts()) {
-                if (VimChoosedContacts.get().getContacts().indexOf(item) < 6) {
-                    stringGoupName.append(item.strUserName + "、");
-                }
-            }
-            if (null != stringGoupName && stringGoupName.indexOf("、") >= 0) {
-                stringGoupName.deleteCharAt(stringGoupName.lastIndexOf("、"));
-            }
-        }
-        if (TextUtils.isEmpty(stringGoupName)) {
-            stringGoupName.append("群聊");
+//            for (User item : VimChoosedContacts.get().getContacts()) {
+//                if (VimChoosedContacts.get().getContacts().indexOf(item) < 6) {
+//                    stringGoupName.append(item.strUserName + "、");
+//                }
+//            }
+//            if (null != stringGoupName && stringGoupName.indexOf("、") >= 0) {
+//                stringGoupName.deleteCharAt(stringGoupName.lastIndexOf("、"));
+//            }
+//        }
+//        if (TextUtils.isEmpty(stringGoupName)) {
+            stringGoupName.append("群聊(" + VimChoosedContacts.get().getContacts().size() + ")");
+//        }
         }
         return stringGoupName.toString();
     }
@@ -588,8 +589,8 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
                     @Override
                     public void onSuccess(ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                            for(User user : contactsBean.userList) {
-                                if(user.strUserID.equals(AppAuth.get().getUserID())) {
+                            for (User user : contactsBean.userList) {
+                                if (user.strUserID.equals(AppAuth.get().getUserID())) {
                                     contactsBean.userList.remove(user);
                                     break;
                                 }
@@ -611,7 +612,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
 
     private void doCallBack() {
         totalRequest--;
-        if(totalRequest == 0) {
+        if (totalRequest == 0) {
             refresh_view.setRefreshing(false);
             new RxUtils<ArrayList<User>>()
                     .doOnThreadObMain(new RxUtils.IThreadAndMainDeal<ArrayList<User>>() {

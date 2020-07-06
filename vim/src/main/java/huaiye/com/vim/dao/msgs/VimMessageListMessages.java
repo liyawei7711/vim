@@ -10,6 +10,7 @@ import java.util.List;
 import huaiye.com.vim.bus.NewMessageNum;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 
 /**
  * author: admin
@@ -100,7 +101,7 @@ public class VimMessageListMessages {
                     if (bean.groupType == 1 || bean.groupType == 2) {
                         total += AppDatas.MsgDB()
                                 .chatGroupMsgDao()
-                                .getGroupUnreadNum(bean.groupID);
+                                .getGroupUnreadNum(bean.groupID, AppAuth.get().getUserID());
                     } else {
                         total += AppDatas.MsgDB()
                                 .chatSingleMsgDao()
@@ -154,7 +155,7 @@ public class VimMessageListMessages {
 
         AppDatas.MsgDB()
                 .chatGroupMsgDao()
-                .updateSessionIDRead(sessionID);
+                .updateSessionIDRead(sessionID, AppAuth.get().getUserID());
         AppDatas.MsgDB()
                 .chatSingleMsgDao()
                 .updateReadMsgID(sessionID);

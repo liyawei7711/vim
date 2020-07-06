@@ -351,6 +351,12 @@ public class YueHouJiFengImgActivity extends AppBaseActivity {
             showToast(AppUtils.getString(R.string.string_name_yuehoujifeng_tip));
             MessageEvent nMessageEvent = new MessageEvent(AppUtils.EVENT_MESSAGE_YUEHOUJIFENG);
             nMessageEvent.obj1 = chatMessage;
+            try {
+                nMessageEvent.groupId = chatMessage.groupID;
+                nMessageEvent.groupDomain = chatMessage.groupDomainCode;
+            } catch (Exception e) {
+
+            }
             EventBus.getDefault().post(nMessageEvent);
         } else {
             showToast(AppUtils.getString(R.string.string_name_yuehoujifeng_tip_error));

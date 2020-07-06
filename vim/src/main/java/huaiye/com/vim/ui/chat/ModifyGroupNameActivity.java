@@ -57,6 +57,8 @@ public class ModifyGroupNameActivity extends AppBaseActivity {
                                             MessageEvent nMessageEvent = new MessageEvent(AppUtils.EVENT_MODIFY_GROUPNAME_SUCCESS, groupName);
                                             nMessageEvent.argStr0 = strGroupID;
                                             nMessageEvent.msgContent = modifyGroupName.getText().toString().trim();
+                                            nMessageEvent.groupId = strGroupID;
+                                            nMessageEvent.groupDomain = strGroupDomainCode;
                                             EventBus.getDefault().post(nMessageEvent);
                                             finish();
                                         }

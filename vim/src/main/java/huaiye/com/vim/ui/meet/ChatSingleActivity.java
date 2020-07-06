@@ -1433,6 +1433,13 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         } catch (Exception e) {
 
         }
+
+        for(ChatSingleMsgBean temp1 : allMsg) {
+            if(temp1.read == 0) {
+                VimMessageListMessages.get().isRead(temp1.sessionID);
+            }
+        }
+
         Collections.sort(allMsg, new Comparator<ChatSingleMsgBean>() {
             @Override
             public int compare(ChatSingleMsgBean o1, ChatSingleMsgBean o2) {

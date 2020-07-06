@@ -160,10 +160,10 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                                 SP.putInt(data.sessionID + AppUtils.SP_SETTING_NODISTURB, 0);
                                 AppDatas.MsgDB()
                                         .chatGroupMsgDao()
-                                        .deleteBySessionID(data.sessionID);
+                                        .deleteBySessionID(data.sessionID, AppAuth.get().getUserID());
                                 AppDatas.MsgDB()
                                         .chatGroupMsgDao()
-                                        .deleteGroup(data.sessionID);
+                                        .deleteGroup(data.sessionID, AppAuth.get().getUserID());
                             } else {
                                 AppDatas.MsgDB()
                                         .chatSingleMsgDao()

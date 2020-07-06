@@ -227,7 +227,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
         if (TextUtils.isEmpty(mContactsBean.sessionName)) {
             ContactsGroupUserListBean group = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(mContactsBean.strGroupID);
-            if(group != null) {
+            if (group != null) {
                 mContactsBean.sessionName = group.strGroupName;
             }
         }
@@ -252,7 +252,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
     private void initData() {
         if (null != mContactsBean) {
-            if(mContactsBean.userList != null) {
+            if (mContactsBean.userList != null) {
                 setMessageUsersDate(mContactsGroupUserListBean, true);
                 getGroupUserHead(mContactsGroupUserListBean, true);
                 setContactsGroupUserListBean();
@@ -279,7 +279,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 if (contactsBean != null) {
                     if (TextUtils.isEmpty(contactsBean.strGroupName)) {
                         ContactsGroupUserListBean group = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(mContactsBean.strGroupID);
-                        if(group != null) {
+                        if (group != null) {
                             contactsBean.strGroupName = group.strGroupName;
                         }
                     }
@@ -400,7 +400,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 }
             }
         }
-        if(mMessageUsersDate != null) {
+        if (mMessageUsersDate != null) {
             mChatContentAdapter.setCustomer(mMessageUsersDate);
         }
         initUserEncrypt();
@@ -413,11 +413,11 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     private void initNavigateView(String mOtherUserName) {
         getNavigate().setVisibility(View.GONE);
         chatTitleBarVoiceChatBtn.setVisibility(View.GONE);
-        if(TextUtils.isEmpty(mOtherUserName)) {
+        if (TextUtils.isEmpty(mOtherUserName)) {
             mOtherUserName = "";
         }
-        if(isSetTitle) {
-            if(TextUtils.isEmpty(mOtherUserName)) {
+        if (isSetTitle) {
+            if (TextUtils.isEmpty(mOtherUserName)) {
                 return;
             } else {
                 chatTitleBarTitle.setText(mOtherUserName);
@@ -431,8 +431,8 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         chat_edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    if(chat_more_function.getVisibility() == View.VISIBLE) {
+                if (hasFocus) {
+                    if (chat_more_function.getVisibility() == View.VISIBLE) {
                         chat_more_function.setVisibility(View.GONE);
                     }
                 }
@@ -471,9 +471,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                                     List<ChatGroupMsgBean> nChatGroupMsgBean = new ArrayList<>();
                                     List<ChatGroupMsgBean> datas = AppDatas.MsgDB()
                                             .chatGroupMsgDao()
-                                            .queryPagingItemWithoutLive(mContactsBean.strGroupID, allMsg.size(), PAGE_SIZE);
-                                    for(ChatGroupMsgBean temp : datas) {
-                                        if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                                            .queryPagingItemWithoutLive(mContactsBean.strGroupID, AppAuth.get().getUserID(), allMsg.size(), PAGE_SIZE);
+                                    for (ChatGroupMsgBean temp : datas) {
+                                        if (!msgChatIdUnEncrypt.contains(temp.msgID)) {
                                             msgChatIdUnEncrypt.add(temp.msgID);
                                             nChatGroupMsgBean.add(temp);
                                         }
@@ -611,9 +611,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                         List<ChatGroupMsgBean> nChatGroupMsgBeans = new ArrayList<>();
                         List<ChatGroupMsgBean> datas = AppDatas.MsgDB()
                                 .chatGroupMsgDao()
-                                .queryPagingItemWithoutLive(mContactsBean.strGroupID, index, limit);
-                        for(ChatGroupMsgBean temp : datas) {
-                            if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                                .queryPagingItemWithoutLive(mContactsBean.strGroupID, AppAuth.get().getUserID(), index, limit);
+                        for (ChatGroupMsgBean temp : datas) {
+                            if (!msgChatIdUnEncrypt.contains(temp.msgID)) {
                                 msgChatIdUnEncrypt.add(temp.msgID);
                                 nChatGroupMsgBeans.add(temp);
                             }
@@ -680,7 +680,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     private void updateAllRead() {
         AppDatas.MsgDB()
                 .chatGroupMsgDao()
-                .updateAllRead(mContactsBean.strGroupID);
+                .updateAllRead(mContactsBean.strGroupID, AppAuth.get().getUserID());
     }
 
     /**
@@ -894,7 +894,6 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             }
 
             groupMsgBean.extend1 = temp.strUserID;
-            groupMsgBean.extend2 = temp.strUserDomainCode;
 
             groupMsgBean.read = 1;
             AppDatas.MsgDB()
@@ -1362,9 +1361,15 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 break;
             case AppUtils.EVENT_UPDATE_GROUP_DETAIL:
             case AppUtils.EVENT_MESSAGE_MODIFY_GROUP:
+                if (!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                    return;
+                }
+                if (!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                    return;
+                }
                 if (!TextUtils.isEmpty(messageEvent.msgContent) && messageEvent.msgContent.equals(mContactsBean.strGroupID)) {//只有当前正在聊天的群成员有变动才刷新用户信息
                     ContactsGroupUserListBean tempGroup = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(mContactsBean.strGroupID);
-                    if(tempGroup.lstGroupUser == null) {
+                    if (tempGroup.lstGroupUser == null) {
                         tempGroup.lstGroupUser = mContactsGroupUserListBean.lstGroupUser;
                     }
                     mContactsGroupUserListBean.strGroupName = tempGroup.strGroupName;
@@ -1381,6 +1386,12 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 finish();
                 break;
             case AppUtils.EVENT_COMING_NEW_MESSAGE:
+                if (!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                    return;
+                }
+                if (!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                    return;
+                }
                 if (getGroupSessionId().equals(messageEvent.obj2)) {
                     loadMore();
                 }
@@ -1405,11 +1416,23 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
                 break;
             case AppUtils.EVENT_MODIFY_GROUPNAME_SUCCESS://修改名称
+                if (!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                    return;
+                }
+                if (!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                    return;
+                }
                 if (null != mContactsBean && !TextUtils.isEmpty(messageEvent.argStr0) && messageEvent.argStr0.equals(mContactsBean.strGroupID)) {
                     sessionName = messageEvent.msgContent;
                 }
                 break;
             case AppUtils.EVENT_MESSAGE_YUEHOUJIFENG:
+                if (!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+                    return;
+                }
+                if (!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+                    return;
+                }
                 if (null != mChatContentAdapter) {
                     mChatContentAdapter.deleByChatMessageBase((ChatMessageBase) messageEvent.obj1);
                 }
@@ -1636,7 +1659,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     private void loadMore() {
         ChatGroupMsgBean temp = AppDatas.MsgDB()
                 .chatGroupMsgDao()
-                .queryLastItem(mContactsBean.strGroupID);
+                .queryLastItem(mContactsBean.strGroupID, AppAuth.get().getUserID());
         if (TextUtils.isEmpty(temp.headPic)) {
             temp.headPic = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(temp.fromUserId, temp.fromUserDomain);
         }
@@ -1647,7 +1670,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         VimMessageListMessages.get().isRead(temp.sessionID);
         AppDatas.MsgDB()
                 .chatGroupMsgDao()
-                .updateReadWithMsgID(temp.groupID, temp.msgID);
+                .updateReadWithMsgID(temp.groupID, temp.msgID, AppAuth.get().getUserID());
         if (temp.bEncrypt == 1 && !temp.isUnEncrypt) {
             users.clear();
             if (AppAuth.get().getUserID().equals(temp.fromUserId)) {
@@ -1751,6 +1774,13 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         } catch (Exception e) {
 
         }
+
+        for (ChatGroupMsgBean temp1 : allMsg) {
+            if (temp1.read == 0) {
+                VimMessageListMessages.get().isRead(temp1.sessionID);
+            }
+        }
+
         Collections.sort(allMsg, new Comparator<ChatGroupMsgBean>() {
             @Override
             public int compare(ChatGroupMsgBean o1, ChatGroupMsgBean o2) {

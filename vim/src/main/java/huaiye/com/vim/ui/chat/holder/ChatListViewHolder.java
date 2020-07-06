@@ -28,6 +28,7 @@ import huaiye.com.vim.common.recycle.LiteViewHolder;
 import huaiye.com.vim.common.utils.ChatUtil;
 import huaiye.com.vim.common.utils.WeiXinDateFormat;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.ContentBean;
 import huaiye.com.vim.dao.msgs.VimMessageListBean;
 import huaiye.com.vim.models.ModelApis;
@@ -214,7 +215,7 @@ public class ChatListViewHolder extends LiteViewHolder {
         if (bean.groupType == 1 || bean.groupType == 2) {
             int num = AppDatas.MsgDB()
                     .chatGroupMsgDao()
-                    .getGroupUnreadNum(bean.groupID);
+                    .getGroupUnreadNum(bean.groupID, AppAuth.get().getUserID());
             if (num > 0) {
                 view_point.setVisibility(View.VISIBLE);
             } else {

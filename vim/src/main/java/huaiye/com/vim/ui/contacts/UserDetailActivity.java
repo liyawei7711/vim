@@ -199,10 +199,10 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                 if (isGroupChat) {
                     AppDatas.MsgDB()
                             .chatGroupMsgDao()
-                            .deleteBySessionID(sessionID);
+                            .deleteBySessionID(sessionID, AppAuth.get().getUserID());
                     AppDatas.MsgDB()
                             .chatGroupMsgDao()
-                            .deleteGroup(sessionID);
+                            .deleteGroup(sessionID, AppAuth.get().getUserID());
                 } else {
                     AppDatas.MsgDB()
                             .chatSingleMsgDao()
@@ -763,6 +763,9 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
         bean.sessionName = sessionName;
         bean.msgTxt = notice;
         bean.time = System.currentTimeMillis();
+
+        bean.extend1 = AppAuth.get().getUserID();
+
         AppDatas.MsgDB()
                 .chatGroupMsgDao().insert(bean);
     }

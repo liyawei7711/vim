@@ -403,7 +403,7 @@ public class FragmentSettings extends AppBaseFragment {
                         file.delete();
                     }
                 }
-                AppDatas.MsgDB().chatGroupMsgDao().clearData();
+                AppDatas.MsgDB().chatGroupMsgDao().clearData(AppAuth.get().getUserID());
                 AppDatas.MsgDB().chatSingleMsgDao().clearData();
                 AppDatas.MsgDB().getFriendListDao().clearData();
                 AppDatas.MsgDB().getGroupListDao().clearData();
