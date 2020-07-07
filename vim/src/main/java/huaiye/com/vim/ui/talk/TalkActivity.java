@@ -3,11 +3,15 @@ package huaiye.com.vim.ui.talk;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Point;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.OrientationEventListener;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -879,6 +883,8 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
                 ToggleBackgroundState(false);
             }
         }, "toggle");
+
+//        enableScreenOrientationDetect(true);
     }
 
     @Override
@@ -914,8 +920,58 @@ public class TalkActivity extends AppBaseActivity implements View.OnClickListene
 
     }
 
-
     private void callBackVideoTime() {
         EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_VIDEO_SUCCESS, WeiXinDateFormat.getTime(time, "mm:ss")));
     }
+
+    OrientationEventListener mScreenOrientationEventListener;
+    int mLastScreenOrientation;
+    long mLastRotationTick;
+
+    protected void enableScreenOrientationDetect(boolean enable) {
+        if (enable && mScreenOrientationEventListener == null) {
+            mScreenOrientationEventListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+                @Override
+                public void onOrientationChanged(int orientation) {
+                    int newOrientation = (360 - (orientation + 45) / 90 * 90) % 360;
+                    if (mLastScreenOrientation != newOrientation) {
+                        mLastScreenOrientation = newOrientation;
+                        mLastRotationTick = System.currentTimeMillis();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (System.currentTimeMillis() - mLastRotationTick > 500) {
+                                    int activityOrientation;
+                                    switch (mLastScreenOrientation) {
+                                        case 90:
+                                            activityOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                                            break;
+                                        case 180:
+                                            activityOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                                            break;
+                                        case 270:
+                                            activityOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                                            break;
+                                        default:
+                                            activityOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                                            break;
+                                    }
+                                    TalkActivity.this.setRequestedOrientation(activityOrientation);
+                                }
+                            }
+                        }, 550);
+                    }
+                }
+            };
+        }
+
+        if (mScreenOrientationEventListener != null) {
+            if (enable) {
+                mScreenOrientationEventListener.enable();
+            } else {
+                mScreenOrientationEventListener.disable();
+            }
+        }
+    }
+
 }

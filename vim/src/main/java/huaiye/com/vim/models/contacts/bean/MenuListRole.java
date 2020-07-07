@@ -25,8 +25,10 @@ public class MenuListRole implements Serializable {
      */
     public enum MenuType{
         MENU_TYPE,//占位用的,我们的菜单类型从1开始
-        MENU_TYPE_CREATE_GROUP_CHAT,//1,标识建群
-        MENU_TYPE_CREATE_MEET_CHAT;//1,标识建群
+        MENU_TYPE_CREATE_GROUP_CHAT,//1,标识group
+        MENU_TYPE_CREATE_MEET_CHAT,//2,标识meet
+        MENU_TYPE_ADD_USER,//3,add user
+        MENU_TYPE_DEL_USER;//4,delete user
     }
 
 }

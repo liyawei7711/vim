@@ -41,9 +41,10 @@ import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.CustomResponse;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
 import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
+import huaiye.com.vim.ui.home.view.FragmentContactsHeaderView;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
@@ -62,6 +63,8 @@ import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     public static final String SELECTED_CONTACTS = "selectedContacts";
     public static final String RESULT_CONTACTS = "resultContacts";
+    @BindView(R.id.ll_root)
+    LinearLayout ll_root;
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
     @BindView(R.id.rct_view)
@@ -138,7 +141,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
                             currentTime = System.currentTimeMillis();
                             if (isCreateVideoPish) {
                                 if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
-                                    if (VimChoosedContacts.get().getContacts().size() != 2) {
+                                    if (ChoosedContactsNew.get().getContacts().size() != 2) {
                                         showToast("加密分享只能为一人");
                                         currentTime = 0;
                                         return;
@@ -146,7 +149,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
                                 }
 
                                 MessageEvent nMessageEvent = new MessageEvent(AppUtils.EVENT_RPUSH_VIDEO);
-                                nMessageEvent.obj1 = getSendUsers(VimChoosedContacts.get().getContacts());
+                                nMessageEvent.obj1 = getSendUsers(ChoosedContactsNew.get().getContacts());
                                 EventBus.getDefault().post(nMessageEvent);
                                 finish();
                             } else if (isCreateGroup) {//单聊拉人建群
@@ -238,7 +241,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
 
     private void createGroupChat() {
 
-        ModelApis.Contacts().requestCreateGroupChat(getGroupName(), VimChoosedContacts.get().getContacts(), new ModelCallback<CreateGroupContactData>() {
+        ModelApis.Contacts().requestCreateGroupChat(getGroupName(), ChoosedContactsNew.get().getContacts(), new ModelCallback<CreateGroupContactData>() {
             @Override
             public void onSuccess(final CreateGroupContactData contactsBean) {
                 runOnUiThread(new Runnable() {
@@ -263,7 +266,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     }
 
     private void addJinJiLianXiRen() {
-        ArrayList<User> mContacts = VimChoosedContacts.get().getContacts();
+        ArrayList<User> mContacts = ChoosedContactsNew.get().getContacts();
         Intent intent = new Intent();
         intent.putExtra("users", mContacts);
         setResult(Activity.RESULT_OK, intent);
@@ -312,8 +315,8 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
 
     private ArrayList<User> getAddPeple() {
         ArrayList<User> users = new ArrayList<User>();
-        if (null != VimChoosedContacts.get().getContacts() && null != VimChoosedContacts.get().getContacts()) {
-            for (User item : VimChoosedContacts.get().getContacts()) {
+        if (null != ChoosedContactsNew.get().getContacts() && null != ChoosedContactsNew.get().getContacts()) {
+            for (User item : ChoosedContactsNew.get().getContacts()) {
                 if (item.nJoinStatus != 2) {
                     users.add(item);
                 }
@@ -324,8 +327,8 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
 
     private ArrayList<User> getKickoutPeple() {
         ArrayList<User> users = new ArrayList<User>();
-        if (null != VimChoosedContacts.get().getContacts() && null != VimChoosedContacts.get().getContacts()) {
-            for (User item : VimChoosedContacts.get().getContacts()) {
+        if (null != ChoosedContactsNew.get().getContacts() && null != ChoosedContactsNew.get().getContacts()) {
+            for (User item : ChoosedContactsNew.get().getContacts()) {
                 if (!item.strUserID.equals(AppDatas.Auth().getUserID())) {
                     users.add(item);
                 }
@@ -336,9 +339,9 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
 
     private String getGroupName() {
         StringBuilder stringGoupName = new StringBuilder();
-        if (null != VimChoosedContacts.get().getContacts() && VimChoosedContacts.get().getContacts().size() > 0) {
-//            for (User item : VimChoosedContacts.get().getContacts()) {
-//                if (VimChoosedContacts.get().getContacts().indexOf(item) < 6) {
+        if (null != ChoosedContactsNew.get().getContacts() && ChoosedContactsNew.get().getContacts().size() > 0) {
+//            for (User item : ChoosedContactsNew.get().getContacts()) {
+//                if (ChoosedContactsNew.get().getContacts().indexOf(item) < 6) {
 //                    stringGoupName.append(item.strUserName + "、");
 //                }
 //            }
@@ -347,7 +350,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
 //            }
 //        }
 //        if (TextUtils.isEmpty(stringGoupName)) {
-            stringGoupName.append("群聊(" + VimChoosedContacts.get().getContacts().size() + ")");
+            stringGoupName.append("群聊(" + ChoosedContactsNew.get().getContacts().size() + ")");
 //        }
         }
         return stringGoupName.toString();
@@ -474,7 +477,11 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
         });
 
         contacts_retrieval_bar.setTextView(tv_letter_high_fidelity_item);
+
+        FragmentContactsHeaderView fragmentContactsHeaderView = new FragmentContactsHeaderView(this);
+        ll_root.addView(fragmentContactsHeaderView, 0);
         rct_view.setAdapter(adapter);
+
         if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
             requestDatas();
         } else {
@@ -517,7 +524,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
                 }
             }
         };
-        mChoosedAdapter.setDatas(VimChoosedContacts.get().getContacts());
+        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
@@ -542,7 +549,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
             llChoosedPersons.setVisibility(View.GONE);
             return;
         }
-        if (VimChoosedContacts.get().getContacts().isEmpty()) {
+        if (ChoosedContactsNew.get().getContacts().isEmpty()) {
             llChoosedPersons.setVisibility(View.GONE);
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
@@ -550,7 +557,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     }
 
     private void initData() {
-        VimChoosedContacts.get().getContacts().clear();
+        ChoosedContactsNew.get().getContacts().clear();
         try {
             if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
                 if (null != mUserList) {
@@ -559,7 +566,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
                             mUserList.get(i).nJoinStatus = 2;
                         }
                     }
-                    VimChoosedContacts.get().getContacts().addAll(mUserList);
+                    ChoosedContactsNew.get().getContacts().addAll(mUserList);
                 }
             } else {
                 if (null != mUserList) {
@@ -686,7 +693,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
         for (User item : data) {
             String upPinYin = "";
             item.isSelected = false;
-            for (User temp : VimChoosedContacts.get().getContacts()) {
+            for (User temp : ChoosedContactsNew.get().getContacts()) {
                 if (temp.strUserName.equals(item.strUserName)) {
                     item.isSelected = true;
                     break;
@@ -709,16 +716,16 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
         if (user == null) {
             return;
         }
-        if (VimChoosedContacts.get().isContain(user)) {
+        if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            VimChoosedContacts.get().removeContacts(user);
+            ChoosedContactsNew.get().removeContacts(user);
         } else {
-            if (VimChoosedContacts.get().getContacts().size() >= max + 1) {
+            if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
                 showToast("最多选" + max + "人，已达人数上限");
                 return;
             }
             user.isSelected = true;
-            VimChoosedContacts.get().addContacts(user);
+            ChoosedContactsNew.get().addContacts(user);
         }
         mChoosedAdapter.notifyDataSetChanged();
         adapter.notifyDataSetChanged();
@@ -727,12 +734,22 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        VimChoosedContacts.get().clear();
+        ChoosedContactsNew.get().clear();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         ContactsViewHolder.mIsChoice = isSelectUser;
+
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+
+        if (mChoosedAdapter != null) {
+            mChoosedAdapter.notifyDataSetChanged();
+        }
+
+        changeShowSelected();
     }
 }

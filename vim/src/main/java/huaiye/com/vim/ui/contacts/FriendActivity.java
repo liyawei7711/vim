@@ -47,9 +47,7 @@ import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
-import huaiye.com.vim.ui.home.SearchActivity;
-import huaiye.com.vim.ui.home.SearchGroupActivity;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
 import huaiye.com.vim.ui.home.adapter.GroupContactsItemAdapter;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
@@ -107,8 +105,8 @@ public class FriendActivity extends AppBaseActivity {
                     @Override
                     public void onSuccess(ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                            for(User user : contactsBean.userList) {
-                                if(user.strUserID.equals(AppAuth.get().getUserID())) {
+                            for (User user : contactsBean.userList) {
+                                if (user.strUserID.equals(AppAuth.get().getUserID())) {
                                     contactsBean.userList.remove(user);
                                     break;
                                 }
@@ -129,7 +127,7 @@ public class FriendActivity extends AppBaseActivity {
 
     private void doCallBack() {
         totalRequest--;
-        if(totalRequest == 0) {
+        if (totalRequest == 0) {
             refresh_view.setRefreshing(false);
             if (isFreadList) {
                 updateContacts(true);
@@ -330,7 +328,7 @@ public class FriendActivity extends AppBaseActivity {
         for (User item : data) {
             String upPinYin = "";
             item.isSelected = false;
-            for (User temp : VimChoosedContacts.get().getContacts()) {
+            for (User temp : ChoosedContactsNew.get().getContacts()) {
                 if (temp.strUserName.equals(item.strUserName)) {
                     item.isSelected = true;
                     break;

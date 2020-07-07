@@ -37,7 +37,6 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.ui.contacts.ContactDetailNewActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
 import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
 import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
@@ -287,7 +286,7 @@ public class SearchActivity extends Activity {
         for (User item : data) {
             String upPinYin = "";
             item.isSelected = false;
-            for (User temp : VimChoosedContacts.get().getContacts()) {
+            for (User temp : ChoosedContactsNew.get().getContacts()) {
                 if (temp.strUserName.equals(item.strUserName)) {
                     item.isSelected = true;
                     break;

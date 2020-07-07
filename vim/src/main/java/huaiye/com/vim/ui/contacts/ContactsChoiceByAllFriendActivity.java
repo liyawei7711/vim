@@ -37,7 +37,6 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
 import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
 import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
 import huaiye.com.vim.ui.home.view.FragmentContactsHeaderView;
@@ -266,7 +265,7 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
         }
-        if(mChoosedAdapter != null) {
+        if (mChoosedAdapter != null) {
             changeNum(mChoosedAdapter.getDatas().size() - mJoinNum);
         }
     }
@@ -283,8 +282,8 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
                     @Override
                     public void onSuccess(ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                            for(User user : contactsBean.userList) {
-                                if(user.strUserID.equals(AppAuth.get().getUserID())) {
+                            for (User user : contactsBean.userList) {
+                                if (user.strUserID.equals(AppAuth.get().getUserID())) {
                                     contactsBean.userList.remove(user);
                                     break;
                                 }
@@ -305,7 +304,7 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
 
     private void doCallBack() {
         totalRequest--;
-        if(totalRequest == 0) {
+        if (totalRequest == 0) {
             refresh_view.setRefreshing(false);
             new RxUtils<ArrayList<User>>()
                     .doOnThreadObMain(new RxUtils.IThreadAndMainDeal<ArrayList<User>>() {
@@ -352,7 +351,6 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
             finish();
         }
     }
-
 
     @OnClick(R.id.tv_choose_confirm)
     void onChoosedConfirmClicked() {
@@ -424,6 +422,17 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
     protected void onResume() {
         super.onResume();
         UserViewHolder.mIsChoice = true;
+
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+
+        if (mChoosedAdapter != null) {
+            mChoosedAdapter.notifyDataSetChanged();
+
+            changeNum(mChoosedAdapter.getDatas().size() - mJoinNum);
+        }
+
     }
 
 }

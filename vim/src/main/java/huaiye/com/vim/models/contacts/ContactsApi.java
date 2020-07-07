@@ -306,7 +306,7 @@ public class ContactsApi {
                 .addParam("strGroupName", strGroupName)
                 .addParam("strAnnouncement", "")
                 .addParam("nBeinviteMode", 0)
-                .addParam("nInviteMode", 1)
+                .addParam("nInviteMode", 0)
                 .addParam("nTeamMemberLimit", 200)
                 .addParam("lstGroupUser", sessionUserList)
                 .addParam("strUserDomainCode", AppDatas.Auth().getDomainCode())

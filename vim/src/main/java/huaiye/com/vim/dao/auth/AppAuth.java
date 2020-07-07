@@ -2,14 +2,11 @@ package huaiye.com.vim.dao.auth;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.bumptech.glide.Glide;
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.sdkabi._api.ApiAuth;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,14 +19,12 @@ import huaiye.com.vim.common.constant.SPConstant;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.FileLocalNameBean;
-import huaiye.com.vim.dao.msgs.VimMessageBean;
 import huaiye.com.vim.dao.msgs.VimMessageListMessages;
 import huaiye.com.vim.models.auth.bean.AuthUser;
 import huaiye.com.vim.models.contacts.bean.MenuListRole;
 import huaiye.com.vim.push.MessageReceiver;
-import huaiye.com.vim.ui.auth.StartActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.home.MainActivity;
 
 import static huaiye.com.vim.ui.home.FragmentSettings.deleteDir;
@@ -95,8 +90,8 @@ public class AppAuth {
         put(SPConstant.SIE_PORT, user.nSiePort);
         put(SPConstant.SIE_HTTP_PORT, String.valueOf(user.nSieHttpPort));
         put(SPConstant.X_TOKEN, String.valueOf(user.strToken));
-        put(SPConstant.STR_ROLE_ID,user.nRoleID);
-        put(SPConstant.STR_NROLE_TYPE,user.nRoleType);
+        put(SPConstant.STR_ROLE_ID, user.nRoleID);
+        put(SPConstant.STR_NROLE_TYPE, user.nRoleType);
 
         ChoosedContacts.get().changeSelf();
 
@@ -124,35 +119,64 @@ public class AppAuth {
 
     /**
      * 获取能否开启群功能的菜单权限
+     *
      * @return
      */
-    public boolean getCreateGroupChatRole(){
+    public boolean getCreateGroupChatRole() {
         boolean canCreateGroupChatRole = false;
-        MenuListRole menuListRole=VIMApp.getInstance().getMenuListRole();
-        if(null!=menuListRole&&null!=menuListRole.menuList&&menuListRole.menuList.size()>0){
-            for(MenuListRole.Menu menu:menuListRole.menuList){
-                if(menu.nMenuType== MenuListRole.MenuType.MENU_TYPE_CREATE_GROUP_CHAT.ordinal()){
+        MenuListRole menuListRole = VIMApp.getInstance().getMenuListRole();
+        if (null != menuListRole && null != menuListRole.menuList && menuListRole.menuList.size() > 0) {
+            for (MenuListRole.Menu menu : menuListRole.menuList) {
+                if (menu.nMenuType == MenuListRole.MenuType.MENU_TYPE_CREATE_GROUP_CHAT.ordinal()) {
                     canCreateGroupChatRole = true;
                 }
             }
         }
         return canCreateGroupChatRole;
     }
+
     /**
      * 获取能否开启会议功能的菜单权限
+     *
      * @return
      */
-    public boolean getCreateMeetRole(){
+    public boolean getCreateMeetRole() {
         boolean canCreateGroupChatRole = false;
-        MenuListRole menuListRole=VIMApp.getInstance().getMenuListRole();
-        if(null!=menuListRole&&null!=menuListRole.menuList&&menuListRole.menuList.size()>0){
-            for(MenuListRole.Menu menu:menuListRole.menuList){
-                if(menu.nMenuType== MenuListRole.MenuType.MENU_TYPE_CREATE_MEET_CHAT.ordinal()){
+        MenuListRole menuListRole = VIMApp.getInstance().getMenuListRole();
+        if (null != menuListRole && null != menuListRole.menuList && menuListRole.menuList.size() > 0) {
+            for (MenuListRole.Menu menu : menuListRole.menuList) {
+                if (menu.nMenuType == MenuListRole.MenuType.MENU_TYPE_CREATE_MEET_CHAT.ordinal()) {
                     canCreateGroupChatRole = true;
                 }
             }
         }
         return canCreateGroupChatRole;
+    }
+
+    public boolean getAddGroupUserRole() {
+        boolean canAddUser = false;
+        MenuListRole menuListRole = VIMApp.getInstance().getMenuListRole();
+        if (null != menuListRole && null != menuListRole.menuList && menuListRole.menuList.size() > 0) {
+            for (MenuListRole.Menu menu : menuListRole.menuList) {
+                if (menu.nMenuType == MenuListRole.MenuType.MENU_TYPE_ADD_USER.ordinal()) {
+                    canAddUser = true;
+                }
+            }
+        }
+        return canAddUser;
+    }
+
+    public boolean getDelGroupUserRole() {
+        boolean canDelUser = false;
+        MenuListRole menuListRole = VIMApp.getInstance().getMenuListRole();
+        if (null != menuListRole && null != menuListRole.menuList && menuListRole.menuList.size() > 0) {
+            for (MenuListRole.Menu menu : menuListRole.menuList) {
+                if (menu.nMenuType == MenuListRole.MenuType.MENU_TYPE_DEL_USER.ordinal()) {
+                    canDelUser = true;
+                }
+            }
+        }
+        return canDelUser;
     }
 
     public String getAccount() {
@@ -172,16 +196,16 @@ public class AppAuth {
 
     }
 
-    public void setAutoLogin(boolean autoLogin){
-        put("autoLogin",autoLogin ? "yes":"no");
+    public void setAutoLogin(boolean autoLogin) {
+        put("autoLogin", autoLogin ? "yes" : "no");
     }
 
 
-    public boolean getAutoLogin(){
+    public boolean getAutoLogin() {
         String autoLogin = get("autoLogin");
-        if (!TextUtils.isEmpty(autoLogin) && autoLogin.equals("yes")){
+        if (!TextUtils.isEmpty(autoLogin) && autoLogin.equals("yes")) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -206,12 +230,12 @@ public class AppAuth {
         return get("tokenId");
     }
 
-    public String getToken(){
+    public String getToken() {
         return get(SPConstant.X_TOKEN);
     }
 
     public void clearData(Activity activity) {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             AppBaseActivity.showToast("销毁了");
             return;
         }
@@ -257,7 +281,7 @@ public class AppAuth {
     private void customLogout(Activity activity) {
         HYClient.getModule(ApiAuth.class).logout(null);
         AppAuth.get().setAutoLogin(false);
-        VimChoosedContacts.get().destory();
+        ChoosedContactsNew.get().clear();
         activity.startActivity(new Intent(activity, MainActivity.class).putExtra("isSOS", true).putExtra("isFromLogin", true));
     }
 

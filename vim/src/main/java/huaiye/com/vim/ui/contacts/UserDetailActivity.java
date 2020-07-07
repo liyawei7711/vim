@@ -46,7 +46,7 @@ import huaiye.com.vim.models.contacts.bean.CustomResponse;
 import huaiye.com.vim.ui.chat.ModifyGroupAnnouncementActivity;
 import huaiye.com.vim.ui.chat.ModifyGroupNameActivity;
 import huaiye.com.vim.ui.chat.dialog.CustomTipDialog;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.meet.adapter.UserDetailUserListAdapter;
 import huaiye.com.vim.ui.meet.presenter.UserDetailPresenterHelper;
 import huaiye.com.vim.ui.meet.presenter.UserDetailPresenterImpl;
@@ -54,7 +54,6 @@ import huaiye.com.vim.ui.setting.ModifyHeadPicActivity;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static huaiye.com.vim.common.AppUtils.REQUEST_CODE_MODIFY_PIC;
-import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 import static huaiye.com.vim.ui.meet.adapter.ChatContentAdapter.CHAT_CONTENT_CUSTOM_NOTICE_ITEM;
 
 /**
@@ -162,7 +161,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             userDetailGroupName.setText(strGroupName + "");
             user_detail_group_user_count_rel.setVisibility(View.VISIBLE);
 
-            if(mContactsBean.userList != null) {
+            if (mContactsBean.userList != null) {
                 user_detail_group_notice_rel.setVisibility(View.GONE);
                 user_detail_modify_group_head_pic.setVisibility(View.GONE);
                 user_detail_group_name_rel.setVisibility(View.GONE);
@@ -311,21 +310,23 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
         if (isGroupChat) {
             if (null != mContactsGroupUserListBean) {
                 if (AppDatas.Auth().getUserID().equals(mContactsGroupUserListBean.strCreaterID)) {
+                    isGroupOwner = true;
+                } else {
+                    isGroupOwner = false;
+                }
+
+                if (AppAuth.get().getAddGroupUserRole()) {
                     User add = new User();
                     add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
                     mDataList.add(add);
+                }
+
+                if (AppAuth.get().getDelGroupUserRole()) {
                     User del = new User();
                     del.strUserID = UserDetailUserListAdapter.TYPE_DEL;
                     mDataList.add(del);
-                    isGroupOwner = true;
-                } else {
-                    if (!nEncryptIMEnable && (mContactsBean != null && mContactsBean.userList == null)) {
-                        User add = new User();
-                        add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
-                        mDataList.add(add);
-                    }
-                    isGroupOwner = false;
                 }
+
                 strAnnouncement = mContactsGroupUserListBean.strAnnouncement;
                 strGroupName = mContactsGroupUserListBean.strGroupName;
                 updateGroupNameAnnouncement(strAnnouncement);
@@ -489,7 +490,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 
     @OnClick(R.id.user_detail_group_name_rel)
     void modifyGroupName() {
-        if(mContactsBean.userList != null) {
+        if (mContactsBean.userList != null) {
             showToast("此功能为群组功能");
             return;
         }
@@ -507,7 +508,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 
     @OnClick(R.id.user_detail_group_notice_rel)
     void modifyGroupnotice() {
-        if(mContactsBean.userList != null) {
+        if (mContactsBean.userList != null) {
             showToast("此功能为群组功能");
             return;
         }
@@ -531,7 +532,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             }
         }
         if (!containSelf) {
-            nserList.add(VimChoosedContacts.get().getSelf());
+            nserList.add(ChoosedContactsNew.get().getSelf());
         }
         return nserList;
     }

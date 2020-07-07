@@ -74,7 +74,7 @@ import huaiye.com.vim.ui.Capture.CaptureGuanMoOrPushActivity;
 import huaiye.com.vim.ui.auth.ActivationActivity;
 import huaiye.com.vim.ui.auth.StartActivity;
 import huaiye.com.vim.ui.chat.dialog.CustomTipDialog;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.fenxiang.ShareChooseActivity;
 import huaiye.com.vim.ui.jiesuo.JieSuoActivity;
 
@@ -585,7 +585,7 @@ public class MainActivity extends AppBaseActivity {
 
                 HYClient.getModule(ApiAuth.class).logout(null);
                 AppAuth.get().setAutoLogin(false);
-                VimChoosedContacts.get().destory();
+                ChoosedContactsNew.get().clear();
 
                 if (errCode == -1000) {
                     SP.putBoolean("actived", true);

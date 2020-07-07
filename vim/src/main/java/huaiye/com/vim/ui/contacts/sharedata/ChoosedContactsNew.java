@@ -18,7 +18,19 @@ public class ChoosedContactsNew {
     private ArrayList<ContacsTerminal.Data> mTerminalDevices = new ArrayList<>();
     private User mSelf;
 
+    public User getSelf() {
+        if(mSelf != null) {
+        } else {
+            create();
+        }
+        return mSelf;
+    }
     private ChoosedContactsNew(){
+        create();
+
+    }
+
+    private void create() {
         mSelf = new User();
         mSelf.strUserID = String.valueOf(AppDatas.Auth().getUserID());
         mSelf.strLoginName = AppDatas.Auth().getUserLoginName();
@@ -28,7 +40,6 @@ public class ChoosedContactsNew {
         mSelf.nStatus = 1;
         mSelf.nJoinStatus = 2;
         mSelf.strHeadUrl = AppDatas.Auth().getHeadUrl(AppDatas.Auth().getUserID() + SPConstant.STR_HEAD_URL);
-
     }
 
     static class Holder {

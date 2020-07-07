@@ -64,8 +64,7 @@ import huaiye.com.vim.ui.about.AboutActivity;
 import huaiye.com.vim.ui.auth.ChangePwdActivity;
 import huaiye.com.vim.ui.auth.StartActivity;
 import huaiye.com.vim.ui.chat.dialog.CustomTipDialog;
-import huaiye.com.vim.ui.contacts.sharedata.VimChoosedContacts;
-import huaiye.com.vim.ui.home.transfile.ChooseEncryptFileActivity;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.home.transfile.ChuanShuShowActivity;
 import huaiye.com.vim.ui.setting.ModifyHeadPicActivity;
 import huaiye.com.vim.ui.setting.SettingActivity;
@@ -231,7 +230,7 @@ public class FragmentSettings extends AppBaseFragment {
                 startActivity(new Intent(getActivity(), ChuanShuShowActivity.class));
                 break;
             case R.id.view_logout:
-                if(nEncryptIMEnable) {
+                if (nEncryptIMEnable) {
                     showLogoutDialog();
                 } else {
                     showLogoutDialogFalse();
@@ -382,7 +381,7 @@ public class FragmentSettings extends AppBaseFragment {
     private void customLogout() {
         HYClient.getModule(ApiAuth.class).logout(null);
         AppAuth.get().setAutoLogin(false);
-        VimChoosedContacts.get().destory();
+        ChoosedContactsNew.get().clear();
         VIMApp.getInstance().mDomainInfoList.clear();
         Intent intent = new Intent(getActivity(), StartActivity.class);
         intent.putExtra("from", "");
@@ -409,7 +408,7 @@ public class FragmentSettings extends AppBaseFragment {
                 AppDatas.MsgDB().getGroupListDao().clearData();
                 AppDatas.MsgDB().getSendUserListDao().clearData();
                 AppDatas.MsgDB().getFileLocalListDao().clearData();
-                if(BuildConfig.DEBUG) {
+                if (BuildConfig.DEBUG) {
                     AppDatas.MsgDB().getChangYongLianXiRen().clearData();
                 }
                 AppDatas.Messages().clear();

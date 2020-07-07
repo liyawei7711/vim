@@ -328,6 +328,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.talk.TalkActivity"
+            android:configChanges="orientation|keyboard|screenSize"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.talk.TalkVoiceActivity"
