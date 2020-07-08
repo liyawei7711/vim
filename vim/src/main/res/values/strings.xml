@@ -293,6 +293,7 @@
     <string name="single_chat_video_voice_connection">聊天时长 %1$s</string>
     <string name="group_name">群聊名称</string>
     <string name="modify_group_name_success">群名修改成功</string>
+    <string name="modify_group_yaoqing_success">群名邀请权限成功</string>
     <string name="modify_group_announce_success">群公告修改成功</string>
     <string name="group_owner_can_modify_groupname">只有群主才可以编辑群名称</string>
     <string name="custom_tip_network_error">数据异常,请稍后再试...</string>

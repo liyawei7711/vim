@@ -75,6 +75,12 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     TextView userDetailMessageSetTop;
     @BindView(R.id.user_detail_message_set_top_check_box)
     CheckBox userDetailMessageSetTopCheckBox;
+    @BindView(R.id.cb_allow_user_add)
+    CheckBox cb_allow_user_add;
+    @BindView(R.id.view_allow)
+    View view_allow;
+    @BindView(R.id.ll_allow_add_user)
+    LinearLayout ll_allow_add_user;
     @BindView(R.id.user_detail_buttom)
     LinearLayout userDetailButtom;
     @BindView(R.id.user_detail_message_clear)
@@ -119,6 +125,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     ContactsGroupUserListBean mContactsGroupUserListBean;
 
 
+    private boolean startEnable;//开始控制选项
     private boolean isGroupOwner;
     private String strAnnouncement;
     ArrayList<User> mDataList = new ArrayList<>();
@@ -167,6 +174,8 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                 user_detail_group_name_rel.setVisibility(View.GONE);
                 user_detail_group_user_count_rel.setVisibility(View.GONE);
                 userDetailGroupDel.setVisibility(View.GONE);
+                ll_allow_add_user.setVisibility(View.GONE);
+                view_allow.setVisibility(View.GONE);
             } else {
                 userDetailGroupDel.setVisibility(View.VISIBLE);
             }
@@ -177,6 +186,8 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             user_detail_group_name_rel.setVisibility(View.GONE);
             user_detail_group_user_count_rel.setVisibility(View.GONE);
             userDetailGroupDel.setVisibility(View.GONE);
+            ll_allow_add_user.setVisibility(View.GONE);
+            view_allow.setVisibility(View.GONE);
         }
 
         initDialog();
@@ -260,11 +271,24 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
         } else {
             userDetailMessageUntouchCheckbox.setChecked(false);
         }
+
+        if (mContactsBean.userList != null) {
+            cb_allow_user_add.setChecked(false);
+        } else {
+            if (mContactsBean.nInviteMode == 0) {
+                cb_allow_user_add.setChecked(true);
+            } else {
+                cb_allow_user_add.setChecked(false);
+            }
+            startEnable = true;
+        }
     }
 
     private void initdata() {
         if (mContactsBean != null && mContactsBean.userList != null) {
-            mContactsGroupUserListBean = new ContactsGroupUserListBean();
+            if (mContactsGroupUserListBean == null) {
+                mContactsGroupUserListBean = new ContactsGroupUserListBean();
+            }
             mContactsGroupUserListBean.lstGroupUser = new ArrayList<>();
             mContactsGroupUserListBean.strGroupName = mContactsBean.sessionName;
             mContactsGroupUserListBean.strAnnouncement = mContactsBean.sessionName;
@@ -305,23 +329,31 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             }
         }
 
+        if (mContactsGroupUserListBean != null) {
+            mContactsBean.nInviteMode = mContactsGroupUserListBean.nInviteMode;
+        }
+
         userDetailGroupUserCount.setText(mDataList.size() + AppUtils.getString(R.string.user_detail_perple));
 
         if (isGroupChat) {
             if (null != mContactsGroupUserListBean) {
                 if (AppDatas.Auth().getUserID().equals(mContactsGroupUserListBean.strCreaterID)) {
                     isGroupOwner = true;
+                    ll_allow_add_user.setVisibility(View.VISIBLE);
+                    view_allow.setVisibility(View.VISIBLE);
                 } else {
                     isGroupOwner = false;
+                    ll_allow_add_user.setVisibility(View.GONE);
+                    view_allow.setVisibility(View.GONE);
                 }
 
-                if (AppAuth.get().getAddGroupUserRole()) {
+                if (mContactsBean.nInviteMode == 0 || isGroupOwner) {
                     User add = new User();
                     add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
                     mDataList.add(add);
                 }
 
-                if (AppAuth.get().getDelGroupUserRole()) {
+                if (isGroupOwner) {
                     User del = new User();
                     del.strUserID = UserDetailUserListAdapter.TYPE_DEL;
                     mDataList.add(del);
@@ -381,6 +413,29 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                 } else {
                 }
 
+            }
+        });
+
+        cb_allow_user_add.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (startEnable) {
+                    final int nInviteMode = isChecked ? 0 : 1;
+                    ModelApis.Contacts().requestModGroupInviteMode(strGroupDomainCode, strGroupID, nInviteMode, new ModelCallback<CustomResponse>() {
+                        @Override
+                        public void onSuccess(final CustomResponse contactsBean) {
+                            showToast(AppUtils.getString(R.string.modify_group_yaoqing_success));
+                            MessageEvent nMessageEvent = new MessageEvent(AppUtils.EVENT_MODIFY_GROUPYAOQING_SUCCESS);
+                            nMessageEvent.arg0 = nInviteMode;
+                            EventBus.getDefault().post(nMessageEvent);
+                        }
+
+                        @Override
+                        public void onFailure(HTTPResponse httpResponse) {
+                            showToast(AppUtils.getString(R.string.custom_tip_network_error));
+                        }
+                    });
+                }
             }
         });
 
@@ -563,6 +618,12 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MessageEvent messageEvent) {
+        if (!mContactsBean.strGroupID.equals(messageEvent.groupId)) {
+            return;
+        }
+        if (!mContactsBean.strGroupDomainCode.equals(messageEvent.groupDomain)) {
+            return;
+        }
         switch (messageEvent.what) {
             case AppUtils.EVENT_CREATE_GROUP_SUCCESS:
             case AppUtils.EVENT_INTENT_CHATSINGLEACTIVITY:

@@ -53,7 +53,6 @@
 
                 <ImageView
                     android:id="@+id/left_content_image"
-                    android:background="@color/red"
                     android:layout_width="150dp"
                     android:layout_height="100dp"
                     android:scaleType="centerCrop"

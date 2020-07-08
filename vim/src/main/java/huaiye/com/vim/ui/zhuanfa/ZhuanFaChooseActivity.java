@@ -6,12 +6,12 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.huaiye.sdk.sdpmsgs.social.SendUserBean;
 import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
@@ -31,6 +31,7 @@ import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
@@ -44,6 +45,8 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
+import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
 import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
@@ -69,9 +72,9 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     @BindView(R.id.tv_letter_high_fidelity_item)
     TextView tv_letter_high_fidelity_item;
 
-    TagsAdapter<CustomContacts.LetterStructure> adapter;
+    LiteBaseAdapter<User> adapter;
 
-    private ArrayList<CustomContacts.LetterStructure> mCustomContacts;
+    private ArrayList<User> mCustomContacts = new ArrayList<>();
     private ArrayList<User> mAllContacts = new ArrayList<>();
 
     private int totalRequest = 0;
@@ -92,63 +95,65 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     String strGroupDomain;
     @BindExtra
     ArrayList<SendUserBean> mMessageUsersDate;
-    ZhuanFaPopupWindow zhuanFaPopupWindow;
+    ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow;
 
     @Override
     protected void initActionBar() {
         EventBus.getDefault().register(this);
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("联系人")
+                .setRightText("确定")
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         finish();
+                    }
+                })
+                .setRightClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayList<User> users = new ArrayList<>();
+                        for(User temp : mCustomContacts) {
+                            if(temp.isSelected) {
+                                users.add(temp);
+                            }
+                        }
+                        if(users.isEmpty()) {
+                            showToast("请选择发送对象");
+                            return;
+                        }
+                        zhuanFaPopupWindow.setSendUser(users);
+                        zhuanFaPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                        zhuanFaPopupWindow.showData(ZhuanFaChooseActivity.this.data);
                     }
                 });
     }
 
     @Override
     public void doInitDelay() {
-        zhuanFaPopupWindow = new ZhuanFaPopupWindow(this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+        zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+
+        adapter = new LiteBaseAdapter<>(this,
+                mCustomContacts,
+                UserViewHolder.class,
+                R.layout.letter_item_layout_new,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        User user = (User) v.getTag();
+                        if (user == null) {
+                            return;
+                        }
+                        user.isSelected = !user.isSelected;
+                        adapter.notifyItemChanged(mCustomContacts.indexOf(user));
+                    }
+                }, "false");
+        UserViewHolder.mIsChoice = true;
 
         refresh_view.setColorSchemeColors(ContextCompat.getColor(this, R.color.blue),
                 ContextCompat.getColor(this, R.color.colorPrimary));
         rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
-        adapter = new TagsAdapter<CustomContacts.LetterStructure>(R.layout.letter_item_layout) {
-            @Override
-            public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                if (viewType == HEADER
-                        || viewType == FOOTER) {
-                    return super.onCreateViewHolder(parent, viewType);
-                }
-
-                final EXTViewHolder holder = super.onCreateViewHolder(parent, viewType);
-                return holder;
-            }
-
-            @Override
-            public void onBindTagViewHolder(EXTViewHolder extViewHolder, int i, CustomContacts.LetterStructure data) {
-                if (i < getHeaderViewsCount()) {
-                    return;
-                }
-                extViewHolder.setText(R.id.letter_item_txt, String.valueOf(data.letter));
-                ContactsItemAdapter itemAdapter = new ContactsItemAdapter(ZhuanFaChooseActivity.this,
-                        data.users, mCustomContacts.get(i - getHeaderViewsCount()).letter,
-                        false,
-                        null);
-                itemAdapter.setOnItemClickLinstener((position, user) -> {
-                    zhuanFaPopupWindow.setSendUser(user);
-                    zhuanFaPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
-                    zhuanFaPopupWindow.showData(ZhuanFaChooseActivity.this.data);
-                });
-
-                RecyclerView recyclerView = extViewHolder.findViewById(R.id.letter_item_recycler);
-                recyclerView.setLayoutManager(new SafeLinearLayoutManager(ZhuanFaChooseActivity.this, LinearLayoutManager.VERTICAL, false));
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setNestedScrollingEnabled(false);
-                recyclerView.setAdapter(itemAdapter);
-            }
-        };
+        rct_view.setAdapter(adapter);
 
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -162,12 +167,13 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
             @Override
             public void onTouchingLetterChanged(String s) {
                 int position = -1;
-                if (mCustomContacts == null || mCustomContacts.size() <= 0) {
+                if (mCustomContacts.size() <= 0) {
                     return;
                 }
                 for (int i = 0; i < mCustomContacts.size(); i++) {
-                    if (s.equals(String.valueOf(mCustomContacts.get(i).letter))) {
+                    if (s.equals(String.valueOf(mCustomContacts.get(i).pinyin))) {
                         position = i;
+                        break;
                     }
                 }
                 if (position == -1) {
@@ -176,7 +182,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
                 if (position == 0) {
                     rct_view.scrollToPosition(0);
                 } else {
-                    rct_view.scrollToPosition(position + adapter.getHeaderViewsCount());
+                    rct_view.scrollToPosition(position);
                 }
             }
 
@@ -203,8 +209,8 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
                     @Override
                     public void onSuccess(ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                            for(User user : contactsBean.userList) {
-                                if(user.strUserID.equals(AppAuth.get().getUserID())) {
+                            for (User user : contactsBean.userList) {
+                                if (user.strUserID.equals(AppAuth.get().getUserID())) {
                                     contactsBean.userList.remove(user);
                                     break;
                                 }
@@ -225,7 +231,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
 
     private void doCallBack() {
         totalRequest--;
-        if(totalRequest == 0) {
+        if (totalRequest == 0) {
             refresh_view.setRefreshing(false);
             new RxUtils<ArrayList<User>>()
                     .doOnThreadObMain(new RxUtils.IThreadAndMainDeal<ArrayList<User>>() {
@@ -274,68 +280,37 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     }
 
     public void updateContacts() {
-        new RxUtils<List<User>>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-            @Override
-            public Object doOnThread() {
-                mCustomContacts = getCustomContacts(mAllContacts);
-                return mCustomContacts;
-            }
-
-            @Override
-            public void doOnMain(Object data) {
-                rct_view.setAdapter(adapter);
-                adapter.setDatas(mCustomContacts);
-                adapter.notifyDataSetChanged();
-            }
-        });
+        mCustomContacts.clear();
+        mCustomContacts.addAll(getCustomContacts(mAllContacts));
+        if (mCustomContacts != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
-    private ArrayList<CustomContacts.LetterStructure> getCustomContacts(ArrayList<User> data) {
+    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
-            return null;
-        }
-        CustomContacts customContacts = new CustomContacts();
-        customContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < 27; i++) {
-            CustomContacts.LetterStructure item = new CustomContacts.LetterStructure();
-            if (i != 26) {
-                item.letter = (char) ('A' + i);
-            } else {
-                item.letter = '#';
-            }
-            item.users = null;
-            customContacts.letterStructures.add(item);
+            return new ArrayList<>();
         }
         for (User item : data) {
-            String upPinYin = item.strUserNamePinYin.toUpperCase();
-            String a = "#";
-            char firstLetter = TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0);
-            int index = firstLetter - 'A';
-            if (index >= 0 && index < 26) {
-                if (customContacts.letterStructures.get(index).users == null) {
-                    customContacts.letterStructures.get(index).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(index).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(index).users.add(item);
+            String upPinYin = "";
+            item.isSelected = false;
+            for (User temp : ChoosedContactsNew.get().getContacts()) {
+                if (temp.strUserName.equals(item.strUserName)) {
+                    item.isSelected = true;
+                    break;
                 }
+            }
+            if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
-                if (customContacts.letterStructures.get(26).users == null) {
-                    customContacts.letterStructures.get(26).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(26).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(26).users.add(item);
-                }
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             }
+            String a = "#";
+            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
         }
-        CustomContacts newCustomContacts = new CustomContacts();
-        newCustomContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < customContacts.letterStructures.size(); i++) {
-            if (customContacts.letterStructures.get(i).users != null &&
-                    customContacts.letterStructures.get(i).users.size() > 0) {
-                newCustomContacts.letterStructures.add(customContacts.letterStructures.get(i));
-            }
-        }
-        return newCustomContacts.letterStructures;
+
+        return data;
     }
 
     @OnClick({R.id.tv_group})
@@ -371,9 +346,10 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
         }
 
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(final CloseZhuanFa messageEvent) {
-       finish();
+        finish();
 
     }
 

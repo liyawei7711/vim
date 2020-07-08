@@ -558,6 +558,24 @@ public class ContactsApi {
 
     }
 
+    public void requestModGroupInviteMode(String strGroupDomainCode, String strGroupID, int nInviteMode, ModelCallback<CustomResponse> callback) {
+
+        String URL = AppDatas.Constants().getVimAddressBaseURL() + "httpjson/mod_group_chat";
+
+        HTTPRequestPostBuilder mHTTPRequestPostBuilder = Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strUserDomainCode", AppDatas.Auth().getDomainCode())
+                .addParam("strUserID", AppDatas.Auth().getUserID())
+                .addParam("strGroupDomainCode", strGroupDomainCode)
+                .addParam("strGroupID", strGroupID)
+                .addParam("nInviteMode", nInviteMode)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .setHttpCallback(callback);
+
+        mHTTPRequestPostBuilder.build().requestAsync();
+
+    }
+
 
     /**
      * 群消息提醒设置

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
 import com.ttyy.commonanno.anno.OnClick;
@@ -30,6 +31,7 @@ import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.views.FastRetrievalBar;
@@ -43,6 +45,8 @@ import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.auth.StartActivity;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
+import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
 import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
@@ -68,12 +72,12 @@ public class ShareChooseActivity extends AppBaseActivity {
     @BindView(R.id.tv_letter_high_fidelity_item)
     TextView tv_letter_high_fidelity_item;
 
-    TagsAdapter<CustomContacts.LetterStructure> adapter;
+    LiteBaseAdapter<User> adapter;
 
-    private ArrayList<CustomContacts.LetterStructure> mCustomContacts;
+    private ArrayList<User> mCustomContacts = new ArrayList<>();
     private ArrayList<User> mAllContacts = new ArrayList<>();
 
-    SharePopupWindow sharePopupWindow;
+    SharePopupWindowDuoXuan sharePopupWindow;
 
     private int totalRequest = 0;
 
@@ -82,10 +86,29 @@ public class ShareChooseActivity extends AppBaseActivity {
         EventBus.getDefault().register(this);
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("联系人")
+                .setRightText("确定")
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         finish();
+                    }
+                })
+                .setRightClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayList<User> users = new ArrayList<>();
+                        for(User temp : mCustomContacts) {
+                            if(temp.isSelected) {
+                                users.add(temp);
+                            }
+                        }
+                        if(users.isEmpty()) {
+                            showToast("请选择分享对象");
+                            return;
+                        }
+                        sharePopupWindow = new SharePopupWindowDuoXuan(ShareChooseActivity.this, users);
+                        sharePopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                        sharePopupWindow.showData(getIntent().getExtras());
                     }
                 });
     }
@@ -108,47 +131,28 @@ public class ShareChooseActivity extends AppBaseActivity {
             finish();
             return;
         }
+
+        adapter = new LiteBaseAdapter<>(this,
+                mCustomContacts,
+                UserViewHolder.class,
+                R.layout.letter_item_layout_new,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        User user = (User) v.getTag();
+                        if (user == null) {
+                            return;
+                        }
+                        user.isSelected = !user.isSelected;
+                        adapter.notifyItemChanged(mCustomContacts.indexOf(user));
+                    }
+                }, "false");
+        UserViewHolder.mIsChoice = true;
+
         refresh_view.setColorSchemeColors(ContextCompat.getColor(this, R.color.blue),
                 ContextCompat.getColor(this, R.color.colorPrimary));
         rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
-        adapter = new TagsAdapter<CustomContacts.LetterStructure>(R.layout.letter_item_layout) {
-            @Override
-            public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                if (viewType == HEADER
-                        || viewType == FOOTER) {
-                    return super.onCreateViewHolder(parent, viewType);
-                }
-
-                final EXTViewHolder holder = super.onCreateViewHolder(parent, viewType);
-                return holder;
-            }
-
-            @Override
-            public void onBindTagViewHolder(EXTViewHolder extViewHolder, int i, CustomContacts.LetterStructure data) {
-                if (i < getHeaderViewsCount()) {
-                    return;
-                }
-                extViewHolder.setText(R.id.letter_item_txt, String.valueOf(data.letter));
-                ContactsItemAdapter itemAdapter = new ContactsItemAdapter(ShareChooseActivity.this,
-                        data.users, mCustomContacts.get(i - getHeaderViewsCount()).letter,
-                        false,
-                        null);
-                itemAdapter.setOnItemClickLinstener((position, user) -> {
-                    ArrayList<UserInfo> users = new ArrayList<>();
-                    UserInfo info = new UserInfo(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode);
-                    users.add(info);
-                    sharePopupWindow = new SharePopupWindow(ShareChooseActivity.this, users, user);
-                    sharePopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
-                    sharePopupWindow.showData(getIntent().getExtras());
-                });
-
-                RecyclerView recyclerView = extViewHolder.findViewById(R.id.letter_item_recycler);
-                recyclerView.setLayoutManager(new SafeLinearLayoutManager(ShareChooseActivity.this, LinearLayoutManager.VERTICAL, false));
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setNestedScrollingEnabled(false);
-                recyclerView.setAdapter(itemAdapter);
-            }
-        };
+        rct_view.setAdapter(adapter);
 
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -162,12 +166,13 @@ public class ShareChooseActivity extends AppBaseActivity {
             @Override
             public void onTouchingLetterChanged(String s) {
                 int position = -1;
-                if (mCustomContacts == null || mCustomContacts.size() <= 0) {
+                if (mCustomContacts.size() <= 0) {
                     return;
                 }
                 for (int i = 0; i < mCustomContacts.size(); i++) {
-                    if (s.equals(String.valueOf(mCustomContacts.get(i).letter))) {
+                    if (s.equals(String.valueOf(mCustomContacts.get(i).pinyin))) {
                         position = i;
+                        break;
                     }
                 }
                 if (position == -1) {
@@ -176,7 +181,7 @@ public class ShareChooseActivity extends AppBaseActivity {
                 if (position == 0) {
                     rct_view.scrollToPosition(0);
                 } else {
-                    rct_view.scrollToPosition(position + adapter.getHeaderViewsCount());
+                    rct_view.scrollToPosition(position);
                 }
             }
 
@@ -274,68 +279,37 @@ public class ShareChooseActivity extends AppBaseActivity {
     }
 
     public void updateContacts() {
-        new RxUtils<List<User>>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-            @Override
-            public Object doOnThread() {
-                mCustomContacts = getCustomContacts(mAllContacts);
-                return mCustomContacts;
-            }
-
-            @Override
-            public void doOnMain(Object data) {
-                rct_view.setAdapter(adapter);
-                adapter.setDatas(mCustomContacts);
-                adapter.notifyDataSetChanged();
-            }
-        });
+        mCustomContacts.clear();
+        mCustomContacts.addAll(getCustomContacts(mAllContacts));
+        if (mCustomContacts != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
-    private ArrayList<CustomContacts.LetterStructure> getCustomContacts(ArrayList<User> data) {
+    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
-            return null;
-        }
-        CustomContacts customContacts = new CustomContacts();
-        customContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < 27; i++) {
-            CustomContacts.LetterStructure item = new CustomContacts.LetterStructure();
-            if (i != 26) {
-                item.letter = (char) ('A' + i);
-            } else {
-                item.letter = '#';
-            }
-            item.users = null;
-            customContacts.letterStructures.add(item);
+            return new ArrayList<>();
         }
         for (User item : data) {
-            String upPinYin = item.strUserNamePinYin.toUpperCase();
-            String a = "#";
-            char firstLetter = TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0);
-            int index = firstLetter - 'A';
-            if (index >= 0 && index < 26) {
-                if (customContacts.letterStructures.get(index).users == null) {
-                    customContacts.letterStructures.get(index).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(index).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(index).users.add(item);
+            String upPinYin = "";
+            item.isSelected = false;
+            for (User temp : ChoosedContactsNew.get().getContacts()) {
+                if (temp.strUserName.equals(item.strUserName)) {
+                    item.isSelected = true;
+                    break;
                 }
+            }
+            if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
-                if (customContacts.letterStructures.get(26).users == null) {
-                    customContacts.letterStructures.get(26).users = new ArrayList<User>();
-                    customContacts.letterStructures.get(26).users.add(item);
-                } else {
-                    customContacts.letterStructures.get(26).users.add(item);
-                }
+                upPinYin = item.strUserNamePinYin.toUpperCase();
             }
+            String a = "#";
+            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
         }
-        CustomContacts newCustomContacts = new CustomContacts();
-        newCustomContacts.letterStructures = new ArrayList<CustomContacts.LetterStructure>();
-        for (int i = 0; i < customContacts.letterStructures.size(); i++) {
-            if (customContacts.letterStructures.get(i).users != null &&
-                    customContacts.letterStructures.get(i).users.size() > 0) {
-                newCustomContacts.letterStructures.add(customContacts.letterStructures.get(i));
-            }
-        }
-        return newCustomContacts.letterStructures;
+
+        return data;
     }
 
     @OnClick({R.id.tv_group})

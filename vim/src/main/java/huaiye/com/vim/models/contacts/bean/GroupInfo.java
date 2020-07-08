@@ -2,6 +2,7 @@ package huaiye.com.vim.models.contacts.bean;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -24,6 +25,8 @@ public class GroupInfo implements Serializable, Parcelable {
     public int nMsgTop;
     @ColumnInfo
     public int nNoDisturb;
+    @Ignore
+    public boolean isSelected;
 
     public GroupInfo(){
 

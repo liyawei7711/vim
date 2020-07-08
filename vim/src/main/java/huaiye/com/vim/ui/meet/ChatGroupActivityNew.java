@@ -1375,6 +1375,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                     mContactsGroupUserListBean.strGroupName = tempGroup.strGroupName;
                     mContactsGroupUserListBean.strAnnouncement = tempGroup.strAnnouncement;
                     mContactsGroupUserListBean.strHeadUrl = tempGroup.strHeadUrl;
+                    mContactsGroupUserListBean.nInviteMode = tempGroup.nInviteMode;
                     setMessageUsersDate(tempGroup, false);
                 }
 

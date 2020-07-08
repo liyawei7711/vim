@@ -2,7 +2,6 @@ package huaiye.com.vim.ui.fenxiang;
 
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
@@ -61,7 +60,7 @@ public class ShareGroupListActivity extends AppBaseActivity {
     private int currentRequestTime = 0;
     private boolean isFreadList = false;
 
-    ShareGroupPopupWindow shareGroupPopupWindow;
+    ShareGroupPopupWindowDuoXuan shareGroupPopupWindow;
 
     @Override
     protected void initActionBar() {
@@ -71,10 +70,29 @@ public class ShareGroupListActivity extends AppBaseActivity {
     private void initNavigateView() {
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("群组")
+                .setRightText("确定")
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         finish();
+                    }
+                })
+                .setRightClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayList<GroupInfo> groupInfos = new ArrayList<>();
+                        for (GroupInfo temp : mlstGroupInfo) {
+                            if (temp.isSelected) {
+                                groupInfos.add(temp);
+                            }
+                        }
+                        if (groupInfos.isEmpty()) {
+                            showToast("请选择发送对象");
+                            return;
+                        }
+                        shareGroupPopupWindow = new ShareGroupPopupWindowDuoXuan(ShareGroupListActivity.this);
+                        shareGroupPopupWindow.setSendUser(groupInfos, getIntent().getExtras());
+                        shareGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
                     }
                 });
     }
@@ -86,13 +104,12 @@ public class ShareGroupListActivity extends AppBaseActivity {
 
     private void initView() {
 
-        mGroupitemAdapter = new GroupContactsItemAdapter(this, mlstGroupInfo, false, null);
+        mGroupitemAdapter = new GroupContactsItemAdapter(this, mlstGroupInfo, true, null);
         mGroupitemAdapter.setOnItemClickLinstener(new GroupContactsItemAdapter.OnItemClickLinstener() {
             @Override
-            public void onClick(int position, GroupInfo user) {
-                shareGroupPopupWindow = new ShareGroupPopupWindow(ShareGroupListActivity.this);
-                shareGroupPopupWindow.setSendUser(user, getIntent().getExtras());
-                shareGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+            public void onClick(int position, GroupInfo groupInfo) {
+                groupInfo.isSelected = !groupInfo.isSelected;
+                mGroupitemAdapter.notifyItemChanged(mlstGroupInfo.indexOf(groupInfo));
             }
         });
         rct_view_create.setAdapter(mGroupitemAdapter);

@@ -2,7 +2,6 @@ package huaiye.com.vim.ui.zhuanfa;
 
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
@@ -82,7 +81,8 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
     @BindExtra
     ArrayList<SendUserBean> mMessageUsersDate;
 
-    ZhuanFaGroupPopupWindow zhuanFaGroupPopupWindow;
+    ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow;
+
     @Override
     protected void initActionBar() {
         initNavigateView();
@@ -91,10 +91,29 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
     private void initNavigateView() {
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("群组")
+                .setRightText("确定")
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         finish();
+                    }
+                })
+                .setRightClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayList<GroupInfo> groupInfos = new ArrayList<>();
+                        for (GroupInfo temp : mlstGroupInfo) {
+                            if (temp.isSelected) {
+                                groupInfos.add(temp);
+                            }
+                        }
+                        if (groupInfos.isEmpty()) {
+                            showToast("请选择发送对象");
+                            return;
+                        }
+                        zhuanFaGroupPopupWindow.setSendUser(groupInfos);
+                        zhuanFaGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                        zhuanFaGroupPopupWindow.showData(ZhuanFaGroupListActivity.this.data);
                     }
                 });
     }
@@ -105,14 +124,13 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
     }
 
     private void initView() {
-        zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindow(this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
-        mGroupitemAdapter = new GroupContactsItemAdapter(this, mlstGroupInfo, false, null);
+        zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+        mGroupitemAdapter = new GroupContactsItemAdapter(this, mlstGroupInfo, true, null);
         mGroupitemAdapter.setOnItemClickLinstener(new GroupContactsItemAdapter.OnItemClickLinstener() {
             @Override
-            public void onClick(int position, GroupInfo user) {
-                zhuanFaGroupPopupWindow.setSendUser(user);
-                zhuanFaGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
-                zhuanFaGroupPopupWindow.showData(ZhuanFaGroupListActivity.this.data);
+            public void onClick(int position, GroupInfo groupInfo) {
+                groupInfo.isSelected = !groupInfo.isSelected;
+                mGroupitemAdapter.notifyItemChanged(mlstGroupInfo.indexOf(groupInfo));
             }
         });
         rct_view_create.setAdapter(mGroupitemAdapter);
@@ -157,7 +175,7 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
 
                         for (GroupInfo temp : contactsBean.lstGroupInfo) {
 //                            if (!temp.strGroupID.equals(data.groupID)) {
-                                mlstGroupInfo.add(temp);
+                            mlstGroupInfo.add(temp);
 //                            }
                         }
 

@@ -187,6 +187,7 @@ public final class AppUtils {
     public static final int EVENT_UPDATE_GROUP_DETAIL = 100006;//通知前台UI页面群成员信息有变更
     public static final int EVENT_INTENT_CHATSINGLEACTIVITY = 100007;//进入单聊页面,通知前面页面关闭
     public static final int EVENT_MODIFY_GROUPNAME_SUCCESS = 100008;//群名修改成功
+    public static final int EVENT_MODIFY_GROUPYAOQING_SUCCESS = 1000081;//群名邀请权限成功
     public static final int EVENT_MODIFY_GROUP_ANNOUNCEMENT_SUCCESS = 100009;//群公告修改成功
     public static final int EVENT_COMING_NEW_MESSAGE = 100010;//来新消息刷新最新的消息
     public static final int EVENT_CLEAR_MESSAGE_SUCCESS = 100011;//消息记录清楚成功广播

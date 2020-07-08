@@ -98,7 +98,7 @@ public class GroupContactsItemAdapter extends RecyclerView.Adapter<RecyclerView.
                     new ModelCallback<ContactsGroupUserListBean>() {
                         @Override
                         public void onSuccess(final ContactsGroupUserListBean contactsBean) {
-                            if(contactsBean != null) {
+                            if (contactsBean != null) {
                                 ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(mDataList.get(position).strGroupID + "", contactsBean);
                             }
                             if (null != contactsBean && null != contactsBean.lstGroupUser && contactsBean.lstGroupUser.size() > 0) {
@@ -121,6 +121,13 @@ public class GroupContactsItemAdapter extends RecyclerView.Adapter<RecyclerView.
                     });
         } else {
             viewHolder.tv_user_name.setText(mDataList.get(position).strGroupName);
+        }
+
+        if (mIsChoice) {
+            viewHolder.iv_choice.setVisibility(View.VISIBLE);
+            viewHolder.iv_choice.setImageResource(mDataList.get(position).isSelected ? R.drawable.ic_choice_checked : R.drawable.ic_choice);
+        } else {
+            viewHolder.iv_choice.setVisibility(View.GONE);
         }
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {

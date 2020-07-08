@@ -21,5 +21,6 @@ public class CreateGroupContactData implements Serializable {
     public String strGroupDomainCode;
     public String strGroupID;
     public String sessionName;
+    public int nInviteMode = -1;//0可以   1不可以
     public ArrayList<User> userList;
 }
