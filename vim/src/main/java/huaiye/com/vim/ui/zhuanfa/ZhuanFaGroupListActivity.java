@@ -81,11 +81,21 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
     @BindExtra
     ArrayList<SendUserBean> mMessageUsersDate;
 
-    ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow;
-
     @Override
     protected void initActionBar() {
         initNavigateView();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        ZhuanFaUserAndGroup.get().clearGroup();
+        for (GroupInfo temp : mlstGroupInfo) {
+            if (temp.isSelected) {
+                ZhuanFaUserAndGroup.get().add(temp);
+            }
+        }
     }
 
     private void initNavigateView() {
@@ -95,25 +105,57 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        finish();
+                        onBackPressed();
                     }
                 })
                 .setRightClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ArrayList<GroupInfo> groupInfos = new ArrayList<>();
+                        ZhuanFaUserAndGroup.get().clearGroup();
                         for (GroupInfo temp : mlstGroupInfo) {
                             if (temp.isSelected) {
-                                groupInfos.add(temp);
+                                ZhuanFaUserAndGroup.get().add(temp);
                             }
                         }
-                        if (groupInfos.isEmpty()) {
+                        if (ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getUsers().isEmpty()) {
                             showToast("请选择发送对象");
                             return;
                         }
-                        zhuanFaGroupPopupWindow.setSendUser(groupInfos);
-                        zhuanFaGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
-                        zhuanFaGroupPopupWindow.showData(ZhuanFaGroupListActivity.this.data);
+
+                        if (!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaGroupListActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaGroupPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos());
+                            zhuanFaGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            zhuanFaGroupPopupWindow.showData(ZhuanFaGroupListActivity.this.data, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaGroupListActivity.this, strUserID,
+                                            strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                                    zhuanFaPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getUsers());
+                                    zhuanFaPopupWindow.showData(ZhuanFaGroupListActivity.this.data, null);
+                                    zhuanFaPopupWindow.sendMessage();
+
+                                    zhuanFaGroupPopupWindow.sendMessage();
+                                }
+                            });
+
+                        } else if(!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaGroupListActivity.this, strUserID,
+                                    strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getUsers());
+                            zhuanFaPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            zhuanFaPopupWindow.showData(ZhuanFaGroupListActivity.this.data);
+                        } else if(ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaGroupListActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaGroupPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos());
+                            zhuanFaGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            zhuanFaGroupPopupWindow.showData(ZhuanFaGroupListActivity.this.data);
+                        }
+
                     }
                 });
     }
@@ -124,7 +166,6 @@ public class ZhuanFaGroupListActivity extends AppBaseActivity {
     }
 
     private void initView() {
-        zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
         mGroupitemAdapter = new GroupContactsItemAdapter(this, mlstGroupInfo, true, null);
         mGroupitemAdapter.setOnItemClickLinstener(new GroupContactsItemAdapter.OnItemClickLinstener() {
             @Override

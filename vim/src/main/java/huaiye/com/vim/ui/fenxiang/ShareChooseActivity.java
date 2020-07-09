@@ -3,13 +3,10 @@ package huaiye.com.vim.ui.fenxiang;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
@@ -23,7 +20,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
@@ -38,19 +34,17 @@ import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.User;
-import huaiye.com.vim.dao.msgs.UserInfo;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
-import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.auth.StartActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
-import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
+import huaiye.com.vim.ui.zhuanfa.ZhuanFaChooseActivity;
+import huaiye.com.vim.ui.zhuanfa.ZhuanFaGroupPopupWindowDuoFa;
+import huaiye.com.vim.ui.zhuanfa.ZhuanFaUserAndGroup;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
-import ttyy.com.recyclerexts.base.EXTViewHolder;
-import ttyy.com.recyclerexts.tags.TagsAdapter;
 
 /**
  * author: admin
@@ -83,6 +77,8 @@ public class ShareChooseActivity extends AppBaseActivity {
 
     @Override
     protected void initActionBar() {
+        ZhuanFaUserAndGroup.get().clearAll();
+
         EventBus.getDefault().register(this);
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("联系人")
@@ -94,21 +90,51 @@ public class ShareChooseActivity extends AppBaseActivity {
                     }
                 })
                 .setRightClickListener(new View.OnClickListener() {
-                    @Override
+
                     public void onClick(View v) {
-                        ArrayList<User> users = new ArrayList<>();
-                        for(User temp : mCustomContacts) {
-                            if(temp.isSelected) {
-                                users.add(temp);
+                        ZhuanFaUserAndGroup.get().clearUser();
+                        for (User temp : mCustomContacts) {
+                            if (temp.isSelected) {
+                                ZhuanFaUserAndGroup.get().add(temp);
                             }
                         }
-                        if(users.isEmpty()) {
+
+                        if (ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getUsers().isEmpty()) {
                             showToast("请选择分享对象");
                             return;
                         }
-                        sharePopupWindow = new SharePopupWindowDuoXuan(ShareChooseActivity.this, users);
-                        sharePopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
-                        sharePopupWindow.showData(getIntent().getExtras());
+
+                        if (!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+
+                            ShareGroupPopupWindowDuoXuan shareGroupPopupWindowDuoXuan = new ShareGroupPopupWindowDuoXuan(ShareChooseActivity.this);
+                            shareGroupPopupWindowDuoXuan.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos(), getIntent().getExtras());
+                            shareGroupPopupWindowDuoXuan.showData(null);
+
+                            SharePopupWindowDuoXuan sharePopupWindow = new SharePopupWindowDuoXuan(ShareChooseActivity.this, ZhuanFaUserAndGroup.get().getUsers());
+                            sharePopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            sharePopupWindow.showData(getIntent().getExtras(), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    shareGroupPopupWindowDuoXuan.sendMessage();
+
+                                    sharePopupWindow.sendMessage();
+                                }
+                            });
+
+                        } else if (!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            SharePopupWindowDuoXuan sharePopupWindow = new SharePopupWindowDuoXuan(ShareChooseActivity.this, ZhuanFaUserAndGroup.get().getUsers());
+                            sharePopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            sharePopupWindow.showData(getIntent().getExtras());
+                        } else if (ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            ShareGroupPopupWindowDuoXuan shareGroupPopupWindow = new ShareGroupPopupWindowDuoXuan(ShareChooseActivity.this);
+                            shareGroupPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos(), getIntent().getExtras());
+                            shareGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            shareGroupPopupWindow.showData();
+                        }
                     }
                 });
     }
@@ -208,8 +234,8 @@ public class ShareChooseActivity extends AppBaseActivity {
                     @Override
                     public void onSuccess(ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                            for(User user : contactsBean.userList) {
-                                if(user.strUserID.equals(AppAuth.get().getUserID())) {
+                            for (User user : contactsBean.userList) {
+                                if (user.strUserID.equals(AppAuth.get().getUserID())) {
                                     contactsBean.userList.remove(user);
                                     break;
                                 }
@@ -230,7 +256,7 @@ public class ShareChooseActivity extends AppBaseActivity {
 
     private void doCallBack() {
         totalRequest--;
-        if(totalRequest == 0) {
+        if (totalRequest == 0) {
             refresh_view.setRefreshing(false);
             new RxUtils<ArrayList<User>>()
                     .doOnThreadObMain(new RxUtils.IThreadAndMainDeal<ArrayList<User>>() {
@@ -314,6 +340,14 @@ public class ShareChooseActivity extends AppBaseActivity {
 
     @OnClick({R.id.tv_group})
     public void onClick(View view) {
+
+        ZhuanFaUserAndGroup.get().clearUser();
+        for (User temp : mCustomContacts) {
+            if (temp.isSelected) {
+                ZhuanFaUserAndGroup.get().add(temp);
+            }
+        }
+
         Intent intent = getIntent();
         intent.setClass(this, ShareGroupListActivity.class);
         startActivity(intent);
@@ -348,6 +382,7 @@ public class ShareChooseActivity extends AppBaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ZhuanFaUserAndGroup.get().clearAll();
         EventBus.getDefault().unregister(this);
     }
 

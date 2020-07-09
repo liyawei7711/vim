@@ -126,11 +126,11 @@ public class ScreenNotify {
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setChannelId(context.getPackageName());
             NotificationChannel channel = new NotificationChannel(context.getPackageName(),
-                    "会话消息(掌嗨)",
-                    NotificationManager.IMPORTANCE_DEFAULT                     );
+                    "111",
+                    NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
-            notificationManager.notify(0,notification.build());
-        }else{
+            notificationManager.notify(0, notification.build());
+        } else {
             Notification.Builder notification = new Notification.Builder(context)
                     .setContentTitle(title)
                     .setContentText(msg)
@@ -140,10 +140,14 @@ public class ScreenNotify {
                     .setContentIntent(pIntent)
                     .setWhen(System.currentTimeMillis())
                     .setDefaults(Notification.DEFAULT_ALL);
-            notificationManager.notify(0,notification.build());
+            notificationManager.notify(0, notification.build());
         }
 
-        notificationManager.notify(NOTIFY_ID, notificationBuilder.build());
+        try {
+            notificationManager.notify(NOTIFY_ID, notificationBuilder.build());
+        } catch (Exception e) {
+            System.out.println("cccccccccccccccccccccccccccc "+e.getMessage());
+        }
     }
 
 

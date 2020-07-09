@@ -3,12 +3,10 @@ package huaiye.com.vim.ui.zhuanfa;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
@@ -43,14 +41,10 @@ import huaiye.com.vim.dao.msgs.UserInfo;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
-import huaiye.com.vim.models.contacts.bean.CustomContacts;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
-import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
-import ttyy.com.recyclerexts.base.EXTViewHolder;
-import ttyy.com.recyclerexts.tags.TagsAdapter;
 
 /**
  * author: admin
@@ -95,10 +89,11 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     String strGroupDomain;
     @BindExtra
     ArrayList<SendUserBean> mMessageUsersDate;
-    ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow;
 
     @Override
     protected void initActionBar() {
+        ZhuanFaUserAndGroup.get().clearAll();
+
         EventBus.getDefault().register(this);
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("联系人")
@@ -112,26 +107,59 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
                 .setRightClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ArrayList<User> users = new ArrayList<>();
-                        for(User temp : mCustomContacts) {
-                            if(temp.isSelected) {
-                                users.add(temp);
+                        ZhuanFaUserAndGroup.get().clearUser();
+                        for (User temp : mCustomContacts) {
+                            if (temp.isSelected) {
+                                ZhuanFaUserAndGroup.get().add(temp);
                             }
                         }
-                        if(users.isEmpty()) {
+
+                        if (ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getUsers().isEmpty()) {
                             showToast("请选择发送对象");
                             return;
                         }
-                        zhuanFaPopupWindow.setSendUser(users);
-                        zhuanFaPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
-                        zhuanFaPopupWindow.showData(ZhuanFaChooseActivity.this.data);
+
+                        if (!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+
+                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaChooseActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaGroupPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos());
+                            zhuanFaGroupPopupWindow.showData(ZhuanFaChooseActivity.this.data, null);
+
+                            ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaChooseActivity.this, strUserID,
+                                    strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getUsers());
+                            zhuanFaPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            zhuanFaPopupWindow.showData(ZhuanFaChooseActivity.this.data, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    zhuanFaGroupPopupWindow.sendMessage();
+
+                                    zhuanFaPopupWindow.sendMessage();
+                                }
+                            });
+
+                        } else if(!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaChooseActivity.this, strUserID,
+                                    strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getUsers());
+                            zhuanFaPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            zhuanFaPopupWindow.showData(ZhuanFaChooseActivity.this.data);
+                        } else if(ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaChooseActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaGroupPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos());
+                            zhuanFaGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            zhuanFaGroupPopupWindow.showData(ZhuanFaChooseActivity.this.data);
+                        }
                     }
                 });
     }
 
     @Override
     public void doInitDelay() {
-        zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
 
         adapter = new LiteBaseAdapter<>(this,
                 mCustomContacts,
@@ -315,6 +343,14 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
 
     @OnClick({R.id.tv_group})
     public void onClick(View view) {
+
+        ZhuanFaUserAndGroup.get().clearUser();
+        for (User temp : mCustomContacts) {
+            if (temp.isSelected) {
+                ZhuanFaUserAndGroup.get().add(temp);
+            }
+        }
+
         Intent intent = new Intent(this, ZhuanFaGroupListActivity.class);
         intent.putExtra("data", data);
         intent.putExtra("users", users);
@@ -348,14 +384,14 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(final CloseZhuanFa messageEvent) {
+    public void onEvent(CloseZhuanFa messageEvent) {
         finish();
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ZhuanFaUserAndGroup.get().clearAll();
         EventBus.getDefault().unregister(this);
     }
 

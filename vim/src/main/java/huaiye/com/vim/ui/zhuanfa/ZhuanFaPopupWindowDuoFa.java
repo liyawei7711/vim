@@ -93,7 +93,9 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
     File fC_MINGWEN;
     File fC_LINSHI;
 
-    public ZhuanFaPopupWindowDuoFa(Context context, ArrayList<UserInfo> users, String strUserID, String strUserDomainCode,
+    View.OnClickListener onClickListener;
+
+    public ZhuanFaPopupWindowDuoFa(Context context, String strUserID, String strUserDomainCode,
                                    boolean isGroup, String strGroupID, String strGroupDomain) {
         super(context);
         mContext = context;
@@ -172,11 +174,19 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
             public void onClick(View v) {
                 tv_send.setEnabled(false);
 
-                for(User temp : users) {
-                    sendMessage(temp);
+                if(onClickListener != null) {
+                    onClickListener.onClick(v);
+                } else {
+                    sendMessage();
                 }
             }
         });
+    }
+
+    public void sendMessage() {
+        for(User temp : users) {
+            sendMessage(temp);
+        }
     }
 
     public void setSendUser(ArrayList<User> users) {
@@ -408,10 +418,87 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
                 .load(AppDatas.Constants().getFileServerURL() + users.get(0).strHeadUrl)
                 .apply(requestOptions)
                 .into(iv_head);
+
         if (users.size() == 1) {
             tv_name.setText(users.get(0).strUserName);
         } else {
-            tv_name.setText(users.get(0).strUserName + "等人");
+            tv_name.setText(users.get(0).strUserName + "等对象");
+        }
+
+        if (AppUtils.MESSAGE_TYPE_TEXT == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+
+            tv_content.setText(data.msgTxt);
+
+        } else if (AppUtils.MESSAGE_TYPE_IMG == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.VISIBLE);
+            tv_content.setVisibility(View.GONE);
+            showImg();
+        } else if (AppUtils.MESSAGE_TYPE_FILE == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+            tv_content.setText(data.fileName == null ? data.fileUrl.substring(data.fileUrl.lastIndexOf("_") + 1) : data.fileName);
+            loadFile();
+        } else if (AppUtils.MESSAGE_TYPE_AUDIO_FILE == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+            tv_content.setText("转发语音信息:" + WeiXinDateFormat.getChatTime(data.time));
+            loadAudio();
+        } else if (AppUtils.MESSAGE_TYPE_VIDEO_FILE == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+            tv_content.setText("转发视频信息:" + WeiXinDateFormat.getChatTime(data.time));
+            loadVideo();
+        } else if (AppUtils.MESSAGE_TYPE_SHARE == data.type) {
+            fl_common.setVisibility(View.GONE);
+            ll_share.setVisibility(View.VISIBLE);
+            try {
+                tv_title.setText(data.msgTxt);
+                tv_title.setHint(data.fileUrl);
+            } catch (Exception e) {
+            }
+            tv_content_share.setHint(data.summary);
+        } else {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+
+            tv_content.setText(data.msgTxt);
+
+        }
+
+    }
+    public void showData(ChatMessageBase data, View.OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+        if (tv_send != null) {
+            tv_send.setEnabled(true);
+        }
+        this.data = data;
+        if(onClickListener == null) {
+            return;
+        }
+
+        Glide.with(mContext)
+                .load(AppDatas.Constants().getFileServerURL() + users.get(0).strHeadUrl)
+                .apply(requestOptions)
+                .into(iv_head);
+
+        if (users.size() == 1) {
+            tv_name.setText(users.get(0).strUserName);
+        } else {
+            tv_name.setText(users.get(0).strUserName + "等对象");
         }
 
         if (AppUtils.MESSAGE_TYPE_TEXT == data.type) {

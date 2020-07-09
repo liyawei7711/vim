@@ -62,6 +62,8 @@ public class SharePopupWindowDuoXuan extends PopupWindow {
 
     RequestOptions requestOptions;
 
+    View.OnClickListener onClickListener;
+
     public SharePopupWindowDuoXuan(Context context, ArrayList<User> users) {
         super(context);
         mContext = context;
@@ -113,11 +115,19 @@ public class SharePopupWindowDuoXuan extends PopupWindow {
             @Override
             public void onClick(View v) {
                 tv_send.setEnabled(false);
-                for (User temp : users) {
-                    sendTxtMsg(temp);
+                if(onClickListener != null) {
+                    onClickListener.onClick(v);
+                } else {
+                    sendMessage();
                 }
             }
         });
+    }
+
+    public void sendMessage() {
+        for (User temp : users) {
+            sendTxtMsg(temp);
+        }
     }
 
     private void sendTxtMsg(User user) {
@@ -241,6 +251,61 @@ public class SharePopupWindowDuoXuan extends PopupWindow {
     }
 
     public void showData(Bundle data) {
+        if (tv_send != null) {
+            tv_send.setEnabled(true);
+        }
+        this.data = data;
+
+        Glide.with(mContext)
+                .load(AppDatas.Constants().getFileServerURL() + users.get(0).strHeadUrl)
+                .apply(requestOptions)
+                .into(iv_head);
+        if (users.size() == 1) {
+            tv_name.setText(users.get(0).strUserName);
+        } else {
+            tv_name.setText(users.get(0).strUserName + "等人");
+        }
+        //url   //title  //content  //share_source_from  //file
+        //android.intent.extra.SUBJECT
+        //android.intent.extra.TEXT
+        if (TextUtils.isEmpty(data.getString("title"))) {
+            if (data.containsKey("android.intent.extra.SUBJECT")) {
+                tv_title.setText(data.getString("android.intent.extra.SUBJECT"));
+            }
+        } else {
+            tv_title.setText(data.getString("title"));
+        }
+
+        if (TextUtils.isEmpty(data.getString("url"))) {
+            if (TextUtils.isEmpty(data.getString("android.intent.extra.TEXT"))) {
+                tv_title.setHint("url is empty");
+            } else {
+                try {
+                    tv_title.setHint(data.getString("android.intent.extra.TEXT").substring(data.getString("android.intent.extra.TEXT").indexOf("http")));
+                } catch (Exception e) {
+                    tv_title.setHint("url is empty");
+                }
+            }
+        } else {
+            tv_title.setHint(data.getString("url"));
+        }
+        if (TextUtils.isEmpty(data.getString("content"))) {
+            tv_content.setText(tv_title.getText());
+        } else {
+            tv_content.setText(data.getString("content"));
+        }
+        tv_from.setText(TextUtils.isEmpty(data.getString("share_source_from")) ? "" : data.getString("share_source_from"));
+        Glide.with(mContext)
+                .load(data.getString("file"))
+                .apply(requestOptions)
+                .into(iv_content);
+
+    }
+    public void showData(Bundle data, View.OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+        if (tv_send != null) {
+            tv_send.setEnabled(true);
+        }
         this.data = data;
 
         Glide.with(mContext)

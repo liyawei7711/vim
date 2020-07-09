@@ -91,14 +91,17 @@ public class GroupInfoViewHolder extends LiteViewHolder {
                                 if (null != sb && sb.indexOf("、") >= 0) {
                                     sb.deleteCharAt(sb.lastIndexOf("、"));
                                 }
-                                tv_user_name.setText(sb);
                                 groupInfo.strGroupName = sb.toString();
+                                tv_user_name.setText(groupInfo.strGroupName);
+                            } else {
+                                tv_user_name.setText("临时群组（0）");
                             }
                         }
 
                         @Override
                         public void onFailure(HTTPResponse httpResponse) {
                             super.onFailure(httpResponse);
+                            tv_user_name.setText("临时群组（0）");
                         }
                     });
         } else {

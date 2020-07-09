@@ -54,6 +54,7 @@ import java.util.Map;
 import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
+import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.bus.StartTransModelBean;
 import huaiye.com.vim.common.AppBaseActivity;
@@ -1317,6 +1318,14 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             canSendMsg = false;
 //            showToast("群组已被解散");
 //            finish();
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(CloseZhuanFa closeZhuanFa) {
+        if (mContactsBean.strGroupID.equals(closeZhuanFa.strGroupID) &&
+                mContactsBean.strGroupDomainCode.equals(closeZhuanFa.strGroupDomainCode)) {
+            loadMore();
         }
     }
 

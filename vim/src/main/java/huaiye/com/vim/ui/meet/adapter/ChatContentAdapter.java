@@ -731,7 +731,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             viewHolder.left_yuehoujifeng_look.setVisibility(View.GONE);
         }
 
-        if(!TextUtils.isEmpty(data.extend2)) {
+        if (!TextUtils.isEmpty(data.extend2)) {
             viewHolder.left_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_chakan);
         } else {
             viewHolder.left_yuehoujifeng_img.setImageResource(R.drawable.yuehoujifen_weichakan);
@@ -1786,7 +1786,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
-            if(canSelected) {
+            if (canSelected) {
                 return;
             }
             if (data.bEncrypt == 1 && !data.isUnEncrypt) {
@@ -1915,7 +1915,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
-            if(canSelected) {
+            if (canSelected) {
                 return;
             }
             if (data.isPlaying) {
@@ -1991,7 +1991,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
-            if(canSelected) {
+            if (canSelected) {
                 return;
             }
             Intent intent = new Intent(mContext, ImageShowActivity.class);
@@ -2057,7 +2057,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public void onClick(View v) {
-            if(canSelected) {
+            if (canSelected) {
                 return;
             }
             if (data.bEncrypt == 1 && !data.isUnEncrypt) {
@@ -2327,7 +2327,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             intent.putExtra("name", name);
             mContext.startActivity(intent);
         } else {
-            if(nEncryptIMEnable) {
+            if (nEncryptIMEnable) {
                 showToast("不支持该格式文件");
             } else {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -3193,8 +3193,8 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             dataList.add(AppUtils.getString(R.string.user_detail_zhuanfa_perple));
         }
         dataList.add(AppUtils.getString(R.string.user_detail_del_perple));
-        dataList.add(AppUtils.getString(R.string.user_detail_tans));
-        dataList.add(AppUtils.getString(R.string.user_detail_duoxuan));
+//        dataList.add(AppUtils.getString(R.string.user_detail_tans));
+//        dataList.add(AppUtils.getString(R.string.user_detail_duoxuan));
         mPopupWindowList = new PopupWindowList(view.getContext());
         mPopupWindowList.setAnchorView(view);
         mPopupWindowList.setItemData(dataList);
@@ -3236,6 +3236,19 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             all_file.clear();
                             notifyDataSetChanged();
                             EventBus.getDefault().post(new StartTransModelBean(canSelected));
+                            break;
+                    }
+                } else if (dataList.size() == 2) {
+                    switch (position) {
+                        case 0://转发
+                            delZhuanFaMessage(data);
+                            break;
+                        case 1://删除
+                            if (data.bEncrypt == 1 && !data.isUnEncrypt) {
+                                showToast("信息尚未解密");
+                            } else {
+                                deleChatRecord(data);
+                            }
                             break;
                     }
                 } else {

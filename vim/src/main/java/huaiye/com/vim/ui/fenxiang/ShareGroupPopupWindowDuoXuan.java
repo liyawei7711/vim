@@ -19,8 +19,6 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
-import com.huaiye.cmf.sdp.SdpMessageCmProcessIMReq;
-import com.huaiye.cmf.sdp.SdpMessageCmProcessIMRsp;
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.core.SdkCallback;
 import com.huaiye.sdk.sdkabi._api.ApiSocial;
@@ -34,7 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.common.AppBaseActivity;
@@ -53,9 +50,6 @@ import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
-
-import static huaiye.com.vim.common.AppBaseActivity.showToast;
-import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 
 public class ShareGroupPopupWindowDuoXuan extends PopupWindow {
     private Context mContext;
@@ -76,6 +70,8 @@ public class ShareGroupPopupWindowDuoXuan extends PopupWindow {
     RequestOptions requestOptions;
 
     boolean hasJump = false;
+
+    View.OnClickListener onClickListener;
 
     public ShareGroupPopupWindowDuoXuan(Context context) {
         super(context);
@@ -127,11 +123,19 @@ public class ShareGroupPopupWindowDuoXuan extends PopupWindow {
             @Override
             public void onClick(View v) {
                 tv_send.setEnabled(false);
-                for (GroupInfo temp : groupInfos) {
-                    sendTxtMsg(temp);
+                if (onClickListener != null) {
+                    onClickListener.onClick(v);
+                } else {
+                    sendMessage();
                 }
             }
         });
+    }
+
+    public void sendMessage() {
+        for (GroupInfo temp : groupInfos) {
+            sendTxtMsg(temp);
+        }
     }
 
     public void setSendUser(ArrayList<GroupInfo> groupInfos, Bundle data) {
@@ -216,7 +220,7 @@ public class ShareGroupPopupWindowDuoXuan extends PopupWindow {
     }
 
     private void jumpToChat() {
-        if(hasJump) {
+        if (hasJump) {
             return;
         }
         hasJump = true;
@@ -231,6 +235,60 @@ public class ShareGroupPopupWindowDuoXuan extends PopupWindow {
     }
 
     public void showData() {
+        if (tv_send != null) {
+            tv_send.setEnabled(true);
+        }
+        Glide.with(mContext)
+                .load(AppDatas.Constants().getFileServerURL() + groupInfos.get(0).strHeadUrl)
+                .apply(requestOptions)
+                .into(iv_head);
+        if (groupInfos.size() == 1) {
+            tv_name.setText(groupInfos.get(0).strGroupName);
+        } else {
+            tv_name.setText(groupInfos.get(0).strGroupName + "等群组");
+        }
+        //url   //title  //content  //share_source_from  //file
+        //android.intent.extra.SUBJECT
+        //android.intent.extra.TEXT
+        if (TextUtils.isEmpty(data.getString("title"))) {
+            if (data.containsKey("android.intent.extra.SUBJECT")) {
+                tv_title.setText(data.getString("android.intent.extra.SUBJECT"));
+            }
+        } else {
+            tv_title.setText(data.getString("title"));
+        }
+
+        if (TextUtils.isEmpty(data.getString("url"))) {
+            if (TextUtils.isEmpty(data.getString("android.intent.extra.TEXT"))) {
+                tv_title.setHint("url is empty");
+            } else {
+                try {
+                    tv_title.setHint(data.getString("android.intent.extra.TEXT").substring(data.getString("android.intent.extra.TEXT").indexOf("http")));
+                } catch (Exception e) {
+                    tv_title.setHint("url is empty");
+                }
+            }
+        } else {
+            tv_title.setHint(data.getString("url"));
+        }
+        if (TextUtils.isEmpty(data.getString("content"))) {
+            tv_content.setText(tv_title.getText());
+        } else {
+            tv_content.setText(data.getString("content"));
+        }
+        tv_from.setText(TextUtils.isEmpty(data.getString("share_source_from")) ? "" : data.getString("share_source_from"));
+        Glide.with(mContext)
+                .load(data.getString("file"))
+                .apply(requestOptions)
+                .into(iv_content);
+    }
+
+    public void showData(View.OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+        if (tv_send != null) {
+            tv_send.setEnabled(true);
+        }
+
         Glide.with(mContext)
                 .load(AppDatas.Constants().getFileServerURL() + groupInfos.get(0).strHeadUrl)
                 .apply(requestOptions)
@@ -285,7 +343,7 @@ public class ShareGroupPopupWindowDuoXuan extends PopupWindow {
     }
 
     void initUserEncrypt() {
-        for(GroupInfo groupInfo : groupInfos) {
+        for (GroupInfo groupInfo : groupInfos) {
             ModelApis.Contacts().requestqueryGroupChatInfo(groupInfo.strGroupDomainCode, groupInfo.strGroupID,
                     new ModelCallback<ContactsGroupUserListBean>() {
                         @Override

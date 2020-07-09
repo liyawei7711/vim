@@ -272,15 +272,19 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             userDetailMessageUntouchCheckbox.setChecked(false);
         }
 
-        if (mContactsBean.userList != null) {
-            cb_allow_user_add.setChecked(false);
-        } else {
-            if (mContactsBean.nInviteMode == 0) {
-                cb_allow_user_add.setChecked(true);
-            } else {
+        if (mContactsBean != null) {
+            if (mContactsBean.userList != null) {
                 cb_allow_user_add.setChecked(false);
+            } else {
+                if (mContactsBean.nInviteMode == 0) {
+                    cb_allow_user_add.setChecked(true);
+                } else {
+                    cb_allow_user_add.setChecked(false);
+                }
+                startEnable = true;
             }
-            startEnable = true;
+        } else {
+            cb_allow_user_add.setChecked(false);
         }
     }
 
@@ -371,7 +375,6 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                 add.strUserID = UserDetailUserListAdapter.TYPE_ADD;
                 mDataList.add(add);
             }
-
         }
 
         userDetailMessageUntouchCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

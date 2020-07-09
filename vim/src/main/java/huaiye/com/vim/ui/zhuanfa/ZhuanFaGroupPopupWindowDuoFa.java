@@ -18,7 +18,6 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.huaiye.cmf.sdp.SdpMessageCmProcessIMReq;
-import com.huaiye.cmf.sdp.SdpMessageCmProcessIMRsp;
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.core.SdkCallback;
 import com.huaiye.sdk.sdkabi._api.ApiSocial;
@@ -33,16 +32,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.bus.CloseZhuanFa;
-import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.downloadutils.ChatContentDownload;
-import huaiye.com.vim.common.helper.ChatLocalPathHelper;
-import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.utils.ChatUtil;
 import huaiye.com.vim.common.utils.WeiXinDateFormat;
 import huaiye.com.vim.dao.AppDatas;
@@ -55,7 +50,6 @@ import huaiye.com.vim.dao.msgs.UserInfo;
 import huaiye.com.vim.dao.msgs.VimMessageBean;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
-import huaiye.com.vim.models.auth.bean.Upload;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
@@ -95,6 +89,8 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
     File fC_BEANDI;
     File fC_MINGWEN;
     File fC_LINSHI;
+
+    View.OnClickListener onClickListener;
 
     public ZhuanFaGroupPopupWindowDuoFa(Context context, ArrayList<UserInfo> users, String strUserID, String strUserDomainCode,
                                         boolean isGroup, String strGroupID, String strGroupDomain) {
@@ -179,11 +175,19 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
             @Override
             public void onClick(View v) {
                 tv_send.setEnabled(false);
-                for (GroupInfo temp : groupInfos) {
-                    sendMessage(temp);
+                if (onClickListener != null) {
+                    onClickListener.onClick(v);
+                } else {
+                    sendMessage();
                 }
             }
         });
+    }
+
+    public void sendMessage() {
+        for (GroupInfo temp : groupInfos) {
+            sendMessage(temp);
+        }
     }
 
     public void setSendUser(ArrayList<GroupInfo> groupInfos) {
@@ -340,7 +344,7 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
                         ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                         showToast("分享成功");
                         dismiss();
-                        EventBus.getDefault().post(new CloseZhuanFa());
+                        EventBus.getDefault().post(new CloseZhuanFa(groupInfo.strGroupID, groupInfo.strGroupDomainCode));
                     }
 
                     @Override
@@ -368,6 +372,9 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
         bean.groupID = groupInfo.strGroupID;
         bean.time = System.currentTimeMillis() / 1000;
         bean.sessionUserList = new ArrayList<>();
+        if (map.get(groupInfo.strGroupID).isEmpty()) {
+            return;
+        }
         bean.sessionUserList.addAll(map.get(groupInfo.strGroupID));
         Gson gson = new Gson();
         HYClient.getModule(ApiSocial.class).sendMessage(SdkParamsCenter.Social.SendMuliteMessage()
@@ -398,7 +405,7 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
                         ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                         showToast("转发成功");
                         dismiss();
-                        EventBus.getDefault().post(new CloseZhuanFa());
+                        EventBus.getDefault().post(new CloseZhuanFa(groupInfo.strGroupID, groupInfo.strGroupDomainCode));
                     }
 
                     @Override
@@ -424,7 +431,83 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
         if (groupInfos.size() == 1) {
             tv_name.setText(groupInfos.get(0).strGroupName);
         } else {
-            tv_name.setText(groupInfos.get(0).strGroupName + "等群组");
+            tv_name.setText(groupInfos.get(0).strGroupName + "等对象");
+        }
+
+        if (AppUtils.MESSAGE_TYPE_TEXT == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+
+            tv_content.setText(data.msgTxt);
+
+        } else if (AppUtils.MESSAGE_TYPE_IMG == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.VISIBLE);
+            tv_content.setVisibility(View.GONE);
+            showImg();
+        } else if (AppUtils.MESSAGE_TYPE_FILE == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+            tv_content.setText(data.fileName == null ? data.fileUrl.substring(data.fileUrl.lastIndexOf("_") + 1) : data.fileName);
+            loadFile();
+        } else if (AppUtils.MESSAGE_TYPE_AUDIO_FILE == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+            tv_content.setText("转发语音信息:" + WeiXinDateFormat.getChatTime(data.time));
+            loadAudio();
+        } else if (AppUtils.MESSAGE_TYPE_VIDEO_FILE == data.type) {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+            tv_content.setText("转发视频信息:" + WeiXinDateFormat.getChatTime(data.time));
+            loadVideo();
+        } else if (AppUtils.MESSAGE_TYPE_SHARE == data.type) {
+            fl_common.setVisibility(View.GONE);
+            ll_share.setVisibility(View.VISIBLE);
+            try {
+                tv_title.setText(data.msgTxt);
+                tv_title.setHint(data.fileUrl);
+            } catch (Exception e) {
+            }
+            tv_content_share.setHint(data.summary);
+        } else {
+            fl_common.setVisibility(View.VISIBLE);
+            ll_share.setVisibility(View.GONE);
+            iv_content.setVisibility(View.GONE);
+            tv_content.setVisibility(View.VISIBLE);
+
+            tv_content.setText(data.msgTxt);
+
+        }
+
+    }
+
+    public void showData(ChatMessageBase data, View.OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+        if (tv_send != null) {
+            tv_send.setEnabled(true);
+        }
+        this.data = data;
+        if (onClickListener == null) {
+            return;
+        }
+
+        Glide.with(mContext)
+                .load(AppDatas.Constants().getFileServerURL() + groupInfos.get(0).strHeadUrl)
+                .apply(requestOptions)
+                .into(iv_head);
+        if (groupInfos.size() == 1) {
+            tv_name.setText(groupInfos.get(0).strGroupName);
+        } else {
+            tv_name.setText(groupInfos.get(0).strGroupName + "等对象");
         }
 
         if (AppUtils.MESSAGE_TYPE_TEXT == data.type) {
@@ -570,7 +653,7 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
     }
 
     void initUserEncrypt() {
-        for(GroupInfo groupInfo : groupInfos) {
+        for (GroupInfo groupInfo : groupInfos) {
             ModelApis.Contacts().requestqueryGroupChatInfo(groupInfo.strGroupDomainCode, groupInfo.strGroupID,
                     new ModelCallback<ContactsGroupUserListBean>() {
                         @Override

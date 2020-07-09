@@ -35,6 +35,7 @@ import huaiye.com.vim.models.contacts.bean.ContactsGroupChatListBean;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
 import huaiye.com.vim.ui.home.adapter.GroupContactsItemAdapter;
+import huaiye.com.vim.ui.zhuanfa.ZhuanFaUserAndGroup;
 import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
@@ -60,11 +61,21 @@ public class ShareGroupListActivity extends AppBaseActivity {
     private int currentRequestTime = 0;
     private boolean isFreadList = false;
 
-    ShareGroupPopupWindowDuoXuan shareGroupPopupWindow;
-
     @Override
     protected void initActionBar() {
         initNavigateView();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        ZhuanFaUserAndGroup.get().clearGroup();
+        for (GroupInfo temp : mlstGroupInfo) {
+            if (temp.isSelected) {
+                ZhuanFaUserAndGroup.get().add(temp);
+            }
+        }
     }
 
     private void initNavigateView() {
@@ -74,25 +85,54 @@ public class ShareGroupListActivity extends AppBaseActivity {
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        finish();
+                        onBackPressed();
                     }
                 })
                 .setRightClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ArrayList<GroupInfo> groupInfos = new ArrayList<>();
+                        ZhuanFaUserAndGroup.get().clearGroup();
                         for (GroupInfo temp : mlstGroupInfo) {
                             if (temp.isSelected) {
-                                groupInfos.add(temp);
+                                ZhuanFaUserAndGroup.get().add(temp);
                             }
                         }
-                        if (groupInfos.isEmpty()) {
-                            showToast("请选择发送对象");
+
+                        if (ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getUsers().isEmpty()) {
+                            showToast("请选择分享对象");
                             return;
                         }
-                        shareGroupPopupWindow = new ShareGroupPopupWindowDuoXuan(ShareGroupListActivity.this);
-                        shareGroupPopupWindow.setSendUser(groupInfos, getIntent().getExtras());
-                        shareGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+
+                        if (!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+
+                            ShareGroupPopupWindowDuoXuan shareGroupPopupWindowDuoXuan = new ShareGroupPopupWindowDuoXuan(ShareGroupListActivity.this);
+                            shareGroupPopupWindowDuoXuan.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos(), getIntent().getExtras());
+                            shareGroupPopupWindowDuoXuan.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            shareGroupPopupWindowDuoXuan.showData(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    SharePopupWindowDuoXuan sharePopupWindow = new SharePopupWindowDuoXuan(ShareGroupListActivity.this, ZhuanFaUserAndGroup.get().getUsers());
+                                    sharePopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                                    sharePopupWindow.showData(getIntent().getExtras(), null);
+                                    sharePopupWindow.sendMessage();
+
+                                    shareGroupPopupWindowDuoXuan.sendMessage();
+                                }
+                            });
+                        } else if (!ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            SharePopupWindowDuoXuan sharePopupWindow = new SharePopupWindowDuoXuan(ShareGroupListActivity.this, ZhuanFaUserAndGroup.get().getUsers());
+                            sharePopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            sharePopupWindow.showData(getIntent().getExtras());
+                        } else if (ZhuanFaUserAndGroup.get().getUsers().isEmpty() &&
+                                !ZhuanFaUserAndGroup.get().getGroupInfos().isEmpty()) {
+                            ShareGroupPopupWindowDuoXuan shareGroupPopupWindow = new ShareGroupPopupWindowDuoXuan(ShareGroupListActivity.this);
+                            shareGroupPopupWindow.setSendUser(ZhuanFaUserAndGroup.get().getGroupInfos(), getIntent().getExtras());
+                            shareGroupPopupWindow.showAtLocation(fl_root, Gravity.CENTER, 0, 0);
+                            shareGroupPopupWindow.showData();
+                        }
                     }
                 });
     }
