@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
+import huaiye.com.vim.R;
+import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
+import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.EncyptJsonDao;
 import huaiye.com.vim.models.ModelCallback;
@@ -26,6 +30,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.Okio;
+import okio.Source;
 import ttyy.com.jinnetwork.Https;
 import ttyy.com.jinnetwork.core.callback.HTTPCallback;
 import ttyy.com.jinnetwork.core.work.HTTPRequest;
@@ -230,23 +238,46 @@ public class DownloadApi {
      *
      * @param file
      */
-    public void uploadFile(ModelCallback<Upload> callback, final File file, String end) {
+    public void uploadFile(ModelCallback<Upload> callback, final File file, String end, DownloadLoadView downloadLoadView) {
         String URL = AppDatas.Constants().getFileServerURL() + end;
 
         try {
-            httppost(callback, URL, file.getPath(), file.getName());
+            httppost(callback, URL, file.getPath(), file.getName(), downloadLoadView);
         } catch (Exception e) {
             callback.onFailure(null);
             e.printStackTrace();
         }
     }
 
-    private void httppost(final ModelCallback<Upload> callback, String url, String filePath, String fileName) throws Exception {
+    private void httppost(final ModelCallback<Upload> callback, String url, String filePath, String fileName, final DownloadLoadView downloadLoadView) throws Exception {
         OkHttpClient Client = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file1", fileName,
-                        RequestBody.create(MediaType.parse("multipart/form-data"), new File(filePath)))
+                        createCustomRequestBody(MediaType.parse("multipart/form-data"), new File(filePath), new ProgressListener() {
+                            @Override
+                            public void onProgress(long totalBytes, long remainingBytes, boolean done) {
+                                System.out.println("ccccccccccccccccccccc "+totalBytes+"   "+remainingBytes);
+                                new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
+                                    @Override
+                                    public Object doOnThread() {
+                                        return "";
+                                    }
+
+                                    @Override
+                                    public void doOnMain(Object data) {
+                                        if(downloadLoadView != null) {
+                                            downloadLoadView.loadingText(fileName).setLoading();
+                                            downloadLoadView.setProgress(totalBytes, remainingBytes);
+
+                                            if(done || remainingBytes == 0) {
+                                                downloadLoadView.dismiss();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }))
                 .build();
 
         Request request = new Request.Builder()
@@ -273,6 +304,38 @@ public class DownloadApi {
 
             }
         });
+    }
+
+    public static RequestBody createCustomRequestBody(final MediaType contentType, final File file, final ProgressListener listener) {
+        return new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return contentType;
+            }
+
+            @Override
+            public long contentLength() {
+                return file.length();
+            }
+
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                Source source;
+                try {
+                    source = Okio.source(file);
+                    //sink.writeAll(source);
+                    Buffer buf = new Buffer();
+                    Long remaining = contentLength();
+                    for (long readCount; (readCount = source.read(buf, 2048)) != -1; ) {
+                        sink.write(buf, readCount);
+                        listener.onProgress(contentLength(), remaining -= readCount, remaining == 0);
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 
     private String readTextFromSDcard(File file) {

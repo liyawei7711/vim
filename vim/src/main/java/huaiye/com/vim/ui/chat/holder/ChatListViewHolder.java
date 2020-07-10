@@ -34,6 +34,7 @@ import huaiye.com.vim.dao.msgs.VimMessageListBean;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
+import huaiye.com.vim.ui.home.FragmentMessages;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static huaiye.com.vim.common.AppUtils.MESSAGE_TYPE_ADDRESS;
@@ -120,45 +121,10 @@ public class ChatListViewHolder extends LiteViewHolder {
             }
         }
         if (TextUtils.isEmpty(bean.sessionName)) {
-            if (bean.sessionUserList != null && !bean.sessionUserList.isEmpty()) {
-                StringBuilder sb = new StringBuilder("");
-                for (SendUserBean temp : bean.sessionUserList) {
-                    sb.append(temp.strUserName + "、");
-                }
-                if (null != sb && sb.indexOf("、") >= 0) {
-                    sb.deleteCharAt(sb.lastIndexOf("、"));
-                }
-                bean.sessionName = sb.toString();
-                item_name.setText(bean.sessionName);
+            if(FragmentMessages.mapGroupName.get(bean.groupID) != null) {
+                bean.sessionName = FragmentMessages.mapGroupName.get(bean.groupID);
             } else {
-                ModelApis.Contacts().requestqueryGroupChatInfo(bean.groupDomainCode, bean.groupID,
-                        new ModelCallback<ContactsGroupUserListBean>() {
-                            @Override
-                            public void onSuccess(final ContactsGroupUserListBean contactsBean) {
-                                if (contactsBean != null) {
-                                    ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(bean.groupID + "", contactsBean);
-                                }
-                                if (null != contactsBean && null != contactsBean.lstGroupUser && contactsBean.lstGroupUser.size() > 0) {
-                                    StringBuilder sb = new StringBuilder("");
-                                    for (ContactsGroupUserListBean.LstGroupUser temp : contactsBean.lstGroupUser) {
-                                        sb.append(temp.strUserName + "、");
-                                    }
-                                    if (null != sb && sb.indexOf("、") >= 0) {
-                                        sb.deleteCharAt(sb.lastIndexOf("、"));
-                                    }
-                                    bean.sessionName = sb.toString();
-                                    item_name.setText(bean.sessionName);
-                                } else {
-                                    item_name.setText("临时群组（0）");
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(HTTPResponse httpResponse) {
-                                super.onFailure(httpResponse);
-                                item_name.setText("临时群组（0）");
-                            }
-                        });
+                bean.sessionName = "群组(0)";
             }
         }
         item_name.setText(bean.sessionName);
@@ -322,53 +288,6 @@ public class ChatListViewHolder extends LiteViewHolder {
                 .load(AppDatas.Constants().getAddressWithoutPort() + bean.strHeadUrl)
                 .apply((bean.groupType == 1 || bean.groupType == 2) ? requestGroupHeadOptions : requestFriendHeadOptions)
                 .into(headPicView);
-        /*if(!TextUtils.isEmpty(bean.strHeadUrl)){
-
-        }else{
-            new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-                @Override
-                public Object doOnThread() {
-                    if(bean.groupType==1){
-                        bean.strHeadUrl = AppDatas.MsgDB().getGroupListDao().getGroupHeadPic(bean.groupID,bean.groupDomainCode);
-                    }else{
-                        //单聊
-                        ArrayList<SendUserBean> messageUsers = bean.sessionUserList;
-                        if (messageUsers != null && messageUsers.size() > 0) {
-                            if (messageUsers.size() != 2) {
-                                Logger.err("receive single chat list not 2 is " + messageUsers.size());
-                                return "";
-                            }
-                            SendUserBean friend = null;
-                            for(SendUserBean sendUserBean:messageUsers){
-                                if(!sendUserBean.strUserID.equals(AppDatas.Auth().getUserID())){
-                                    friend = sendUserBean;
-                                    break;
-                                }
-                            }
-                            bean.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(friend.strUserID,friend.strUserDomainCode);
-
-                        }
-
-                    }
-                    return "";
-                }
-
-                @Override
-                public void doOnMain(Object data) {
-                    if(TextUtils.isEmpty(bean.strHeadUrl)){
-                        headPicView.setImageResource(bean.groupType==1?R.drawable.ic_group_chat:R.drawable.default_image_personal);
-                    }else{
-                        Glide.with(context)
-                                .load(AppDatas.Constants().getAddressWithoutPort() + bean.strHeadUrl)
-                                .apply(bean.groupType==1?requestGroupHeadOptions:requestFriendHeadOptions)
-                                .into(headPicView);
-                    }
-
-                }
-            });
-
-        }*/
-
     }
 
 }

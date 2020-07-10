@@ -4,8 +4,6 @@ import android.text.TextUtils;
 
 import com.huaiye.sdk.sdpmsgs.social.SendUserBean;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +16,6 @@ import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.LstOutUserBean;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.CommonResult;
-import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.ModelSDKErrorResp;
 import huaiye.com.vim.models.contacts.bean.CommonContacts;
@@ -81,10 +78,11 @@ public class ContactsApi {
                 .requestAsync();
 
     }
+
     /**
      * 获取联系人
      */
-    public void requestContactsByKey(String strDomainCode, String strKeywords,ModelCallback<ContactsBean> callback) {
+    public void requestContactsByKey(String strDomainCode, String strKeywords, ModelCallback<ContactsBean> callback) {
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
 
         Https.post(URL)
@@ -105,7 +103,7 @@ public class ContactsApi {
 
     }
 
-    public void requestContactsByKeyWhithOutUserName(String strDomainCode, String strUserID,ModelCallback<ContactsBean> callback) {
+    public void requestContactsByKeyWhithOutUserName(String strDomainCode, String strUserID, ModelCallback<ContactsBean> callback) {
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
 
         Https.post(URL)
@@ -303,7 +301,7 @@ public class ContactsApi {
                 .addParam("strCreaterDomainCode", AppDatas.Auth().getDomainCode())
                 .addParam("strCreaterID", AppDatas.Auth().getUserID())
                 .addParam("strGroupDomainCode", AppDatas.Auth().getDomainCode())
-                .addParam("strGroupName", strGroupName)
+                .addParam("strGroupName", "")
                 .addParam("strAnnouncement", "")
                 .addParam("nBeinviteMode", 0)
                 .addParam("nInviteMode", 0)
@@ -612,7 +610,7 @@ public class ContactsApi {
             callback.onSuccess(mCachedOrganization);
             return;
         }
-        System.out.println("ddddddddddddddddddddddddddd ac1f6b160056 "+from);
+        System.out.println("ddddddddddddddddddddddddddd ac1f6b160056 " + from);
 //        String URL = AppDatas.Constants().getAddressBaseURL() + "busidataexchange/getBusiData.action";
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_department_info";
 

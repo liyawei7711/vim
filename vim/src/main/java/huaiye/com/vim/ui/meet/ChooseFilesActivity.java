@@ -36,6 +36,7 @@ import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SDCardUtils;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
@@ -45,6 +46,7 @@ import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
+import huaiye.com.vim.models.download.ProgressListener;
 import huaiye.com.vim.models.meet.bean.FileBean;
 import huaiye.com.vim.ui.meet.viewholder.FileHolder;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
@@ -175,7 +177,7 @@ public class ChooseFilesActivity extends AppBaseActivity {
             showToast("文档大于50M");
             return;
         }
-        mZeusLoadView.loadingText("正在上传").setLoading();
+//        mZeusLoadView.loadingText("正在上传").setLoading();
         ModelApis.Download().uploadFile(new ModelCallback<Upload>() {
             @Override
             public void onSuccess(Upload upload) {
@@ -198,11 +200,11 @@ public class ChooseFilesActivity extends AppBaseActivity {
 
             @Override
             public void onFinish(HTTPResponse httpResponse) {
-                if (mZeusLoadView != null && mZeusLoadView.isShowing()){
-                    mZeusLoadView.dismiss();
-                }
+//                if (mZeusLoadView != null && mZeusLoadView.isShowing()){
+//                    mZeusLoadView.dismiss();
+//                }
             }
-        }, file, AppDatas.Constants().getFileUploadUri());
+        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
     }
 
     @Override

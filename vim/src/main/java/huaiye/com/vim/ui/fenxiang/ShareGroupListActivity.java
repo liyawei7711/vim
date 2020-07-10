@@ -3,9 +3,13 @@ package huaiye.com.vim.ui.fenxiang;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 
 import com.huaiye.sdk.logger.Logger;
 import com.ttyy.commonanno.anno.BindLayout;
@@ -54,9 +58,12 @@ public class ShareGroupListActivity extends AppBaseActivity {
     View iv_empty_view;
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
+    @BindView(R.id.et_key)
+    EditText et_key;
 
     GroupContactsItemAdapter mGroupitemAdapter;
     private ArrayList<GroupInfo> mlstGroupInfo = new ArrayList<>();
+    private ArrayList<GroupInfo> allGroupInfos = new ArrayList<>();
     private int requestCount = 0;
     private int currentRequestTime = 0;
     private boolean isFreadList = false;
@@ -71,7 +78,7 @@ public class ShareGroupListActivity extends AppBaseActivity {
         super.onBackPressed();
 
         ZhuanFaUserAndGroup.get().clearGroup();
-        for (GroupInfo temp : mlstGroupInfo) {
+        for (GroupInfo temp : allGroupInfos) {
             if (temp.isSelected) {
                 ZhuanFaUserAndGroup.get().add(temp);
             }
@@ -92,7 +99,7 @@ public class ShareGroupListActivity extends AppBaseActivity {
                     @Override
                     public void onClick(View v) {
                         ZhuanFaUserAndGroup.get().clearGroup();
-                        for (GroupInfo temp : mlstGroupInfo) {
+                        for (GroupInfo temp : allGroupInfos) {
                             if (temp.isSelected) {
                                 ZhuanFaUserAndGroup.get().add(temp);
                             }
@@ -165,13 +172,35 @@ public class ShareGroupListActivity extends AppBaseActivity {
             }
         });
 
+        et_key.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateGroupContacts();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         requestGroupContacts();
     }
 
     public void updateGroupContacts() {
+        mlstGroupInfo.clear();
+        if (TextUtils.isEmpty(et_key.getText().toString())) {
+            mlstGroupInfo.addAll(allGroupInfos);
+        } else {
+            for (GroupInfo temp : allGroupInfos) {
+                if (temp.strGroupName.contains(et_key.getText().toString())) {
+                    mlstGroupInfo.add(temp);
+                }
+            }
+        }
 
-        rct_view_create.setAdapter(mGroupitemAdapter);
-        mGroupitemAdapter.setDatas(mlstGroupInfo);
         mGroupitemAdapter.notifyDataSetChanged();
     }
 
@@ -187,16 +216,16 @@ public class ShareGroupListActivity extends AppBaseActivity {
                     @Override
                     public void onSuccess(final ContactsGroupChatListBean contactsBean) {
                         if (currentRequestTime == 0) {
-                            mlstGroupInfo.clear();
+                            allGroupInfos.clear();
                         }
 
                         ++currentRequestTime;
 
                         for (GroupInfo temp : contactsBean.lstGroupInfo) {
-                            mlstGroupInfo.add(temp);
+                            allGroupInfos.add(temp);
                         }
 
-                        updateMsgTopNoDisturb(mlstGroupInfo);
+                        updateMsgTopNoDisturb(allGroupInfos);
                         if (!isFreadList) {
                             updateGroupContacts();
                         }
@@ -220,9 +249,8 @@ public class ShareGroupListActivity extends AppBaseActivity {
                         super.onFinish(httpResponse);
                         if (requestCount == currentRequestTime) {
                             refresh_view.setRefreshing(false);
-                            if (null != mlstGroupInfo && mlstGroupInfo.size() > 0) {
-                                AppDatas.MsgDB().getGroupListDao().insertAll(mlstGroupInfo);
-                                Logger.debug(TAG, AppDatas.MsgDB().getGroupListDao().getGroupList().size() + "");
+                            if (null != allGroupInfos && allGroupInfos.size() > 0) {
+                                AppDatas.MsgDB().getGroupListDao().insertAll(allGroupInfos);
                             }
                         }
                     }

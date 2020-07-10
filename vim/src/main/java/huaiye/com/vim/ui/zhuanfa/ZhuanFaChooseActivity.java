@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
@@ -65,6 +68,8 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     RecyclerView rct_view;
     @BindView(R.id.tv_letter_high_fidelity_item)
     TextView tv_letter_high_fidelity_item;
+    @BindView(R.id.et_key)
+    EditText et_key;
 
     LiteBaseAdapter<User> adapter;
 
@@ -108,7 +113,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
                     @Override
                     public void onClick(View v) {
                         ZhuanFaUserAndGroup.get().clearUser();
-                        for (User temp : mCustomContacts) {
+                        for (User temp : mAllContacts) {
                             if (temp.isSelected) {
                                 ZhuanFaUserAndGroup.get().add(temp);
                             }
@@ -225,6 +230,20 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
             }
         });
 
+        et_key.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateContacts();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         requestContacts();
     }
 
@@ -277,6 +296,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
 
                         @Override
                         public void doOnMain(ArrayList<User> data) {
+                            getCustomContacts(mAllContacts);
                             updateContacts();
                         }
                     });
@@ -301,6 +321,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
             @Override
             public void doOnMain(List<User> data) {
                 if (null != adapter) {
+                    getCustomContacts(mAllContacts);
                     updateContacts();
                 }
             }
@@ -309,8 +330,17 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
 
     public void updateContacts() {
         mCustomContacts.clear();
-        mCustomContacts.addAll(getCustomContacts(mAllContacts));
-        if (mCustomContacts != null) {
+        if(TextUtils.isEmpty(et_key.getText().toString())) {
+            mCustomContacts.addAll(mAllContacts);
+        } else {
+            for(User temp : mAllContacts) {
+                if(temp.strUserName.contains(et_key.getText().toString())) {
+                    mCustomContacts.add(temp);
+                }
+            }
+        }
+
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
     }
@@ -345,7 +375,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
     public void onClick(View view) {
 
         ZhuanFaUserAndGroup.get().clearUser();
-        for (User temp : mCustomContacts) {
+        for (User temp : mAllContacts) {
             if (temp.isSelected) {
                 ZhuanFaUserAndGroup.get().add(temp);
             }

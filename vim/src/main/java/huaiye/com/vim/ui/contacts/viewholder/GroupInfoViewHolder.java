@@ -26,6 +26,7 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactOrganizationBean;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
+import huaiye.com.vim.ui.home.FragmentMessages;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 /**
@@ -76,37 +77,13 @@ public class GroupInfoViewHolder extends LiteViewHolder {
                 .into(iv_user_head);
 
         if (TextUtils.isEmpty(groupInfo.strGroupName)) {
-            ModelApis.Contacts().requestqueryGroupChatInfo(groupInfo.strGroupDomainCode, groupInfo.strGroupID,
-                    new ModelCallback<ContactsGroupUserListBean>() {
-                        @Override
-                        public void onSuccess(final ContactsGroupUserListBean contactsBean) {
-                            if(contactsBean != null) {
-                                ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(groupInfo.strGroupID + "", contactsBean);
-                            }
-                            if (null != contactsBean && null != contactsBean.lstGroupUser && contactsBean.lstGroupUser.size() > 0) {
-                                StringBuilder sb = new StringBuilder("");
-                                for (ContactsGroupUserListBean.LstGroupUser temp : contactsBean.lstGroupUser) {
-                                    sb.append(temp.strUserName + "、");
-                                }
-                                if (null != sb && sb.indexOf("、") >= 0) {
-                                    sb.deleteCharAt(sb.lastIndexOf("、"));
-                                }
-                                groupInfo.strGroupName = sb.toString();
-                                tv_user_name.setText(groupInfo.strGroupName);
-                            } else {
-                                tv_user_name.setText("临时群组（0）");
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(HTTPResponse httpResponse) {
-                            super.onFailure(httpResponse);
-                            tv_user_name.setText("临时群组（0）");
-                        }
-                    });
-        } else {
-            tv_user_name.setText(groupInfo.strGroupName);
+            if(FragmentMessages.mapGroupName.get(groupInfo.strGroupID) != null) {
+                groupInfo.strGroupName = FragmentMessages.mapGroupName.get(groupInfo.strGroupID);
+            } else {
+                groupInfo.strGroupName = "群组(0)";
+            }
         }
+        tv_user_name.setText(groupInfo.strGroupName);
 
         if (position == datas.size() - 1) {
             view_divider.setVisibility(View.GONE);

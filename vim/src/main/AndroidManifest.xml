@@ -191,10 +191,12 @@
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.fenxiang.ShareGroupListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.fenxiang.ShareChooseActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -209,7 +211,8 @@
 
         <activity
             android:name=".ui.zhuanfa.ZhuanFaChooseActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.zhuanfa.ZhuanFaGroupListActivity"
             android:screenOrientation="portrait"

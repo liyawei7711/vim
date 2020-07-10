@@ -39,6 +39,7 @@ import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.downloadutils.ChatContentDownload;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -56,6 +57,7 @@ import huaiye.com.vim.dao.msgs.VimMessageBean;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
+import huaiye.com.vim.models.download.ProgressListener;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static huaiye.com.vim.common.AppBaseActivity.showToast;
@@ -286,14 +288,14 @@ public class ZhuanFaPopupWindow extends PopupWindow {
                     public void onFinish(HTTPResponse httpResponse) {
 
                     }
-                }, file, AppDatas.Constants().getFileUploadUri());
+                }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(mContext));
             }
         }).start();
 
     }
 
     private void sendVideo() {
-        ((AppBaseActivity) mContext).mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
+//        ((AppBaseActivity) mContext).mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
 
         String fileLocal = "";
         if (null != data && !TextUtils.isEmpty(data.localFilePath) && new File(data.localFilePath).exists()) {
@@ -325,7 +327,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
                         @Override
                         public void onError(SdkCallback.ErrorInfo sessionRsp) {
                             showToast("文件加密失败");
-                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                             dismiss();
                         }
                     }
@@ -345,7 +347,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
     }
 
     private void sendFile() {
-        ((AppBaseActivity) mContext).mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
+//        ((AppBaseActivity) mContext).mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
 
         String localFilePath = "";
         if (null != data && !TextUtils.isEmpty(data.localFilePath) && new File(data.localFilePath).exists()) {
@@ -362,7 +364,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
             File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
             if (!fileun.exists()) {
                 showToast("文件下载失败，请重试");
-                ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                 dismiss();
                 return;
             }
@@ -376,7 +378,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
                         @Override
                         public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                             showToast("文件加密失败");
                         }
                     }
@@ -452,18 +454,18 @@ public class ZhuanFaPopupWindow extends PopupWindow {
                         new RxUtils().doDelay(100, new RxUtils.IMainDelay() {
                             @Override
                             public void onMainDelay() {
-                                ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                                ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                             }
                         }, "end");
 
                     }
-                }, file, AppDatas.Constants().getFileUploadUri());
+                }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(mContext));
             }
         }).start();
     }
 
     private void sendAudio() {
-        ((AppBaseActivity) mContext).mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
+//        ((AppBaseActivity) mContext).mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
         String fileLocal = "";
         try {
             fileLocal = fC_CHUAN_SHU + data.fileUrl.substring(data.fileUrl.lastIndexOf("/"));
@@ -492,8 +494,8 @@ public class ZhuanFaPopupWindow extends PopupWindow {
                         @Override
                         public void onError(SdkCallback.ErrorInfo sessionRsp) {
                             showToast("对方未开启加密,无法发送");
-                            if (((AppBaseActivity) mContext).mZeusLoadView != null && ((AppBaseActivity) mContext).mZeusLoadView.isShowing())
-                                ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                            if (((AppBaseActivity) mContext).mZeusLoadView != null && ((AppBaseActivity) mContext).mZeusLoadView.isShowing())
+//                                ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                         }
                     }
             );
@@ -521,8 +523,8 @@ public class ZhuanFaPopupWindow extends PopupWindow {
                         new RxUtils().doDelay(100, new RxUtils.IMainDelay() {
                             @Override
                             public void onMainDelay() {
-                                if (((AppBaseActivity) mContext).mZeusLoadView != null && ((AppBaseActivity) mContext).mZeusLoadView.isShowing())
-                                    ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                                if (((AppBaseActivity) mContext).mZeusLoadView != null && ((AppBaseActivity) mContext).mZeusLoadView.isShowing())
+//                                    ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
 
                                 if (upload.file1_name == null) {
                                     ((AppBaseActivity) mContext).showToast(AppUtils.getString(R.string.file_upload_false));
@@ -558,10 +560,10 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
                     @Override
                     public void onFinish(HTTPResponse httpResponse) {
-                        if (((AppBaseActivity) mContext).mZeusLoadView != null && ((AppBaseActivity) mContext).mZeusLoadView.isShowing())
-                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                        if (((AppBaseActivity) mContext).mZeusLoadView != null && ((AppBaseActivity) mContext).mZeusLoadView.isShowing())
+//                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                     }
-                }, file, AppDatas.Constants().getFileUploadUri());
+                }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(mContext));
             }
         }).start();
 
@@ -653,7 +655,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
                         @Override
                         public void onError(SdkCallback.ErrorInfo sessionRsp) {
-                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                             showToast("对方未开启加密,无法发送");
                             dismiss();
                         }
@@ -679,7 +681,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
                         @Override
                         public void onError(ErrorInfo sessionRsp) {
-                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                             showToast("对方未开启加密,无法发送");
                             dismiss();
                         }
@@ -774,7 +776,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
                     @Override
                     public void onError(ErrorInfo errorInfo) {
-                        ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                        ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                         showToast("发送失败" + errorInfo.getMessage());
                         dismiss();
                     }
@@ -841,7 +843,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
                     @Override
                     public void onError(ErrorInfo errorInfo) {
-                        ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//                        ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                         showToast("分享失败" + errorInfo.getMessage());
                         dismiss();
                     }
@@ -866,7 +868,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
         messageEvent.groupDomain = strGroupDomain;
         EventBus.getDefault().post(messageEvent);
 
-        ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
+//        ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
         showToast("转发成功");
         dismiss();
 

@@ -21,10 +21,12 @@ import com.huaiye.sdk.sdpmsgs.video.CStopMobileCaptureRsp;
 import java.io.File;
 import java.io.IOException;
 
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
+import huaiye.com.vim.models.download.ProgressListener;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static huaiye.com.vim.common.AppBaseActivity.showToast;
@@ -249,7 +251,7 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
                 callback.onFinish(httpResponse);
 
             }
-        }, file, AppDatas.Constants().getFileUploadUri());
+        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(context));
     }
 
 }

@@ -59,6 +59,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -69,6 +70,7 @@ import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
+import huaiye.com.vim.models.download.ProgressListener;
 import huaiye.com.vim.ui.sendBaiduLocation.app.MapPositioning;
 import huaiye.com.vim.ui.sendBaiduLocation.function.adapter.MapAdapter;
 import huaiye.com.vim.ui.sendBaiduLocation.util.AppStaticVariable;
@@ -532,8 +534,6 @@ public class MapActivity extends AppBaseActivity {
                         finish();
                     }
                 });
-
-
             }
 
             @Override
@@ -552,7 +552,7 @@ public class MapActivity extends AppBaseActivity {
             public void onFinish(HTTPResponse httpResponse) {
                 mZeusLoadView.dismiss();
             }
-        }, data, AppDatas.Constants().getFileUploadUri());
+        }, data, AppDatas.Constants().getFileUploadUri(), null);
     }
 
     public void onExit() {

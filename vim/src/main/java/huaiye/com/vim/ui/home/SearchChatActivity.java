@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
@@ -265,7 +266,7 @@ public class SearchChatActivity extends Activity {
 
                 ArrayList<VimMessageListBean> tempDatas = new ArrayList<>();
                 for(VimMessageListBean temp : data) {
-                    if(temp.sessionName.contains(mSearchKey)) {
+                    if(!TextUtils.isEmpty(temp.sessionName) && temp.sessionName.contains(mSearchKey)) {
                         tempDatas.add(temp);
                     }
                 }

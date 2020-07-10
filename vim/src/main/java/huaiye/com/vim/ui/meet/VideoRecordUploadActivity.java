@@ -210,7 +210,7 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
     @OnClick(R.id.chat_record_video_over_send)
     void uploadVideo() {
         presenter.stopPlayLocaVideoRepeate(ttvCapture);
-        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
+//        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
         final File file = new File(presenter.getFilePath());
         if(!file.exists()) {
             showToast("视频录制失败");
@@ -232,7 +232,7 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
                         @Override
                         public void onError(SdkCallback.ErrorInfo sessionRsp) {
                             showToast("文件加密失败");
-                            mZeusLoadView.dismiss();
+//                            mZeusLoadView.dismiss();
                         }
                     }
             );
@@ -254,8 +254,8 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                            mZeusLoadView.dismiss();
+//                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                            mZeusLoadView.dismiss();
 
                         if (upload.file1_name == null) {
                             showToast(AppUtils.getString(R.string.file_upload_false));
@@ -294,8 +294,8 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                            mZeusLoadView.dismiss();
+//                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                            mZeusLoadView.dismiss();
                     }
                 });
 

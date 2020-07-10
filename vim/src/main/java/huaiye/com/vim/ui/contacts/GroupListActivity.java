@@ -21,6 +21,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,6 +31,7 @@ import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
+import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -38,6 +41,7 @@ import huaiye.com.vim.dao.msgs.VimMessageListMessages;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupChatListBean;
+import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
@@ -86,6 +90,8 @@ public class GroupListActivity extends AppBaseActivity {
     boolean isFreadList = false;
     boolean isRef = false;
     private boolean create;//当前是不是创建的模式
+
+    public static Map<String, String> mapGroupName = new HashMap<>();
 
     @Override
     protected void initActionBar() {
@@ -276,6 +282,39 @@ public class GroupListActivity extends AppBaseActivity {
                 }
             }
         }
+
+        mapGroupName.clear();
+        for (GroupInfo temp : mCreateGroupInfo) {
+            if (TextUtils.isEmpty(temp.strGroupName)) {
+                ModelApis.Contacts().requestqueryGroupChatInfo(temp.strGroupDomainCode, temp.strGroupID,
+                        new ModelCallback<ContactsGroupUserListBean>() {
+                            @Override
+                            public void onSuccess(final ContactsGroupUserListBean contactsBean) {
+                                if (contactsBean != null) {
+                                    ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(contactsBean.strGroupID + "", contactsBean);
+                                    mapGroupName.put(contactsBean.strGroupID, "群组(" + contactsBean.lstGroupUser.size() + ")");
+                                } else {
+                                    mapGroupName.put(temp.strGroupID, "群组(0)");
+                                }
+
+                                if (myCreateAdapter != null) {
+                                    myCreateAdapter.notifyDataSetChanged();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(HTTPResponse httpResponse) {
+                                super.onFailure(httpResponse);
+                                mapGroupName.put(temp.strGroupID, "群组(0)");
+
+                                if (myCreateAdapter != null) {
+                                    myCreateAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
+            }
+        }
+
         if (!isFreadList) {
             myCreateAdapter.notifyDataSetChanged();
             myJonieAdapter.notifyDataSetChanged();

@@ -60,6 +60,7 @@ import huaiye.com.vim.bus.StartTransModelBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
@@ -86,6 +87,7 @@ import huaiye.com.vim.models.auth.bean.Upload;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
+import huaiye.com.vim.models.download.ProgressListener;
 import huaiye.com.vim.models.meet.bean.ChatMoreFunctionBean;
 import huaiye.com.vim.ui.contacts.UserDetailActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
@@ -380,14 +382,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             sessionName = mContactsGroupUserListBean.strGroupName;
             if (TextUtils.isEmpty(sessionName)) {
                 if (null != mContactsGroupUserListBean && null != mContactsGroupUserListBean.lstGroupUser && mContactsGroupUserListBean.lstGroupUser.size() > 0) {
-                    StringBuilder sb = new StringBuilder("");
-                    for (ContactsGroupUserListBean.LstGroupUser temp : mContactsGroupUserListBean.lstGroupUser) {
-                        sb.append(temp.strUserName + "、");
-                    }
-                    if (null != sb && sb.indexOf("、") >= 0) {
-                        sb.deleteCharAt(sb.lastIndexOf("、"));
-                    }
-                    sessionName = sb.toString();
+                    sessionName = "群组(" + mContactsGroupUserListBean.lstGroupUser.size() + ")";
+                } else {
+                    sessionName = "群组(0)";
                 }
             }
             initNavigateView(sessionName);
@@ -1178,7 +1175,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 List<String> imagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
                 mapImg.clear();
                 imageSize = imagePaths.size();
-                mZeusLoadView.loadingText("正在上传").setLoading();
+//                mZeusLoadView.loadingText("正在上传").setLoading();
                 for (String image : imagePaths) {
                     final File file = new File(image);
                     if (file.length() > 1028 * 1028 * 50) {
@@ -1235,7 +1232,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     }
 
     private void sendImageFile() {
-        mZeusLoadView.dismiss();
+//        mZeusLoadView.dismiss();
         for (Map.Entry<String, String> entry : mapImg.entrySet()) {
             try {
                 File file = new File(mapLocal.get(entry.getKey()));
@@ -1308,7 +1305,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             public void onFinish(HTTPResponse httpResponse) {
 
             }
-        }, file, AppDatas.Constants().getFileUploadUri());
+        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1523,7 +1520,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             showToast("音频录制失败");
             return;
         }
-        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
+//        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
         initUserEncrypt();
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
@@ -1536,9 +1533,8 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
                         @Override
                         public void onError(SdkCallback.ErrorInfo sessionRsp) {
-//                            showToast("对方未开启加密,无法发送");
-                            if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                                mZeusLoadView.dismiss();
+//                            if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                                mZeusLoadView.dismiss();
                         }
                     });
         } else {
@@ -1559,8 +1555,8 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                            mZeusLoadView.dismiss();
+//                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                            mZeusLoadView.dismiss();
 
                         if (TextUtils.isEmpty(upload.file1_name)) {
                             showToast(AppUtils.getString(R.string.file_upload_false));
@@ -1584,8 +1580,6 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                         }
                     }
                 });
-
-
             }
 
             @Override
@@ -1604,13 +1598,12 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                            mZeusLoadView.dismiss();
+//                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                            mZeusLoadView.dismiss();
                     }
                 });
-
             }
-        }, file, AppDatas.Constants().getFileUploadUri());
+        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
     }
 
     private ArrayList<SendUserBean> getSendUserDate() {

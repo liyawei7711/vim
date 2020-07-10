@@ -29,8 +29,8 @@ android {
         multiDexEnabled true
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 122
-        versionName "1.2.2"
+        versionCode 123
+        versionName "1.2.3"
 
         javaCompileOptions {
             annotationProcessorOptions {

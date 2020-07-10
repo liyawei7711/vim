@@ -9,6 +9,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -38,6 +39,7 @@ import huaiye.com.vim.common.AppBaseFragment;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.dialog.LogicDialog;
+import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.RecycleTouchUtils;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
@@ -86,6 +88,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
 
     ArrayList<VimMessageListBean> datas = new ArrayList<>();
     Map<String, VimMessageListBean> maps = new HashMap<>();
+    public static Map<String, String> mapGroupName = new HashMap<>();
     LiteBaseAdapter<VimMessageListBean> adapter;
     LiteBaseAdapter<VimMessageListBean> adapterSearch;
     private boolean isSOS;
@@ -226,10 +229,6 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
         message_list.setAdapter(adapter);
     }
 
-    private void searchHuiHua(String str) {
-
-    }
-
     private void dealAdapterItemClick(View v) {
         if (!HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             AppBaseActivity.showToast("加密模块未初始化完成，请稍后");
@@ -336,10 +335,41 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                                 }
                                 vimMessageListBean.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(friend.strUserID, friend.strUserDomainCode);
                             }
-
-
                         }
+                    }
+                }
 
+                mapGroupName.clear();
+                for(VimMessageListBean temp : allBean) {
+                    if(temp.groupType == 1) {
+                        if(TextUtils.isEmpty(temp.sessionName)) {
+                            ModelApis.Contacts().requestqueryGroupChatInfo(temp.groupDomainCode, temp.groupID,
+                                    new ModelCallback<ContactsGroupUserListBean>() {
+                                        @Override
+                                        public void onSuccess(final ContactsGroupUserListBean contactsBean) {
+                                            if(contactsBean != null) {
+                                                ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(contactsBean.strGroupID + "", contactsBean);
+                                                mapGroupName.put(contactsBean.strGroupID, "群组("+contactsBean.lstGroupUser.size()+")");
+                                            } else {
+                                                mapGroupName.put(temp.groupID, "群组(0)");
+                                            }
+
+                                            if(adapter != null) {
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(HTTPResponse httpResponse) {
+                                            super.onFailure(httpResponse);
+                                            mapGroupName.put(temp.groupID, "群组(0)");
+
+                                            if(adapter != null) {
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                    });
+                        }
                     }
                 }
                 return allBean;

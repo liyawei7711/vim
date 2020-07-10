@@ -30,6 +30,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -38,6 +39,7 @@ import huaiye.com.vim.dao.MediaFileDao;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
+import huaiye.com.vim.models.download.ProgressListener;
 import huaiye.com.vim.models.meet.bean.LocalPhotoBean;
 import huaiye.com.vim.ui.meet.viewholder.LocalPhotoHolder;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
@@ -127,12 +129,12 @@ public class ChoosePhotoAndScreenActivity extends AppBaseActivity {
             showToast(AppUtils.getString(R.string.file_is_bigger_than));
             return;
         }
-        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
+//        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
         ModelApis.Download().uploadFile(new ModelCallback<Upload>() {
             @Override
             public void onSuccess(Upload upload) {
-                if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                    mZeusLoadView.dismiss();
+//                if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                    mZeusLoadView.dismiss();
 
                 if (upload.file1_name == null) {
                     showToast(AppUtils.getString(R.string.file_upload_false));
@@ -154,10 +156,10 @@ public class ChoosePhotoAndScreenActivity extends AppBaseActivity {
 
             @Override
             public void onFinish(HTTPResponse httpResponse) {
-                if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                    mZeusLoadView.dismiss();
+//                if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                    mZeusLoadView.dismiss();
             }
-        }, file, AppDatas.Constants().getFileUploadUri());
+        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
     }
 
     @Override

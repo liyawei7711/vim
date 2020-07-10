@@ -322,7 +322,7 @@ public class MessageReceiver {
         HYClient.getModule(ApiSocial.class).observeOnlineMessages(new SdkNotifyCallback<CNotifyMsgToUser>() {
             @Override
             public void onEvent(CNotifyMsgToUser data) {
-                onReceiverPush(data.strMsg);
+                onReceiverPush(data.strMsg, false);
             }
 
         });
@@ -362,7 +362,7 @@ public class MessageReceiver {
                     AppMessages.get().add(MessageData.from(talkInvite, millions));
                 } else if (msgBody.has("strMsgbody")) {
                     String strMsg = msgBody.getString("strMsgbody");
-                    onReceiverPush(strMsg);
+                    onReceiverPush(strMsg, true);
 //                                ChatMessageBean chatMessageBean = gson.fromJson(strMsg, ChatMessageBean.class);
 //                                dealMessage(chatMessageBean, gson, strMsg, msg.strDateTime);
                 }
@@ -378,43 +378,43 @@ public class MessageReceiver {
         }
     }
 
-    public void onReceiverPush(String strMsg) {
+    public void onReceiverPush(String strMsg, boolean isOffline) {
         try {
             final ChatMessageBean chatMessageBean = gson.fromJson(strMsg, ChatMessageBean.class);
 
             switch (chatMessageBean.type) {
                 case AppUtils.NOTIFICATION_TYPE_CRESTE_GROUP:
                     final ContactsGroupUserListBean beanCreate = gson.fromJson(chatMessageBean.content, ContactsGroupUserListBean.class);
-                    ModelApis.Contacts().requestqueryGroupChatInfo(beanCreate.strGroupDomainCode, beanCreate.strGroupID,
-                            new ModelCallback<ContactsGroupUserListBean>() {
-                                @Override
-                                public void onSuccess(final ContactsGroupUserListBean contactsBean) {
-                                    if (contactsBean != null) {
-                                        if (null != contactsBean && null != contactsBean.lstGroupUser && contactsBean.lstGroupUser.size() > 0) {
-                                            StringBuilder sb = new StringBuilder("");
-                                            for (ContactsGroupUserListBean.LstGroupUser temp : contactsBean.lstGroupUser) {
-                                                sb.append(temp.strUserName + "、");
+                    if (TextUtils.isEmpty(beanCreate.strGroupName)) {
+                        ModelApis.Contacts().requestqueryGroupChatInfo(beanCreate.strGroupDomainCode, beanCreate.strGroupID,
+                                new ModelCallback<ContactsGroupUserListBean>() {
+                                    @Override
+                                    public void onSuccess(final ContactsGroupUserListBean contactsBean) {
+                                        if (beanCreate != null) {
+                                            if (null != contactsBean.lstGroupUser) {
+                                                beanCreate.strGroupName = "群组(" + contactsBean.lstGroupUser.size() + ")";
+                                            } else {
+                                                beanCreate.strGroupName = "群组(0)";
                                             }
-                                            if (null != sb && sb.indexOf("、") >= 0) {
-                                                sb.deleteCharAt(sb.lastIndexOf("、"));
-                                            }
-                                            beanCreate.strGroupName = sb.toString();//2020070410440200148
+                                            ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(beanCreate.strGroupID + "", beanCreate);
+                                            EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_CREATE_GROUP_SUCCESS_ADDGROUP_TO_LIST, beanCreate.strGroupID));
+                                        } else {
+                                            beanCreate.strGroupName = "群组(0)";
                                         }
-                                        ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(beanCreate.strGroupID + "", beanCreate);
                                     }
-                                    EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_CREATE_GROUP_SUCCESS_ADDGROUP_TO_LIST, beanCreate.strGroupID));
-                                }
-                            });
+                                });
+                    }
                     break;
                 case AppUtils.NOTIFICATION_TYPE_DEL_GROUP:
                     NotificationDelGroup nNotificationDelGroup = gson.fromJson(chatMessageBean.content, NotificationDelGroup.class);
-//                            VimMessageListMessages.get().del(nNotificationDelGroup.strGroupDomainCode + nNotificationDelGroup.strGroupID);
-//                            AppDatas.MsgDB()
-//                                    .chatGroupMsgDao()
-//                                    .deleteBySessionID(nNotificationDelGroup.strGroupDomainCode + nNotificationDelGroup.strGroupID);
+                    ContactsGroupUserListBean cache = ChatContactsGroupUserListHelper.getInstance().getContactsGroupDetail(nNotificationDelGroup.strGroupID + "");
+                    String groupName = "";
+                    if (cache != null) {
+                        groupName = cache.strGroupName;
+                    }
                     addGroupNotice("群组已被解散",
                             nNotificationDelGroup.strGroupDomainCode + nNotificationDelGroup.strGroupID,
-                            nNotificationDelGroup.strGroupID, nNotificationDelGroup.strGroupDomainCode, "");
+                            nNotificationDelGroup.strGroupID, nNotificationDelGroup.strGroupDomainCode, groupName);
                     VimMessageBean vimMessageBean = new VimMessageBean();
                     vimMessageBean.groupID = nNotificationDelGroup.strGroupID;
                     EventBus.getDefault().post(vimMessageBean);
@@ -422,10 +422,6 @@ public class MessageReceiver {
                 case AppUtils.NOTIFICATION_TYPE_LEAVE_GROUP:
                     NotificationLeaveGroup nNotificationLeaveGroup = gson.fromJson(chatMessageBean.content, NotificationLeaveGroup.class);
                     if (nNotificationLeaveGroup.strUserID.equals(AppDatas.Auth().getUserID())) {
-//                                VimMessageListMessages.get().del(nNotificationLeaveGroup.strGroupDomainCode + nNotificationLeaveGroup.strGroupID);
-//                                AppDatas.MsgDB()
-//                                        .chatGroupMsgDao()
-//                                        .deleteBySessionID(nNotificationLeaveGroup.strGroupDomainCode + nNotificationLeaveGroup.strGroupID);
                         VimMessageBean vimMessageBean2 = new VimMessageBean();
                         vimMessageBean2.groupID = nNotificationLeaveGroup.strGroupID;
                         EventBus.getDefault().post(vimMessageBean2);
@@ -537,6 +533,9 @@ public class MessageReceiver {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
+                                if (isOffline) {
+                                    return;
+                                }
                                 observers.get(0).onVideoPushInvite(chatMessageBean);
                             }
                         }, 1000);
@@ -900,6 +899,15 @@ public class MessageReceiver {
             currentContactsGroupUserListBean.strGroupID = nContactsGroupUserListBeanNew.strGroupID;
 
             MessageEvent event = new MessageEvent(AppUtils.EVENT_MESSAGE_MODIFY_GROUP, currentContactsGroupUserListBean.strGroupID);
+
+            if (nContactsGroupUserListBeanNew.nInviteMode != currentContactsGroupUserListBean.nInviteMode) {
+                currentContactsGroupUserListBean.nInviteMode = nContactsGroupUserListBeanNew.nInviteMode;
+                if (currentContactsGroupUserListBean.nInviteMode == 1) {
+                    event.argStr1 = "仅群主邀请入群";
+                } else {
+                    event.argStr1 = "允许成员邀请入群";
+                }
+            }
 
             if (!TextUtils.isEmpty(nContactsGroupUserListBeanNew.strGroupName)) {
                 if (!nContactsGroupUserListBeanNew.strGroupName.equals(currentContactsGroupUserListBean.strGroupName)) {

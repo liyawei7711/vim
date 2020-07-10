@@ -59,6 +59,7 @@ import huaiye.com.vim.bus.StartTransModelBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -82,6 +83,7 @@ import huaiye.com.vim.map.baidu.LocationStrategy;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
+import huaiye.com.vim.models.download.ProgressListener;
 import huaiye.com.vim.models.meet.bean.ChatMoreFunctionBean;
 import huaiye.com.vim.ui.chat.dialog.ChatSendLocationDialog;
 import huaiye.com.vim.ui.contacts.UserDetailActivity;
@@ -974,7 +976,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 imagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
                 mapImg.clear();
                 imageSize = imagePaths.size();
-                mZeusLoadView.loadingText("正在上传").setLoading();
+//                mZeusLoadView.loadingText("正在上传").setLoading();
                 for (String image : imagePaths) {
                     final File file = new File(image);
                     if (file.length() > 1028 * 1028 * 50) {
@@ -1021,7 +1023,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     }
 
     private void sendImageFile() {
-        mZeusLoadView.dismiss();
+//        mZeusLoadView.dismiss();
         for (String temp : imagePaths) {
             try {
                 String httpFile = mapImg.get(temp);
@@ -1094,7 +1096,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             public void onFinish(HTTPResponse httpResponse) {
 
             }
-        }, file, AppDatas.Constants().getFileUploadUri());
+        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1251,7 +1253,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             showToast("音频录制失败");
             return;
         }
-        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
+//        mZeusLoadView.loadingText(AppUtils.getString(R.string.is_upload_ing)).setLoading();
 
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
@@ -1265,8 +1267,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                         @Override
                         public void onError(SdkCallback.ErrorInfo sessionRsp) {
                             showToast("对方未开启加密,无法发送");
-                            if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                                mZeusLoadView.dismiss();
+//                            if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                                mZeusLoadView.dismiss();
                         }
                     }
             );
@@ -1287,8 +1289,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                            mZeusLoadView.dismiss();
+//                        if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                            mZeusLoadView.dismiss();
 
                         if (TextUtils.isEmpty(upload.file1_name)) {
                             showToast(AppUtils.getString(R.string.file_upload_false));
@@ -1326,10 +1328,10 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 
             @Override
             public void onFinish(HTTPResponse httpResponse) {
-                if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                    mZeusLoadView.dismiss();
+//                if (mZeusLoadView != null && mZeusLoadView.isShowing())
+//                    mZeusLoadView.dismiss();
             }
-        }, file, AppDatas.Constants().getFileUploadUri());
+        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
     }
 
     @OnClick(R.id.chat_title_bar_title)

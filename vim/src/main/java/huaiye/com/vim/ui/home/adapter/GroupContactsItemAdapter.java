@@ -100,23 +100,24 @@ public class GroupContactsItemAdapter extends RecyclerView.Adapter<RecyclerView.
                         public void onSuccess(final ContactsGroupUserListBean contactsBean) {
                             if (contactsBean != null) {
                                 ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(mDataList.get(position).strGroupID + "", contactsBean);
-                            }
-                            if (null != contactsBean && null != contactsBean.lstGroupUser && contactsBean.lstGroupUser.size() > 0) {
-                                StringBuilder sb = new StringBuilder("");
-                                for (ContactsGroupUserListBean.LstGroupUser temp : contactsBean.lstGroupUser) {
-                                    sb.append(temp.strUserName + "、");
+                                if (null != contactsBean && null != contactsBean.lstGroupUser && contactsBean.lstGroupUser.size() > 0) {
+                                    viewHolder.tv_user_name.setText("群组(" + contactsBean.lstGroupUser.size() + ")");
+                                    mDataList.get(position).strGroupName = "群组(" + contactsBean.lstGroupUser.size() + ")";
+                                } else {
+                                    viewHolder.tv_user_name.setText("群组(0)");
+                                    mDataList.get(position).strGroupName = "群组(0)";
                                 }
-                                if (null != sb && sb.indexOf("、") >= 0) {
-                                    sb.deleteCharAt(sb.lastIndexOf("、"));
-                                }
-                                viewHolder.tv_user_name.setText(sb);
-                                mDataList.get(position).strGroupName = sb.toString();
+                            } else {
+                                viewHolder.tv_user_name.setText("群组(0)");
+                                mDataList.get(position).strGroupName = "群组(0)";
                             }
                         }
 
                         @Override
                         public void onFailure(HTTPResponse httpResponse) {
                             super.onFailure(httpResponse);
+                            viewHolder.tv_user_name.setText("群组(0)");
+                            mDataList.get(position).strGroupName = "群组(0)";
                         }
                     });
         } else {

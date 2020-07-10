@@ -27,6 +27,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
+import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.common.utils.BitmapResizeUtil;
 import huaiye.com.vim.common.views.pickers.adapter.GlideLoader;
@@ -36,6 +37,7 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
 import huaiye.com.vim.models.contacts.ContactsApi;
 import huaiye.com.vim.models.contacts.bean.CustomResponse;
+import huaiye.com.vim.models.download.ProgressListener;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static huaiye.com.vim.common.AppUtils.REQUEST_CODE_SELECT_IMAGES_CODE;
@@ -212,8 +214,6 @@ public class ModifyHeadPicActivity extends AppBaseActivity {
                                         }
                                     });
                                 }
-
-
                             }
 
                             @Override
@@ -231,7 +231,7 @@ public class ModifyHeadPicActivity extends AppBaseActivity {
                             public void onFinish(HTTPResponse httpResponse) {
 
                             }
-                        }, file, AppDatas.Constants().getHeaderUri());
+                        }, file, AppDatas.Constants().getHeaderUri(), null);
                     }
                 });
 
