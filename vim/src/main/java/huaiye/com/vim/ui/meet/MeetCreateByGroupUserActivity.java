@@ -193,7 +193,7 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
             new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
                 @Override
                 public Object doOnThread() {
-                    for (ContactsGroupUserListBean.LstGroupUser lstGroupUser : mGroupInfoListBean.lstGroupUser) {
+                    for (User lstGroupUser : mGroupInfoListBean.lstGroupUser) {
                         User temp_item = new User();
                         temp_item.strUserID = lstGroupUser.strUserID;
                         temp_item.strUserName = lstGroupUser.strUserName;

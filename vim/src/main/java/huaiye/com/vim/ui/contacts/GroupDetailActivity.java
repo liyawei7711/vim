@@ -133,7 +133,7 @@ public class GroupDetailActivity extends AppBaseActivity {
                         ChoosedContacts.get().setOnMeetUsers(datas);
                     }
 
-                    Intent intent = new Intent(getSelf(), ContactsChoiceByAllFriendActivity.class);
+                    Intent intent = new Intent(getSelf(), ContactsChoiceByAllFriendOrgActivity.class);
                     intent.putExtra("titleName", "创建群组");
                     intent.putExtra("isSelectUser", true);
                     startActivityForResult(intent, 1000);

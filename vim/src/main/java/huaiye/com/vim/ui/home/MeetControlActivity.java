@@ -48,6 +48,7 @@ import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendActivity;
+import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendOrgActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
 import huaiye.com.vim.ui.meet.MeetWatchActivity;
 import huaiye.com.vim.ui.meet.viewholder.MemberAdminHolder;
@@ -246,7 +247,7 @@ public class MeetControlActivity extends AppBaseActivity implements SdpUITask.Sd
                                     public void doOnMain(ArrayList<CGetMeetingInfoRsp.UserInfo> data) {
                                         ChoosedContacts.get().clear();
                                         ChoosedContacts.get().setOnMeetUsersInfo(data);
-                                        Intent intent = new Intent(getSelf(), ContactsChoiceByAllFriendActivity.class);
+                                        Intent intent = new Intent(getSelf(), ContactsChoiceByAllFriendOrgActivity.class);
                                         intent.putExtra("titleName", "邀请参会");
                                         intent.putExtra("isSelectUser", true);
                                         intent.putExtra("needAddSelf", false);

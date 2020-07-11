@@ -20,6 +20,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.constant.CommonConstant;
 import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendActivity;
+import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendOrgActivity;
 import huaiye.com.vim.ui.meet.MeetDetailActivity;
 import huaiye.com.vim.ui.meet.MeetDetailEditActivity;
 
@@ -102,7 +103,7 @@ public class MeetDetailHeaderView extends RelativeLayout implements View.OnClick
                 mActivity.startActivityForResult(intent, CommonConstant.ACTIVITY_REQUEST_CODE);
                 break;
             case R.id.meet_add_person:
-                intent = new Intent(getContext(), ContactsChoiceByAllFriendActivity.class);
+                intent = new Intent(getContext(), ContactsChoiceByAllFriendOrgActivity.class);
                 if (getContext() instanceof MeetDetailActivity) {
                     MeetDetailActivity activity = (MeetDetailActivity) getContext();
                     intent.putExtra("titleName", getContext().getString(R.string.add_meet_person));

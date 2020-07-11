@@ -32,6 +32,7 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendActivity;
+import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendOrgActivity;
 import huaiye.com.vim.ui.contacts.ContactsChoiceByGroupUserActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
@@ -356,14 +357,14 @@ public class MeetCreateHeaderView extends RelativeLayout implements View.OnClick
                 break;
             case R.id.create_meet_add_person:
                 if(null!=mGroupInfoListBean){
-                    Intent intent = new Intent(getContext(), ContactsChoiceByGroupUserActivity.class);
+                    Intent intent = new Intent(getContext(), ContactsChoiceByAllFriendOrgActivity.class);
                     intent.putExtra("isSelectUser", true);
                     intent.putExtra("needAddSelf", needAddSelfMain);
                     intent.putExtra("mGroupUserListBean",mGroupInfoListBean);
                     intent.putExtra("titleName", getContext().getString(R.string.add_meet_person));
                     ((Activity) getContext()).startActivityForResult(intent, 1000);
                 }else{
-                    Intent intent = new Intent(getContext(), ContactsChoiceByAllFriendActivity.class);
+                    Intent intent = new Intent(getContext(), ContactsChoiceByAllFriendOrgActivity.class);
 
                     intent.putExtra("isSelectUser", true);
                     intent.putExtra("needAddSelf", needAddSelfMain);

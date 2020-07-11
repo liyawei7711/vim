@@ -78,6 +78,24 @@ public class ContactsApi {
                 .requestAsync();
 
     }
+    public void requestContactsOnly(String strDomainCode, String strDepID, int nCurDepUser, ModelCallback<ContactsBean> callback) {
+        String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_list";
+
+        Https.post(URL)
+                .addHeader("Connection", "close")
+                .addParam("strDomainCode", strDomainCode)
+                .addParam("nPage", -1)
+                .addParam("nSize", CommonConstant.MEET_NUM)
+                .addParam("nCurDepUser", 1)
+                .addParam("nOrderByID", 0)
+                .addParam("nAscOrDesc", 0)
+                .addParam("strDepID", strDepID)
+                .addHeader("token_id", AppDatas.Auth().getHeaderTokenID())
+                .setHttpCallback(callback)
+                .build()
+                .requestAsync();
+
+    }
 
     /**
      * 获取联系人
@@ -513,7 +531,7 @@ public class ContactsApi {
     /**
      * 获取好友头像
      */
-    public void requestGetUserHead(List<ContactsGroupUserListBean.LstGroupUser> userList, ModelCallback<ContactsBean> callback) {
+    public void requestGetUserHead(List<User> userList, ModelCallback<ContactsBean> callback) {
         String URL = AppDatas.Constants().getAddressBaseURL() + "httpjson/get_user_head";
 
         Https.post(URL)

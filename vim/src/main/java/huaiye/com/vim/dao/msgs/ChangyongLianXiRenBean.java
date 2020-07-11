@@ -245,6 +245,7 @@ public class ChangyongLianXiRenBean implements Serializable {
         user1.strRoleName = bean.strRoleName;
         user1.deviceType = bean.deviceType;
         user1.strDept = bean.strDept;
+        user1.saveTime = bean.saveTime;
         return user1;
     }
     public static ChangyongLianXiRenBean converToChangyongLianXiRen(User bean) {

@@ -3,11 +3,14 @@ package huaiye.com.vim.ui.contacts.sharedata;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import huaiye.com.vim.common.constant.SPConstant;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.contacts.bean.ContacsTerminal;
+import huaiye.com.vim.models.contacts.bean.DeptData;
 
 /**
  * Created by ywt on 2019/2/27.
@@ -17,6 +20,11 @@ public class ChoosedContactsNew {
     private ArrayList<User> mContacts = new ArrayList<>();
     private ArrayList<ContacsTerminal.Data> mTerminalDevices = new ArrayList<>();
     private User mSelf;
+
+    public static ArrayList<DeptData> atData = new ArrayList<>();//所在部门
+    public static Map<String, String> userDeptMap = new HashMap<>();//人员对应的部门
+    public static Map<String, String> userGroupMap = new HashMap<>();//人员对应的部门
+    public static ArrayList<String> selectedDept = new ArrayList<>();
 
     public User getSelf() {
         if(mSelf != null) {
@@ -140,5 +148,11 @@ public class ChoosedContactsNew {
         if(mContacts != null){
             mContacts.clear();
         }
+
+        atData.clear();
+        userDeptMap.clear();
+        userGroupMap.clear();
+        selectedDept.clear();
+
     }
 }

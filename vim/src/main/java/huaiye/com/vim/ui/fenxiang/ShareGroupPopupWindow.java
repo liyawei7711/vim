@@ -43,6 +43,7 @@ import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.ChatGroupMsgBean;
 import huaiye.com.vim.dao.msgs.ChatMessageBean;
 import huaiye.com.vim.dao.msgs.SendMsgUserBean;
+import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.VimMessageBean;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -404,7 +405,7 @@ public class ShareGroupPopupWindow extends PopupWindow {
                         sendUserBeans.clear();
                         usersNew.clear();
                         if (contactsBean != null && contactsBean.lstGroupUser != null) {
-                            for (ContactsGroupUserListBean.LstGroupUser temp : contactsBean.lstGroupUser) {
+                            for (User temp : contactsBean.lstGroupUser) {
                                 if (!AppAuth.get().getUserID().equals(temp.strUserID)) {
                                     SendUserBean sendUserBean = new SendUserBean();
                                     sendUserBean.strUserID = temp.strUserID;

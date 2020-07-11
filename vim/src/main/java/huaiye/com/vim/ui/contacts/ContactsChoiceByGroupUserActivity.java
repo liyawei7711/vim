@@ -293,39 +293,32 @@ public class ContactsChoiceByGroupUserActivity extends AppBaseActivity {
     }
 
 
-    private ArrayList<User> getCustomContacts(ArrayList<ContactsGroupUserListBean.LstGroupUser> data) {
+    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
             return new ArrayList<>();
         }
-        ArrayList<User> users = new ArrayList<>();
-        for (ContactsGroupUserListBean.LstGroupUser temp : data) {
-            User item = new User();
-            item.strUserID = temp.strUserID;
-            item.strUserName = temp.strUserName;
-            item.strDomainCode = temp.strUserDomainCode;
-            item.strHeadUrl = temp.strHeadUrl;
 
-            item.isSelected = false;
+        for (User temp : data) {
+            temp.isSelected = false;
             for (User temp2 : ChoosedContactsNew.get().getContacts()) {
-                if (temp2.strUserName.equals(item.strUserName)) {
-                    item.isSelected = true;
+                if (temp2.strUserName.equals(temp.strUserName)) {
+                    temp.isSelected = true;
                     break;
                 }
             }
 
             String upPinYin = "";
-            if (TextUtils.isEmpty(item.strUserNamePinYin)) {
-                item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
-                upPinYin = item.strUserNamePinYin.toUpperCase();
+            if (TextUtils.isEmpty(temp.strUserNamePinYin)) {
+                temp.strUserNamePinYin = Pinyin.toPinyin(temp.strUserName, "_");
+                upPinYin = temp.strUserNamePinYin.toUpperCase();
             } else {
-                upPinYin = item.strUserNamePinYin.toUpperCase();
+                upPinYin = temp.strUserNamePinYin.toUpperCase();
             }
             String a = "#";
-            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
+            temp.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
 
-            users.add(item);
         }
-        return users;
+        return data;
     }
 
     private void handleChoice(User user) {

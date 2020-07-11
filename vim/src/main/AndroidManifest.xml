@@ -143,6 +143,9 @@
         <activity
             android:name=".ui.contacts.ContactsChoiceByAllFriendActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.contacts.ContactsChoiceByAllFriendOrgActivity"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ui.contacts.ContactsSearchActivity"
@@ -160,6 +163,10 @@
             android:name=".ui.contacts.SearchDeptUserListActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.SearchDeptUserListOrgActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
 
         <activity
             android:name=".ui.contacts.GroupDetailActivity"
@@ -167,6 +174,14 @@
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.contacts.GroupListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.GroupListOrgActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.GroupUserListOrgActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
@@ -178,11 +193,19 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
+            android:name=".ui.contacts.DeptListOrgActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
             android:name=".ui.contacts.DeptUserManagerActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.contacts.DeptDeepListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".ui.contacts.DeptDeepListOrgActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
@@ -324,7 +347,9 @@
         <activity
             android:name=".ui.contacts.ContactsAddOrDelActivityNew"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name=".ui.contacts.ContactsAddOrDelActivityNewOrg"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ui.meet.VideoRecordUploadActivity"

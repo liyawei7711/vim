@@ -35,6 +35,7 @@ public class DeptData implements Serializable {
      */
     public String strDesceribe;
     public String strDomainCode;
+    public boolean isSelected;
 
     public DomainInfoList.DomainInfo domainInfo;
     public String getName() {

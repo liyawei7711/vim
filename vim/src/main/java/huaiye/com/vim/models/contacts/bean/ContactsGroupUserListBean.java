@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import huaiye.com.vim.dao.msgs.User;
+
 public class ContactsGroupUserListBean implements Serializable {
     public int nResultCode;
     public String strResultDescribe;
@@ -21,47 +23,6 @@ public class ContactsGroupUserListBean implements Serializable {
     public int nTeamMemberLimit;
     public String strHeadUrl;
 
-    public ArrayList<LstGroupUser> lstGroupUser;
+    public ArrayList<User> lstGroupUser;
 
-    public static class LstGroupUser implements Serializable, Parcelable {
-        public String strUserDomainCode;
-        public String strUserID;
-        public String strUserName;
-        public String strHeadUrl;
-
-        public LstGroupUser() {
-        }
-
-        protected LstGroupUser(Parcel in) {
-            strUserDomainCode = in.readString();
-            strUserID = in.readString();
-            strUserName = in.readString();
-            strHeadUrl = in.readString();
-        }
-
-        public static final Creator<LstGroupUser> CREATOR = new Creator<LstGroupUser>() {
-            @Override
-            public LstGroupUser createFromParcel(Parcel in) {
-                return new LstGroupUser(in);
-            }
-
-            @Override
-            public LstGroupUser[] newArray(int size) {
-                return new LstGroupUser[size];
-            }
-        };
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel parcel, int i) {
-            parcel.writeString(strUserDomainCode);
-            parcel.writeString(strUserID);
-            parcel.writeString(strUserName);
-            parcel.writeString(strHeadUrl);
-        }
-    }
 }

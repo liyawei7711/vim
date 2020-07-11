@@ -342,7 +342,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
                 @Override
                 public Object doOnThread() {
-                    for (ContactsGroupUserListBean.LstGroupUser nLstGroupUser : contactsBean.lstGroupUser) {
+                    for (User nLstGroupUser : contactsBean.lstGroupUser) {
                         nLstGroupUser.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(nLstGroupUser.strUserID, nLstGroupUser.strUserDomainCode);
                     }
                     return "";
@@ -359,9 +359,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     private void setContactsGroupUserListBean() {
         if (null != mMessageUsersDate) {
             mContactsGroupUserListBean = new ContactsGroupUserListBean();
-            mContactsGroupUserListBean.lstGroupUser = new ArrayList<ContactsGroupUserListBean.LstGroupUser>();
+            mContactsGroupUserListBean.lstGroupUser = new ArrayList<>();
             for (SendUserBean nMessageUsers : mMessageUsersDate) {
-                ContactsGroupUserListBean.LstGroupUser nLstGroupUser = new ContactsGroupUserListBean.LstGroupUser();
+                User nLstGroupUser = new User();
                 nLstGroupUser.strUserDomainCode = nMessageUsers.strUserDomainCode;
                 nLstGroupUser.strUserID = nMessageUsers.strUserID;
                 nLstGroupUser.strUserName = nMessageUsers.strUserName;
@@ -389,7 +389,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             }
             initNavigateView(sessionName);
             if (null != mContactsGroupUserListBean.lstGroupUser && mContactsGroupUserListBean.lstGroupUser.size() > 0) {
-                for (ContactsGroupUserListBean.LstGroupUser mLstGroupUser : mContactsGroupUserListBean.lstGroupUser) {
+                for (User mLstGroupUser : mContactsGroupUserListBean.lstGroupUser) {
                     if (mLstGroupUser.strUserID.equals(AppDatas.Auth().getUserID())) {
                         containSelf = true;
                     }
@@ -1219,7 +1219,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
 
                 }
             } else if (resultCode == RESULT_OK && requestCode == AppUtils.REQUEST_CODE_CHOOSE_NOTICE) {
-                ContactsGroupUserListBean.LstGroupUser user = (ContactsGroupUserListBean.LstGroupUser) data.getSerializableExtra("notice_user");
+                User user = (User) data.getSerializableExtra("notice_user");
                 chat_edit.setText(chat_edit.getText().toString() + user.strUserName + " ");
                 chat_edit.setSelection(chat_edit.length());
                 chat_edit.setFocusable(true);

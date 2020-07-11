@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -30,7 +31,7 @@
                 android:background="@color/transparent"
                 android:drawableLeft="@drawable/common_icon_search"
                 android:drawablePadding="5dp"
-                android:hint="搜索:联系人"
+                android:hint="搜索"
                 android:imeOptions="actionSearch"
                 android:paddingLeft="8dp"
                 android:paddingTop="10dp"
@@ -55,7 +56,8 @@
     <RelativeLayout
         android:id="@+id/rct_view_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="horizontal">
 
         <TextView
@@ -97,49 +99,80 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_dept_title"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableLeft="@drawable/main_zuzhijiagou"
-                    android:drawablePadding="20dp"
-                    android:paddingLeft="20dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:text="组织架构"
-                    android:textColor="#333333"
-                    android:textSize="16sp" />
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                <huaiye.com.vim.views.MaxRecyclerView
-                    android:id="@+id/rct_view_suozai"
-                    android:paddingLeft="15dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tv_dept_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/main_zuzhijiagou"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:text="组织架构"
+                        android:textColor="#333333"
+                        android:textSize="16sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="15dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:textColor="#333333"
-                    android:text="常用联系人"
-                    android:textSize="16sp" />
+                    <huaiye.com.vim.views.MaxRecyclerView
+                        android:id="@+id/rct_view_suozai"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
 
-                <huaiye.com.vim.views.MaxRecyclerView
-                    android:id="@+id/rct_view"
-                    android:paddingLeft="15dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="15dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:textColor="#333333"
+                        android:text="常用联系人"
+                        android:textSize="16sp" />
+
+                    <huaiye.com.vim.views.MaxRecyclerView
+                        android:id="@+id/rct_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
             </ScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_choosed_persons"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rct_choosed"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:overScrollMode="never" />
+
+        <TextView
+            android:id="@+id/tv_choose_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/shape_choosed_confirm"
+            android:gravity="center"
+            android:paddingBottom="6dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="6dp"
+            android:text="确定"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+    </LinearLayout>
 
 </LinearLayout>

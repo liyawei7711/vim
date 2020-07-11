@@ -133,21 +133,8 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                int[] location = new int[2];
-//                header.getViewGroup().getLocationInWindow(location);
-
                 int[] location2 = new int[2];
                 rct_view.getLocationInWindow(location2);
-
-                /*if (header.hasData()) {
-                    if (location[1] != location2[1]) {
-                        refresh_view.setEnabled(false);
-                    } else {
-                        refresh_view.setEnabled(true);
-                    }
-                } else {
-                    refresh_view.setEnabled(true);
-                }*/
             }
         });
         refresh_view.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -234,9 +221,6 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
                 if (loginName.equals(AppDatas.Auth().getUserName())) {
                     return;
                 }
-//                ChoosedContacts.get().delTemp(mChoosedAdapter.getDatas().get(i));
-
-//                mChoosedAdapter.getDatas().remove(i);
 
                 for (User item : mCustomContacts) {
                     if (loginName.equals(item.strUserName)) {
@@ -245,13 +229,6 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
                     }
                 }
                 changeShowSelected();
-                /*for (int c : adapter.getSelectedPositions()) {
-                    if (loginName.equals(adapter.getDataForItemPosition(c).loginName)) {
-                        adapter.setItemChecked(c, false);
-                        adapter.notifyDataSetChanged();
-                        break;
-                    }
-                }*/
             }
         });
         rct_choosed.setAdapter(mChoosedAdapter);
@@ -363,8 +340,6 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-//        ChoosedContacts.get().deleteSelf();
-//        ChoosedContacts.get().clearTemp();
     }
 
     @Override

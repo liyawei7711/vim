@@ -72,20 +72,14 @@ public class FragmentContacts extends AppBaseFragment {
     @BindView(R.id.et_key)
     TextView et_key;
 
-    /*@BindView(R.id.rct_view_layout)
-    RelativeLayout rct_view_layout;*/
     @BindView(R.id.ll_search)
     View ll_search;
     @BindView(R.id.rct_view_suozai)
     RecyclerView rct_view_suozai;
     @BindView(R.id.rct_view)
     RecyclerView rct_view;
-    @BindView(R.id.view_list)
-    RecyclerView view_list;
     @BindView(R.id.tv_title)
     View tv_title;
-    @BindView(R.id.tv_letter_high_fidelity_item)
-    TextView tv_letter_high_fidelity_item;
 
     LiteBaseAdapter<ChangyongLianXiRenBean> adapter;
     LiteBaseAdapter<DeptData> adapterAt;

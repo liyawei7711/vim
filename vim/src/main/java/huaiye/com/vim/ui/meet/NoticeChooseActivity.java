@@ -2,7 +2,6 @@ package huaiye.com.vim.ui.meet;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,6 +33,7 @@ import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
+import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
@@ -60,10 +60,10 @@ public class NoticeChooseActivity extends AppBaseActivity {
 
     @BindExtra
     ContactsGroupUserListBean mGroupInfoListBean;
-    EXTRecyclerAdapter<ContactsGroupUserListBean.LstGroupUser> adapter;
+    EXTRecyclerAdapter<User> adapter;
     RequestOptions requestOptions;
 
-    ArrayList<ContactsGroupUserListBean.LstGroupUser> datas = new ArrayList<>();
+    ArrayList<User> datas = new ArrayList<>();
 
     @Override
     protected void initActionBar() {
@@ -119,9 +119,9 @@ public class NoticeChooseActivity extends AppBaseActivity {
         });
 
         rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
-        adapter = new EXTRecyclerAdapter<ContactsGroupUserListBean.LstGroupUser>(R.layout.item_group_notice_member) {
+        adapter = new EXTRecyclerAdapter<User>(R.layout.item_group_notice_member) {
             @Override
-            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, ContactsGroupUserListBean.LstGroupUser contactData) {
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
                 extViewHolder.setText(R.id.tv_user_name, contactData.strUserName);
                 ImageView imageView = extViewHolder.itemView.findViewById(R.id.iv_user_head);
                 Glide.with(getBaseContext())
@@ -133,7 +133,7 @@ public class NoticeChooseActivity extends AppBaseActivity {
         adapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                ContactsGroupUserListBean.LstGroupUser user = datas.get(i);
+                User user = datas.get(i);
                 Intent intent = new Intent();
                 intent.putExtra("notice_user", (Serializable) user);
                 setResult(Activity.RESULT_OK, intent);
@@ -172,7 +172,7 @@ public class NoticeChooseActivity extends AppBaseActivity {
 
     private void serach(String str) {
         datas.clear();
-        for (ContactsGroupUserListBean.LstGroupUser temp : mGroupInfoListBean.lstGroupUser) {
+        for (User temp : mGroupInfoListBean.lstGroupUser) {
             if (!temp.strUserName.equals(AppDatas.Auth().getUserName()) &&
                     temp.strUserName.contains(str)) {
                 datas.add(temp);
@@ -183,7 +183,7 @@ public class NoticeChooseActivity extends AppBaseActivity {
 
     private void showAll() {
         datas.clear();
-        for (ContactsGroupUserListBean.LstGroupUser temp : mGroupInfoListBean.lstGroupUser) {
+        for (User temp : mGroupInfoListBean.lstGroupUser) {
             if (!temp.strUserName.equals(AppDatas.Auth().getUserName())) {
                 datas.add(temp);
             }
@@ -198,7 +198,7 @@ public class NoticeChooseActivity extends AppBaseActivity {
     }
 
     private void backFinish() {
-        if(navigate_container.getVisibility() == View.GONE) {
+        if (navigate_container.getVisibility() == View.GONE) {
             showEnterView();
         } else {
             finish();

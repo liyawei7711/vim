@@ -21,6 +21,7 @@ import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.JinJiLianXiRenBean;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivityNew;
+import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivityNewOrg;
 import huaiye.com.vim.ui.meet.adapter.UserDetailUserListAdapter;
 import huaiye.com.vim.ui.setting.adapter.SetLianXiRenListAdapter;
 
@@ -154,7 +155,7 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
     @Override
     public void onItemClick(User item) {
         if (UserDetailUserListAdapter.TYPE_ADD.equals(item.strUserID)) {
-            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNew.class);
+            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNewOrg.class);
             intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_add_user_title));
             intent.putExtra("isSelectUser", true);
             intent.putExtra("isJinJiMore", true);

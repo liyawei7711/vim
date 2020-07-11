@@ -46,6 +46,7 @@ import huaiye.com.vim.dao.msgs.ChatGroupMsgBean;
 import huaiye.com.vim.dao.msgs.ChatMessageBase;
 import huaiye.com.vim.dao.msgs.ChatMessageBean;
 import huaiye.com.vim.dao.msgs.SendMsgUserBean;
+import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.UserInfo;
 import huaiye.com.vim.dao.msgs.VimMessageBean;
 import huaiye.com.vim.models.ModelApis;
@@ -660,7 +661,7 @@ public class ZhuanFaGroupPopupWindowDuoFa extends PopupWindow {
                         public void onSuccess(final ContactsGroupUserListBean contactsBean) {
                             ArrayList<SendUserBean> sendUserBeans = new ArrayList<>();
                             if (contactsBean != null && contactsBean.lstGroupUser != null) {
-                                for (ContactsGroupUserListBean.LstGroupUser temp : contactsBean.lstGroupUser) {
+                                for (User temp : contactsBean.lstGroupUser) {
                                     if (!AppAuth.get().getUserID().equals(temp.strUserID)) {
                                         SendUserBean sendUserBean = new SendUserBean();
                                         sendUserBean.strUserID = temp.strUserID;

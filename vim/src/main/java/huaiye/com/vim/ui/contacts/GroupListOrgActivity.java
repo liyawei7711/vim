@@ -2,19 +2,19 @@ package huaiye.com.vim.ui.contacts;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ttyy.commonanno.anno.BindLayout;
+import com.ttyy.commonanno.anno.BindView;
+import com.ttyy.commonanno.anno.OnClick;
+import com.ttyy.commonanno.anno.route.BindExtra;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
+import huaiye.com.vim.bus.EventUserClick;
+import huaiye.com.vim.bus.EventUserSelectedComplete;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
@@ -36,7 +36,8 @@ import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
-import huaiye.com.vim.dao.msgs.VimMessageBean;
+import huaiye.com.vim.dao.auth.AppAuth;
+import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.VimMessageListMessages;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -45,20 +46,24 @@ import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
+import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.GroupInfoViewHolder;
-import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
+import huaiye.com.vim.ui.contacts.viewholder.GroupInfoViewOrgHolder;
 import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
+import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
+import ttyy.com.recyclerexts.base.EXTViewHolder;
 
+import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.userGroupMap;
 
 /**
  * Created by ywt on 2019/3/21.
  */
-@BindLayout(R.layout.activity_group_list)
-public class GroupListActivity extends AppBaseActivity {
+@BindLayout(R.layout.activity_group_list_org)
+public class GroupListOrgActivity extends AppBaseActivity {
 
     @BindView(R.id.et_key)
-    EditText et_key;
+    TextView et_key;
     @BindView(R.id.close)
     ImageView close;
 
@@ -79,12 +84,23 @@ public class GroupListActivity extends AppBaseActivity {
     View iv_empty_view;
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
+    @BindView(R.id.ll_choosed_persons)
+    LinearLayout llChoosedPersons;
+    @BindView(R.id.rct_choosed)
+    RecyclerView rct_choosed;
+    @BindView(R.id.tv_choose_confirm)
+    TextView tv_choose_confirm;
 
     ArrayList<GroupInfo> lstGroupInfo = new ArrayList<>();
     LiteBaseAdapter<GroupInfo> myCreateAdapter;
     ArrayList<GroupInfo> mCreateGroupInfo = new ArrayList<>();
     LiteBaseAdapter<GroupInfo> myJonieAdapter;
     ArrayList<GroupInfo> mJonieGroupInfo = new ArrayList<>();
+    EXTRecyclerAdapter<User> mChoosedAdapter;
+
+    @BindExtra
+    int max;
+
     int requestCount = 0;
     int currentRequestTime = 0;
     boolean isFreadList = false;
@@ -92,6 +108,7 @@ public class GroupListActivity extends AppBaseActivity {
     private boolean create;//当前是不是创建的模式
 
     public static Map<String, String> mapGroupName = new HashMap<>();
+    ArrayList<String> selectedMap = new ArrayList<>();
 
     @Override
     protected void initActionBar() {
@@ -99,26 +116,21 @@ public class GroupListActivity extends AppBaseActivity {
     }
 
     private void initNavigateView() {
+        EventBus.getDefault().register(this);
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("我的群组")
-                .setRightText("发起群聊")
-                .setRightClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(GroupListActivity.this, ContactsAddOrDelActivityNewOrg.class);
-                        intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_add_user_title));
-                        intent.putExtra("isSelectUser", true);
-                        intent.putExtra("isCreateGroup", true);
-                        intent.putExtra("isAddMore", false);
-                        GroupListActivity.this.startActivity(intent);
-                    }
-                })
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         finish();
                     }
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -141,20 +153,24 @@ public class GroupListActivity extends AppBaseActivity {
         });
         myCreateAdapter = new LiteBaseAdapter<>(this,
                 mCreateGroupInfo,
-                GroupInfoViewHolder.class,
-                R.layout.item_contacts_person,
+                GroupInfoViewOrgHolder.class,
+                R.layout.item_contacts_person_org,
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         GroupInfo groupInfo = (GroupInfo) v.getTag();
-                        Intent intent = new Intent(GroupListActivity.this, ChatGroupActivityNew.class);
-                        CreateGroupContactData contactsBean = new CreateGroupContactData();
-                        contactsBean.strGroupID = groupInfo.strGroupID;
-                        contactsBean.strGroupDomainCode = groupInfo.strGroupDomainCode;
-                        intent.putExtra("mContactsBean", contactsBean);
-                        startActivity(intent);
+                        if (v.getId() == R.id.tv_next) {
+                            Intent intent = new Intent(GroupListOrgActivity.this, GroupUserListOrgActivity.class);
+                            intent.putExtra("max", max);
+                            intent.putExtra("groupInfo", groupInfo);
+                            startActivity(intent);
+                        } else {
+                            handleChoice(groupInfo);
+                        }
                     }
                 }, "false");
+        GroupInfoViewOrgHolder.mIsChoice = true;
+
         myJonieAdapter = new LiteBaseAdapter<>(this,
                 mJonieGroupInfo,
                 GroupInfoViewHolder.class,
@@ -163,7 +179,7 @@ public class GroupListActivity extends AppBaseActivity {
                     @Override
                     public void onClick(View v) {
                         GroupInfo groupInfo = (GroupInfo) v.getTag();
-                        Intent intent = new Intent(GroupListActivity.this, ChatGroupActivityNew.class);
+                        Intent intent = new Intent(GroupListOrgActivity.this, GroupUserListOrgActivity.class);
                         CreateGroupContactData contactsBean = new CreateGroupContactData();
                         contactsBean.strGroupID = groupInfo.strGroupID;
                         contactsBean.strGroupDomainCode = groupInfo.strGroupDomainCode;
@@ -186,21 +202,82 @@ public class GroupListActivity extends AppBaseActivity {
             }
         });
 
-        et_key.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    Editable s = et_key.getText();
-                    if (s != null && s.length() > 0) {
-                        showData(s.toString());
-                    } else {
-                        showData("");
-                    }
-                    return true;
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
+                if (contactData.nJoinStatus != 2) {
+                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
+                } else {
+                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
                 }
-                return false;
+            }
+        };
+        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
+        mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(View view, int i) {
+                if (mChoosedAdapter.getDatas().get(i).strUserID.equals(AppDatas.Auth().getUserID())) {
+                    return;
+                }
+                ChoosedContactsNew.get().removeContacts(mChoosedAdapter.getDatas().get(i));
+                mChoosedAdapter.notifyDataSetChanged();
+                EventBus.getDefault().post(new EventUserClick(mChoosedAdapter.getDatas().get(i)));
             }
         });
+        rct_choosed.setAdapter(mChoosedAdapter);
+
+        changeShowSelected();
+    }
+
+    private void handleChoice(GroupInfo groupInfo) {
+        ModelApis.Contacts().requestqueryGroupChatInfo(groupInfo.strGroupDomainCode, groupInfo.strGroupID, new ModelCallback<ContactsGroupUserListBean>() {
+            @Override
+            public void onSuccess(final ContactsGroupUserListBean contactsBean) {
+                groupInfo.isSelected = !groupInfo.isSelected;
+                if (groupInfo.isSelected) {
+                    if (!selectedMap.contains(groupInfo.strGroupID)) {
+                        selectedMap.add(groupInfo.strGroupID);
+                    }
+                } else {
+                    if (selectedMap.contains(groupInfo.strGroupID)) {
+                        selectedMap.remove(groupInfo.strGroupID);
+                    }
+                }
+                if (contactsBean != null && contactsBean.lstGroupUser != null && contactsBean.lstGroupUser.size() > 0) {
+                    for (User user : contactsBean.lstGroupUser) {
+                        if (!user.strUserID.equals(AppAuth.get().getUserID())) {
+
+                            if (groupInfo.isSelected) {
+                                if (!ChoosedContactsNew.get().isContain(user)) {
+                                    if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
+                                        showToast("最多选" + max + "人，已达人数上限");
+                                        return;
+                                    }
+                                    userGroupMap.put(user.strUserID, groupInfo.strGroupID);
+                                    user.isSelected = true;
+                                    ChoosedContactsNew.get().addContacts(user);
+                                }
+                            } else {
+                                if (ChoosedContactsNew.get().isContain(user)) {
+                                    user.isSelected = false;
+                                    ChoosedContactsNew.get().removeContacts(user);
+
+                                    if (userGroupMap.containsKey(user.strUserID)) {
+                                        userGroupMap.remove(user.strUserID);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                mChoosedAdapter.notifyDataSetChanged();
+                myCreateAdapter.notifyDataSetChanged();
+
+                changeShowSelected();
+            }
+        });
+
     }
 
     @Override
@@ -272,6 +349,9 @@ public class GroupListActivity extends AppBaseActivity {
         mCreateGroupInfo.clear();
         mJonieGroupInfo.clear();
         for (GroupInfo temp : lstGroupInfo) {
+            if (selectedMap.contains(temp.strGroupID)) {
+                temp.isSelected = true;
+            }
             if (TextUtils.isEmpty(str)) {
                 mCreateGroupInfo.add(temp);
                 mJonieGroupInfo.add(temp);
@@ -285,6 +365,9 @@ public class GroupListActivity extends AppBaseActivity {
 
         mapGroupName.clear();
         for (GroupInfo temp : mCreateGroupInfo) {
+            if (selectedMap.contains(temp.strGroupID)) {
+                temp.isSelected = true;
+            }
             if (TextUtils.isEmpty(temp.strGroupName)) {
                 ModelApis.Contacts().requestqueryGroupChatInfo(temp.strGroupDomainCode, temp.strGroupID,
                         new ModelCallback<ContactsGroupUserListBean>() {
@@ -366,22 +449,26 @@ public class GroupListActivity extends AppBaseActivity {
         }
     }
 
+    private void changeShowSelected() {
+        if (ChoosedContactsNew.get().getContacts().isEmpty()) {
+            llChoosedPersons.setVisibility(View.GONE);
+            tv_choose_confirm.setText("确定(0)");
+        } else {
+            llChoosedPersons.setVisibility(View.VISIBLE);
+            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getContacts().size() + ")");
+        }
+    }
+
+    @OnClick({R.id.ll_search, R.id.et_key})
+    public void onClickSearch(View view) {
+        Intent intent = new Intent(this, SearchDeptUserListOrgActivity.class);
+        intent.putExtra("max", max);
+        startActivity(intent);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(VimMessageBean obj) {
-        requestGroupContacts();
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
-        ButterKnife.bind(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
+    public void onEvent(EventUserSelectedComplete bean) {
+        finish();
     }
 
 }

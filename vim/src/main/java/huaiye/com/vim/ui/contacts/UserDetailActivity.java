@@ -296,14 +296,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             mContactsGroupUserListBean.lstGroupUser = new ArrayList<>();
             mContactsGroupUserListBean.strGroupName = mContactsBean.sessionName;
             mContactsGroupUserListBean.strAnnouncement = mContactsBean.sessionName;
-            for (User temp : mContactsBean.userList) {
-                ContactsGroupUserListBean.LstGroupUser temp1 = new ContactsGroupUserListBean.LstGroupUser();
-                temp1.strUserName = temp.strUserName;
-                temp1.strHeadUrl = temp.strHeadUrl;
-                temp1.strUserDomainCode = temp.getDomainCode();
-                temp1.strUserID = temp.strUserID;
-                mContactsGroupUserListBean.lstGroupUser.add(temp1);
-            }
+            mContactsGroupUserListBean.lstGroupUser.addAll(mContactsBean.userList);
         }
         mDataList.clear();
         if (!isGroupChat) {
@@ -319,15 +312,10 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                     null != mContactsGroupUserListBean.lstGroupUser &&
                     mContactsGroupUserListBean.lstGroupUser.size() > 0) {
                 mUserList.clear();
-                for (ContactsGroupUserListBean.LstGroupUser mLstGroupUser : mContactsGroupUserListBean.lstGroupUser) {
-                    User nUser = new User();
-                    nUser.strUserName = mLstGroupUser.strUserName;
-                    nUser.strDomainCode = mLstGroupUser.strUserDomainCode;
-                    nUser.strUserID = mLstGroupUser.strUserID;
-                    nUser.strHeadUrl = mLstGroupUser.strHeadUrl;
-                    mDataList.add(nUser);
+                for (User mLstGroupUser : mContactsGroupUserListBean.lstGroupUser) {
+                    mDataList.add(mLstGroupUser);
                     if (!(mLstGroupUser.strUserID.equals(AppDatas.Auth().getUserID()))) {
-                        mUserList.add(nUser);
+                        mUserList.add(mLstGroupUser);
                     }
                 }
             }
@@ -499,7 +487,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     @Override
     public void onItemClick(User item) {
         if (UserDetailUserListAdapter.TYPE_ADD.equals(item.strUserID)) {
-            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNew.class);
+            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNewOrg.class);
             intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_add_user_title));
             intent.putExtra("isSelectUser", true);
             if (isGroupChat) {
@@ -516,7 +504,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             intent.putExtra("mUserList", mUserList);
             startActivityForResult(intent, 1000);
         } else if (UserDetailUserListAdapter.TYPE_DEL.equals(item.strUserID)) {
-            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNew.class);
+            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNewOrg.class);
             intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_del_user_title));
             intent.putExtra("strGroupDomainCode", strGroupDomainCode);
             intent.putExtra("strGroupID", strGroupID);

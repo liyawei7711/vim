@@ -178,6 +178,8 @@ public class User implements Serializable {
     @Ignore
     public boolean isSelected;
     @Ignore
+    public String saveTime;
+    @Ignore
     public ArrayList<DeptData> lstDepartment;
 
     public User() {
