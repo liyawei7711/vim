@@ -171,21 +171,6 @@ public class MeetControlActivity extends AppBaseActivity implements SdpUITask.Sd
                 } else {
                     extViewHolder.setVisibility(R.id.tv_speaker, View.GONE);
                 }
-//                extViewHolder.setImageResouce(R.id.tv_clear, R.drawable.kongzhi_ico_qingchu);
-
-                /*extViewHolder.findViewById(R.id.tv_mic).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        jinyan(userInfo);
-                    }
-                });
-
-                extViewHolder.findViewById(R.id.tv_clear).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        kitOut(userInfo);
-                    }
-                });*/
 
                 /* 如果是主持人，则显示更多选项，否则隐藏 */
                 if (mCGetMeetingInfoRsp.strMainUserID.equals(String.valueOf(AppDatas.Auth().getUserID()))) {
@@ -199,31 +184,6 @@ public class MeetControlActivity extends AppBaseActivity implements SdpUITask.Sd
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        /*PopupMenu popupMenu = new PopupMenu(MeetControlActivity.this, v);
-//                        popupMenu.inflate(R.menu.control_more);
-//                        popupMenu.getMenuInflater().inflate(R.menu.control_more, popupMenu.getMenu());
-//                        popupMenu.getMenu().findItem(R.id.control_jingyan).setTitle("取消禁言");
-                        popupMenu.getMenu().add(1, 1, 1, R.string.jingyan);
-                        popupMenu.getMenu().add(1, 2, 2, R.string.zhujiangren);
-                        popupMenu.getMenu().add(1, 3, 3, R.string.kick_out);
-                        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                switch (item.getItemId()) {
-                                    case R.id.control_jingyan:
-                                        jinyan(userInfo);
-                                        break;
-                                    case R.id.control_zhujiangren:
-//                                        HYClient.getModule(ApiMeet.class).setMeetingKeynoteSpeaker();
-                                        break;
-                                    case R.id.control_kick_out:
-                                        kitOut(userInfo);
-                                        break;
-                                }
-                                return false;
-                            }
-                        });
-                        popupMenu.show();*/
                         MoreControlWindow window = new MoreControlWindow(MeetControlActivity.this, userInfo, mCGetMeetingInfoRsp.strKeynoteSpeakerTokenID);
                         window.setConfirmClickListener(new MoreControlWindow.ConfirmClickListener() {
                             @Override

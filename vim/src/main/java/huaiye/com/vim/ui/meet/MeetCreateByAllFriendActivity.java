@@ -369,7 +369,7 @@ public class MeetCreateByAllFriendActivity extends AppBaseActivity implements Me
             } else {
                 user.setDevTypeUser();
             }
-            user.strUserDomainCode = tmp.strDomainCode;
+            user.strUserDomainCode = tmp.getDomainCode();
             user.strUserID = tmp.strUserID;
             user.strUserName = tmp.strUserName;
 
@@ -390,7 +390,7 @@ public class MeetCreateByAllFriendActivity extends AppBaseActivity implements Me
             } else {
                 user.setDevTypeUser();
             }
-            user.strUserDomainCode = tmp.strDomainCode;
+            user.strUserDomainCode = tmp.getDomainCode();
             user.strUserID = tmp.strUserID;
             user.strUserName = tmp.strUserName;
 

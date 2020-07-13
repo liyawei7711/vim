@@ -86,7 +86,7 @@ public class SetLianXiRenListAdapter extends RecyclerView.Adapter<RecyclerView.V
                 new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal<String>() {
                     @Override
                     public String doOnThread() {
-                        return AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(msg.strUserID, msg.strDomainCode);
+                        return AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(msg.strUserID, msg.getDomainCode());
                     }
 
                     @Override

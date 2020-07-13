@@ -545,7 +545,7 @@ public class AuthApi {
         }
         ArrayList<UserInfoDomain> userList = new ArrayList<>();
         for (User temp : bean.getUserRel()) {
-            userList.add(new UserInfoDomain(temp.strUserID, TextUtils.isEmpty(temp.strDomainCode) ? temp.strUserDomainCode : temp.strDomainCode));
+            userList.add(new UserInfoDomain(temp.strUserID, temp.getDomainCode()));
         }
 
         BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();

@@ -302,7 +302,7 @@ public class ContactsApi {
         if (null != lstGroupUser && lstGroupUser.size() > 0) {
             for (User user : lstGroupUser) {
                 if (!user.strUserID.equals(AppDatas.Auth().getUserID())) {//建群的时候 不用加入自己
-                    sessionUserList.add(new SendUserBean(user.strUserID, user.strDomainCode, user.strUserName));
+                    sessionUserList.add(new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName));
                 }
             }
         }
@@ -433,7 +433,7 @@ public class ContactsApi {
         ArrayList<SendUserBean> sessionUserList = new ArrayList<>();
         if (null != lstGroupUser && lstGroupUser.size() > 0) {
             for (User user : lstGroupUser) {
-                sessionUserList.add(new SendUserBean(user.strUserID, user.strDomainCode, user.strUserName));
+                sessionUserList.add(new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName));
             }
         }
         String URL = AppDatas.Constants().getVimAddressBaseURL() + "httpjson/invite_user_join_group_chat";
@@ -463,7 +463,7 @@ public class ContactsApi {
         ArrayList<SendUserBean> sessionUserList = new ArrayList<>();
         if (null != lstGroupUser && lstGroupUser.size() > 0) {
             for (User user : lstGroupUser) {
-                sessionUserList.add(new SendUserBean(user.strUserID, user.strDomainCode, user.strUserName));
+                sessionUserList.add(new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName));
             }
         }
         String URL = AppDatas.Constants().getVimAddressBaseURL() + "httpjson/kickout_group_user";

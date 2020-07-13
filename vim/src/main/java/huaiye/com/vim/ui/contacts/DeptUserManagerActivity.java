@@ -149,8 +149,7 @@ public class DeptUserManagerActivity extends AppBaseActivity {
         ArrayList<LstOutUserBean> lstUser = new ArrayList<>();
         for (User temp : userInfos) {
             if (temp.isSelected) {
-                lstUser.add(new LstOutUserBean(TextUtils.isEmpty(temp.strUserDomainCode) ? temp.strDomainCode : temp.strUserDomainCode,
-                        temp.strUserID, temp.strUserName));
+                lstUser.add(new LstOutUserBean(temp.getDomainCode(), temp.strUserID, temp.strUserName));
             }
         }
         ModelApis.Contacts().addUserToDept(deptData.strDepID, lstUser, new ModelCallback<CustomResponse>() {

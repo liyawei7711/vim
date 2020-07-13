@@ -236,7 +236,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         updateAllRead();
 
         SdpMessageCmProcessIMReq.UserInfo info = new SdpMessageCmProcessIMReq.UserInfo();
-        info.strUserDomainCode = nUser.strDomainCode;
+        info.strUserDomainCode = nUser.getDomainCode();
         info.strUserID = nUser.strUserID;
         users.add(info);
 
@@ -245,7 +245,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             sharePopupLeaveWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
         }
 
-        AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), nUser.strUserID, nUser.strDomainCode);
+        AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), nUser.strUserID, nUser.getDomainCode());
         AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(nUser));
     }
 
@@ -279,7 +279,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             }
         });
         mChatContentAdapter = new ChatContentAdapter(this, false, null, null, sessionUserList);
-        mChatContentAdapter.setUserInfo(nUser.strUserID, nUser.strDomainCode);
+        mChatContentAdapter.setUserInfo(nUser.strUserID, nUser.getDomainCode());
         chat_recycler.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -569,7 +569,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 
         String finalStr = str;
         EncryptUtil.encryptTxt(str, true, false, "", "",
-                nUser.strUserID, nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                nUser.strUserID, nUser.getDomainCode(), users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                     @Override
                     public void onSuccess(SdpMessageCmProcessIMRsp sessionRsp) {
                         String msgText = sessionRsp.m_lstData.get(0).strData;
@@ -612,14 +612,14 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         bean.fromUserName = AppDatas.Auth().getUserName();
         bean.groupType = 0;
         bean.bEncrypt = isEncrypt ? 1 : 0;
-        bean.groupDomainCode = nUser.strUserDomainCode;
+        bean.groupDomainCode = nUser.getDomainCode();
 //        bean.groupDomainCode = mMeetDomain;
         bean.groupID = nUser.strUserID;
 //        bean.groupID = mMeetID;
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(mOtherUserId, TextUtils.isEmpty(nUser.strUserDomainCode) ? nUser.strDomainCode : nUser.strUserDomainCode, mOtherUserName);
+        SendUserBean otherUser = new SendUserBean(mOtherUserId, nUser.getDomainCode(), mOtherUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
@@ -718,7 +718,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             return null;
         }
         if (TextUtils.isEmpty(mSessionID)) {
-            return nUser.strDomainCode + nUser.strUserID;
+            return nUser.getDomainCode() + nUser.strUserID;
         }
         return mSessionID;
     }
@@ -875,7 +875,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             return;
         }
         CStartTalkbackReq.ToUser toUser = new CStartTalkbackReq.ToUser();
-        toUser.strToUserDomainCode = nUser.strDomainCode;
+        toUser.strToUserDomainCode = nUser.getDomainCode();
         toUser.strToUserID = nUser.strUserID;
         toUser.strToUserName = nUser.strUserName;
 
@@ -902,7 +902,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             return;
         }
         CStartTalkbackReq.ToUser toUser = new CStartTalkbackReq.ToUser();
-        toUser.strToUserDomainCode = nUser.strDomainCode;
+        toUser.strToUserDomainCode = nUser.getDomainCode();
         toUser.strToUserID = nUser.strUserID;
         toUser.strToUserName = nUser.strUserName;
 
@@ -991,7 +991,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                     if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                         EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                                 true, false, "", "",
-                                nUser.strUserID, nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                                nUser.strUserID, nUser.getDomainCode(), users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                     @Override
                                     public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                                         upFile(file, new File(resp.m_strData));
@@ -1258,7 +1258,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                     true, false, "", "",
-                    nUser.strUserID, nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    nUser.strUserID, nUser.getDomainCode(), users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                             upFileVoice(file, new File(resp.m_strData));

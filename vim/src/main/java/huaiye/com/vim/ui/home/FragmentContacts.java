@@ -293,11 +293,11 @@ public class FragmentContacts extends AppBaseFragment {
             public List<ChangyongLianXiRenBean> doOnThread() {
                 if (null != mAllContacts && mAllContacts.size() > 0 && null != user) {
                     for (ChangyongLianXiRenBean userAll : mAllContacts) {
-                        if (userAll.strDomainCode.equals(user.strDomainCode) && userAll.strUserID.equals(user.strUserID)) {
+                        if (userAll.strDomainCode.equals(user.getDomainCode()) && userAll.strUserID.equals(user.strUserID)) {
                             ChangyongLianXiRenBean lianxiren = ChangyongLianXiRenBean.converToChangyongLianXiRen(user);
                             mAllContacts.set(mAllContacts.indexOf(userAll), lianxiren);
                             mCustomContacts.set(mCustomContacts.indexOf(userAll), lianxiren);
-                            AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), user.strUserID, TextUtils.isEmpty(user.strDomainCode) ? user.strUserDomainCode : user.strDomainCode);
+                            AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), user.strUserID, user.getDomainCode());
                             AppDatas.MsgDB().getChangYongLianXiRen().insertAll(lianxiren);
                             continue;
                         }

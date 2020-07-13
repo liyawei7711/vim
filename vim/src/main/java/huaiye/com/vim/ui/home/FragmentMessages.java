@@ -270,7 +270,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
 
             intent.putExtra("nUser", nUser);
             intent.putExtra("sessionUserList", bean.sessionUserList);
-            intent.putExtra("mOtherUserDomainCode", nUser.strUserDomainCode);
+            intent.putExtra("mOtherUserDomainCode", nUser.getDomainCode());
             startActivity(intent);
         }
     }
@@ -419,7 +419,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                                             break;
                                         }
                                     }
-                                    if (friend.strUserID.equals(user.strUserID) && friend.strUserDomainCode.equals(user.strUserDomainCode)) {
+                                    if (friend.strUserID.equals(user.strUserID) && friend.strUserDomainCode.equals(user.getDomainCode())) {
                                         vimMessageListBean.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(friend.strUserID, friend.strUserDomainCode);
                                         break;
                                     }

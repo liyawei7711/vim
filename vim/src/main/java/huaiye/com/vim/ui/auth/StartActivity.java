@@ -22,10 +22,8 @@ import com.ttyy.commonanno.anno.OnClick;
 
 import java.util.ArrayList;
 
-import huaiye.com.vim.BuildConfig;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
-import huaiye.com.vim.bus.SosBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.ErrorMsg;
@@ -69,6 +67,7 @@ public class StartActivity extends AppBaseActivity {
     private LocationService locationService;
 
     boolean isFromLogin = false;
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -207,7 +206,7 @@ public class StartActivity extends AppBaseActivity {
                             view_load.setVisibility(View.GONE);
                             boolean isReSetPwd = SP.getBoolean(STRING_KEY_resetpwd, false);
 //                            if(BuildConfig.DEBUG) {
-                                isReSetPwd = true;
+                            isReSetPwd = true;
 //                            }
                             if (isReSetPwd) {
                                 AppAuth.get().setAutoLogin(true);
@@ -227,8 +226,12 @@ public class StartActivity extends AppBaseActivity {
                             super.onFailure(httpResponse);
                             view_load.setVisibility(View.GONE);
                             //被取消了就啥都不干
-                            if (httpResponse.getHttpRequest() != null && httpResponse.getHttpRequest().isCanceled()) {
-                                return;
+                            try {
+                                if (httpResponse.getHttpRequest() != null && httpResponse.getHttpRequest().isCanceled()) {
+                                    return;
+                                }
+                            } catch (Exception e) {
+
                             }
                             if (httpResponse.getStatusCode() == 0 && !TextUtils.isEmpty(httpResponse.getErrorMessage())) {
                                 showToast(httpResponse.getErrorMessage());

@@ -217,7 +217,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
             File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, false, "", "",
-                    user.strUserID, user.strDomainCode, usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    user.strUserID, user.getDomainCode(), usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                             upFileImg(fileun, new File(resp.m_strData));
@@ -318,7 +318,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
             File fileun = new File(EncryptUtil.getNewFileMingWen(file.getAbsolutePath(), fC_MINGWEN));
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, false, "", "",
-                    user.strUserID, user.strDomainCode, usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    user.strUserID, user.getDomainCode(), usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                             upFile(fileun, new File(resp.m_strData), true);
@@ -370,7 +370,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
             }
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, false, "", "",
-                    user.strUserID, user.strDomainCode, usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    user.strUserID, user.getDomainCode(), usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                             upFile(fileun, new File(resp.m_strData), false);
@@ -485,7 +485,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
             }
             EncryptUtil.encryptFile(fileun.getPath(), EncryptUtil.getNewFileChuanShu(fileun.getPath(), fC_LINSHI),
                     true, false, "", "",
-                    user.strUserID, user.strDomainCode, usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    user.strUserID, user.getDomainCode(), usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                             upFileVoice(fileun, new File(resp.m_strData));
@@ -628,7 +628,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             EncryptUtil.encryptTxt(str, true, false, "", "",
-                    user.strUserID, user.strDomainCode, usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    user.strUserID, user.getDomainCode(), usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp sessionRsp) {
                             String msgText = sessionRsp.m_lstData.get(0).strData;
@@ -673,7 +673,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
 
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             EncryptUtil.encryptTxt(str, true, false, "", "",
-                    user.strUserID, user.strDomainCode, usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    user.strUserID, user.getDomainCode(), usersNew, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp sessionRsp) {
                             sendWetherEncryptShare(sessionRsp.m_lstData.get(0).strData, true);
@@ -710,12 +710,12 @@ public class ZhuanFaPopupWindow extends PopupWindow {
         bean.fromUserName = AppDatas.Auth().getUserName();
         bean.groupType = 0;
         bean.bEncrypt = isEncrypt ? 1 : 0;
-        bean.groupDomainCode = user.strUserDomainCode;
+        bean.groupDomainCode = user.getDomainCode();
         bean.groupID = user.strUserID;
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode, user.strUserName);
+        SendUserBean otherUser = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
@@ -795,12 +795,12 @@ public class ZhuanFaPopupWindow extends PopupWindow {
         bean.fromUserName = AppDatas.Auth().getUserName();
         bean.groupType = 0;
         bean.bEncrypt = isEncrypt ? 1 : 0;
-        bean.groupDomainCode = user.strUserDomainCode;
+        bean.groupDomainCode = user.getDomainCode();
         bean.groupID = user.strUserID;
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode, user.strUserName);
+        SendUserBean otherUser = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
@@ -954,7 +954,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
         if (null == user) {
             return null;
         }
-        return user.strDomainCode + user.strUserID;
+        return user.getDomainCode() + user.strUserID;
     }
 
     private String getSessionName() {
@@ -1348,7 +1348,7 @@ public class ZhuanFaPopupWindow extends PopupWindow {
     void initUser() {
         usersNew.clear();
         SdpMessageCmProcessIMReq.UserInfo info = new SdpMessageCmProcessIMReq.UserInfo();
-        info.strUserDomainCode = TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode;
+        info.strUserDomainCode = user.getDomainCode();
         info.strUserID = user.strUserID;
         usersNew.add(info);
     }

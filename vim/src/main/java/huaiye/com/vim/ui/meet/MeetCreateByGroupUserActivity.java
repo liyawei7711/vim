@@ -197,7 +197,7 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
                         User temp_item = new User();
                         temp_item.strUserID = lstGroupUser.strUserID;
                         temp_item.strUserName = lstGroupUser.strUserName;
-                        temp_item.strDomainCode = lstGroupUser.strUserDomainCode;
+                        temp_item.strDomainCode = lstGroupUser.getDomainCode();
                         temp_item.strHeadUrl = lstGroupUser.strHeadUrl;
                         ChoosedContactsNew.get().addContacts(temp_item);
                     }
@@ -401,7 +401,7 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
             } else {
                 user.setDevTypeUser();
             }
-            user.strUserDomainCode = tmp.strDomainCode;
+            user.strUserDomainCode = tmp.getDomainCode();
             user.strUserID = tmp.strUserID;
             user.strUserName = tmp.strUserName;
 
@@ -422,7 +422,7 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
             } else {
                 user.setDevTypeUser();
             }
-            user.strUserDomainCode = tmp.strDomainCode;
+            user.strUserDomainCode = tmp.getDomainCode();
             user.strUserID = tmp.strUserID;
             user.strUserName = tmp.strUserName;
 

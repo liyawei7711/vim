@@ -154,7 +154,7 @@ public class SearchChatActivity extends Activity {
 
             intent.putExtra("nUser", nUser);
             intent.putExtra("sessionUserList", bean.sessionUserList);
-            intent.putExtra("mOtherUserDomainCode", nUser.strUserDomainCode);
+            intent.putExtra("mOtherUserDomainCode", nUser.getDomainCode());
             startActivity(intent);
         }
     }

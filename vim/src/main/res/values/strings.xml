@@ -250,7 +250,7 @@
     <string name="user_detail_group_notice">群公告</string>
 
     <string name="user_detail_group_del">删除并退出</string>
-    <string name="user_detail_add_user_title">发起群聊</string>
+    <string name="user_detail_add_user_title">创建群聊</string>
     <string name="main_chat_push_video">发起视频推送</string>
 
     <string name="user_detail_del_user_title">聊天成员</string>
@@ -333,7 +333,7 @@
     <string name="out_camera">无外置摄像头</string>
     <string name="capture_success">采集成功</string>
     <string name="capture_false">采集失败</string>
-    <string name="home_popwindow_btn1">发起群聊</string>
+    <string name="home_popwindow_btn1">创建群聊</string>
     <string name="home_popwindow_btn2">视频推送</string>
     <string name="home_popwindow_btn3">视频会议</string>
     <string name="home_popwindow_btn4">语音会议</string>

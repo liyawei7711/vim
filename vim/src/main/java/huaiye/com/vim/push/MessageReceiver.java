@@ -863,10 +863,10 @@ public class MessageReceiver {
     private void dealModifyUserHead(ChatMessageBean chatMessageBean, Gson gson, String strMsg) {
         User user = gson.fromJson(chatMessageBean.content, User.class);
         if (null != user) {
-            User localUser = AppDatas.MsgDB().getFriendListDao().getFriend(user.strUserID, user.strDomainCode);
+            User localUser = AppDatas.MsgDB().getFriendListDao().getFriend(user.strUserID, user.getDomainCode());
             if (null != localUser) {//本地有缓存 说明是好友或者是群成员,否则不做处理
-                localUser.strDomainCode = user.strDomainCode;
-                localUser.strUserDomainCode = user.strDomainCode;
+                localUser.strDomainCode = user.getDomainCode();
+                localUser.strUserDomainCode = user.getDomainCode();
                 localUser.strHeadUrl = user.strHeadUrl;
                 AppDatas.MsgDB().getFriendListDao().insert(localUser);
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_MESSAGE_MODIFY_HEAD_PIC, localUser));
@@ -1158,11 +1158,7 @@ public class MessageReceiver {
                         new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
                             @Override
                             public Object doOnThread() {
-                                for (User user : contactsBean.userList) {
-                                    user.strDomainCode = user.strUserDomainCode;
-                                }
                                 AppDatas.MsgDB().getFriendListDao().insertAll(contactsBean.userList);
-
                                 return "";
                             }
 

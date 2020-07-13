@@ -156,12 +156,12 @@ public class SharePopupWindowDuoXuan extends PopupWindow {
         bean.fromUserName = AppDatas.Auth().getUserName();
         bean.groupType = 0;
         bean.bEncrypt = 0;
-        bean.groupDomainCode = user.strUserDomainCode;
+        bean.groupDomainCode = user.getDomainCode();
         bean.groupID = user.strUserID;
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode, user.strUserName);
+        SendUserBean otherUser = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
@@ -235,7 +235,7 @@ public class SharePopupWindowDuoXuan extends PopupWindow {
 
     private void jumpToChat() {
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(users.get(0).strUserID, TextUtils.isEmpty(users.get(0).strUserDomainCode) ? users.get(0).strDomainCode : users.get(0).strUserDomainCode, users.get(0).strUserName);
+        SendUserBean otherUser = new SendUserBean(users.get(0).strUserID, users.get(0).getDomainCode(), users.get(0).strUserName);
         ArrayList<SendUserBean> sessionUserList = new ArrayList<>();
         sessionUserList.add(mySelf);
         sessionUserList.add(otherUser);
@@ -358,7 +358,7 @@ public class SharePopupWindowDuoXuan extends PopupWindow {
         if (null == user) {
             return null;
         }
-        return user.strDomainCode + user.strUserID;
+        return user.getDomainCode() + user.strUserID;
     }
 
     private String getSessionName(User user) {

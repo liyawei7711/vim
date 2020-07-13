@@ -151,7 +151,7 @@ public class SharePopupWindow extends PopupWindow {
 
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             EncryptUtil.encryptTxt(str, true, false, "", "",
-                    user.strUserID, user.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    user.strUserID, user.getDomainCode(), users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp sessionRsp) {
                             sendWetherEncrypt(sessionRsp.m_lstData.get(0).strData, true);
@@ -180,12 +180,12 @@ public class SharePopupWindow extends PopupWindow {
         bean.fromUserName = AppDatas.Auth().getUserName();
         bean.groupType = 0;
         bean.bEncrypt = isEncrypt ? 1 : 0;
-        bean.groupDomainCode = user.strUserDomainCode;
+        bean.groupDomainCode = user.getDomainCode();
         bean.groupID = user.strUserID;
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode, user.strUserName);
+        SendUserBean otherUser = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
@@ -259,7 +259,7 @@ public class SharePopupWindow extends PopupWindow {
 
     private void jumpToChat() {
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode, user.strUserName);
+        SendUserBean otherUser = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
         ArrayList<SendUserBean> sessionUserList = new ArrayList<>();
         sessionUserList.add(mySelf);
         sessionUserList.add(otherUser);
@@ -323,7 +323,7 @@ public class SharePopupWindow extends PopupWindow {
         if (null == user) {
             return null;
         }
-        return user.strDomainCode + user.strUserID;
+        return user.getDomainCode() + user.strUserID;
     }
 
     private String getSessionName() {

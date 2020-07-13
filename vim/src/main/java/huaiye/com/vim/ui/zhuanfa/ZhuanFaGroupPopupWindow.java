@@ -1544,12 +1544,12 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                                 if (!AppAuth.get().getUserID().equals(temp.strUserID)) {
                                     SendUserBean sendUserBean = new SendUserBean();
                                     sendUserBean.strUserID = temp.strUserID;
-                                    sendUserBean.strUserDomainCode = temp.strUserDomainCode;
+                                    sendUserBean.strUserDomainCode = temp.getDomainCode();
                                     sendUserBean.strUserName = temp.strUserName;
                                     sendUserBeans.add(sendUserBean);
 
                                     SdpMessageCmProcessIMReq.UserInfo info = new SdpMessageCmProcessIMReq.UserInfo();
-                                    info.strUserDomainCode = temp.strUserDomainCode;
+                                    info.strUserDomainCode = temp.getDomainCode();
                                     info.strUserID = temp.strUserID;
                                     usersNew.add(info);
                                 }

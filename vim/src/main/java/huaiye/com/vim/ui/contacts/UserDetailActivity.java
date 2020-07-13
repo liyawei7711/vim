@@ -29,7 +29,6 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
 import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
-import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.ChatGroupMsgBean;
@@ -154,6 +153,8 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
         mPresenter = new UserDetailPresenterImpl(this, this);
         initdata();
         initView();
+
+        queryGroupChatInfo();
     }
 
     private void initView() {
@@ -644,19 +645,6 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             default:
                 break;
         }
-        /*if (messageEvent.what == AppUtils.EVENT_CREATE_GROUP_SUCCESS || messageEvent.what == AppUtils.EVENT_INTENT_CHATSINGLEACTIVITY) {//关闭页面
-            finish();
-        } else if (messageEvent.what == AppUtils.EVENT_ADD_PEOPLE_TO_GROUP_SUCCESS || messageEvent.what == AppUtils.EVENT_KICKOUT_PEOPLE_TO_SUCCESS) {
-            queryGroupChatInfo();
-        } else if (messageEvent.what == AppUtils.EVENT_MODIFY_GROUPNAME_SUCCESS) {
-            VimMessageListMessages.get().updateGroupName(sessionID, messageEvent.msgContent);
-            EventBus.getDefault().post(new VimMessageBean());//通知消息列表页面刷新数据
-            updateGroupName(messageEvent.msgContent);
-            queryGroupChatInfo();
-        } else if (messageEvent.what == AppUtils.EVENT_MODIFY_GROUP_ANNOUNCEMENT_SUCCESS) {
-            queryGroupChatInfo();
-            updateGroupNameAnnouncement(messageEvent.msgContent);
-        }*/
     }
 
     private void updateGroupNameAnnouncement(String msgContent) {
@@ -678,27 +666,14 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
         ModelApis.Contacts().requestqueryGroupChatInfo(strGroupDomainCode, strGroupID, new ModelCallback<ContactsGroupUserListBean>() {
             @Override
             public void onSuccess(final ContactsGroupUserListBean contactsBean) {
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mContactsGroupUserListBean = contactsBean;
-                        getGroupUserHead(mContactsGroupUserListBean);
-
-                    }
-                });
-
+                mContactsGroupUserListBean = contactsBean;
+                getGroupUserHead(mContactsGroupUserListBean);
             }
 
             @Override
             public void onFailure(HTTPResponse httpResponse) {
                 super.onFailure(httpResponse);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast("onFailure");
-                    }
-                });
+                showToast("onFailure");
             }
         });
     }
@@ -708,24 +683,17 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             ModelApis.Contacts().requestGetUserHead(contactsGroupUserListBean.lstGroupUser, new ModelCallback<ContactsBean>() {
                 @Override
                 public void onSuccess(ContactsBean contactsBean) {
-
                     if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                        new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
-                            @Override
-                            public Object doOnThread() {
-                                for (User user : contactsBean.userList) {
-                                    user.strDomainCode = user.strUserDomainCode;
+                        for(User user : contactsGroupUserListBean.lstGroupUser) {
+                            for(User user2 : contactsBean.userList) {
+                                if(user.strUserID.equals(user2.strUserID)) {
+                                    user.strHeadUrl = user2.strHeadUrl;
+                                    break;
                                 }
-                                AppDatas.MsgDB().getFriendListDao().insertAll(contactsBean.userList);
-
-                                return "";
                             }
-
-                            @Override
-                            public void doOnMain(Object data) {
-                                refreshView(contactsGroupUserListBean);
-                            }
-                        });
+                        }
+                        AppDatas.MsgDB().getFriendListDao().insertAll(contactsBean.userList);
+                        refreshView(contactsGroupUserListBean);
                     }
                 }
             });

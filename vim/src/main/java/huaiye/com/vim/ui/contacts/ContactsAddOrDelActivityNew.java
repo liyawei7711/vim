@@ -189,7 +189,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
         ArrayList<SendUserBean> nSendUserBeans = new ArrayList<>();
         for (User user : contacts) {
             if (!user.strUserID.equals(AppDatas.Auth().getUserID())) {
-                SendUserBean sendUserBean = new SendUserBean(user.strUserID, user.strDomainCode, user.strUserName);
+                SendUserBean sendUserBean = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
                 nSendUserBeans.add(sendUserBean);
             }
 
@@ -492,7 +492,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
                         if (null != mUserList && mUserList.size() > 0) {
                             for (User user : mUserList) {
                                 if (TextUtils.isEmpty(user.strHeadUrl)) {
-                                    user.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(user.strUserID, user.strDomainCode);
+                                    user.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(user.strUserID, user.getDomainCode());
                                 }
                             }
                             mAllContacts.clear();
@@ -628,7 +628,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
                             ArrayList<User> userList = new ArrayList<>();
                             for (User item : mAllContacts) {
                                 if (!item.strUserID.equals(AppDatas.Auth().getUserID())) {
-                                    item.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(item.strUserID, item.strDomainCode);
+                                    item.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(item.strUserID, item.getDomainCode());
                                     userList.add(item);
                                 }
                             }

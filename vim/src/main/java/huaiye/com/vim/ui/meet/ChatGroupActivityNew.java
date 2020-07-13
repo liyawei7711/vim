@@ -317,11 +317,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                         new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
                             @Override
                             public Object doOnThread() {
-                                for (User user : contactsBean.userList) {
-                                    user.strDomainCode = user.strUserDomainCode;
-                                }
                                 AppDatas.MsgDB().getFriendListDao().insertAll(contactsBean.userList);
-
                                 return "";
                             }
 
@@ -343,7 +339,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 @Override
                 public Object doOnThread() {
                     for (User nLstGroupUser : contactsBean.lstGroupUser) {
-                        nLstGroupUser.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(nLstGroupUser.strUserID, nLstGroupUser.strUserDomainCode);
+                        nLstGroupUser.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(nLstGroupUser.strUserID, nLstGroupUser.getDomainCode());
                     }
                     return "";
                 }
@@ -393,7 +389,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                     if (mLstGroupUser.strUserID.equals(AppDatas.Auth().getUserID())) {
                         containSelf = true;
                     }
-                    SendUserBean nMessageUsers = new SendUserBean(mLstGroupUser.strUserID, mLstGroupUser.strUserDomainCode, mLstGroupUser.strUserName);
+                    SendUserBean nMessageUsers = new SendUserBean(mLstGroupUser.strUserID, mLstGroupUser.getDomainCode(), mLstGroupUser.strUserName);
                     mMessageUsersDate.add(nMessageUsers);
                 }
             }

@@ -33,12 +33,12 @@ public class UserDetailUserListAdapter extends RecyclerView.Adapter<RecyclerView
     private RequestOptions requestOptions;
 
 
-    public static final String TYPE_ADD="ADDUSER";
+    public static final String TYPE_ADD = "ADDUSER";
 
-    public static final String TYPE_DEL="DELUSER";
+    public static final String TYPE_DEL = "DELUSER";
 
 
-    public void setData(ArrayList<User> userList){
+    public void setData(ArrayList<User> userList) {
         mUserList = userList;
     }
 
@@ -55,7 +55,7 @@ public class UserDetailUserListAdapter extends RecyclerView.Adapter<RecyclerView
 
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener){
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
@@ -69,20 +69,20 @@ public class UserDetailUserListAdapter extends RecyclerView.Adapter<RecyclerView
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         CustomViewHolder viewHolder = (CustomViewHolder) holder;
         final User msg = mUserList.get(position);
-        if(null==msg){
+        if (null == msg) {
             return;
         }
-        if(TYPE_ADD.equals(msg.strUserID)){
+        if (TYPE_ADD.equals(msg.strUserID)) {
             viewHolder.user_detail_image.setImageResource(R.drawable.selector_user_detail_add);
-        }else if(TYPE_DEL.equals(msg.strUserID)){
+        } else if (TYPE_DEL.equals(msg.strUserID)) {
             viewHolder.user_detail_image.setImageResource(R.drawable.selector_user_detail_del);
-        }else{
-            if(TextUtils.isEmpty( msg.strHeadUrl)){
+        } else {
+            if (TextUtils.isEmpty(msg.strHeadUrl)) {
                 viewHolder.user_detail_image.setImageResource(R.drawable.default_image_personal);
                 new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal<String>() {
                     @Override
                     public String doOnThread() {
-                        return AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(msg.strUserID,msg.strDomainCode);
+                        return AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(msg.strUserID, msg.getDomainCode());
                     }
 
                     @Override
@@ -94,7 +94,7 @@ public class UserDetailUserListAdapter extends RecyclerView.Adapter<RecyclerView
                                 .into(viewHolder.user_detail_image);
                     }
                 });
-            }else{
+            } else {
                 Glide.with(mContext)
                         .load(AppDatas.Constants().getAddressWithoutPort() + msg.strHeadUrl)
                         .apply(requestOptions)
@@ -102,19 +102,17 @@ public class UserDetailUserListAdapter extends RecyclerView.Adapter<RecyclerView
             }
 
 
-
         }
         viewHolder.user_detail_txt.setText(msg.strUserName);
         viewHolder.user_detail_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(null!=mOnItemClickListener){
+                if (null != mOnItemClickListener) {
                     mOnItemClickListener.onItemClick(msg);
                 }
             }
         });
     }
-
 
 
     @Override
@@ -136,7 +134,7 @@ public class UserDetailUserListAdapter extends RecyclerView.Adapter<RecyclerView
 
         private CustomViewHolder(View itemView) {
             super(itemView);
-            user_detail_image  = itemView.findViewById(R.id.user_detail_image);
+            user_detail_image = itemView.findViewById(R.id.user_detail_image);
             user_detail_txt = itemView.findViewById(R.id.user_detail_txt);
         }
     }

@@ -172,7 +172,7 @@ public class FriendActivity extends AppBaseActivity {
                 if (null != mAllContacts && mAllContacts.size() > 0 && null != users && users.size() > 0) {
                     for (User userAll : mAllContacts) {
                         for (User user : users) {
-                            if (userAll.strDomainCode.equals(user.strDomainCode) && userAll.strUserID.equals(user.strUserID)) {
+                            if (userAll.getDomainCode().equals(user.getDomainCode()) && userAll.strUserID.equals(user.strUserID)) {
                                 mAllContacts.set(mAllContacts.indexOf(userAll), user);
                                 continue;
                             }
@@ -203,7 +203,7 @@ public class FriendActivity extends AppBaseActivity {
             public List<User> doOnThread() {
                 if (null != mAllContacts && mAllContacts.size() > 0 && null != user) {
                     for (User userAll : mAllContacts) {
-                        if (userAll.strDomainCode.equals(user.strDomainCode) && userAll.strUserID.equals(user.strUserID)) {
+                        if (userAll.getDomainCode().equals(user.getDomainCode()) && userAll.strUserID.equals(user.strUserID)) {
                             mAllContacts.set(mAllContacts.indexOf(userAll), user);
                             continue;
                         }
@@ -230,12 +230,12 @@ public class FriendActivity extends AppBaseActivity {
     private Map<String, List<String>> groupBystrDomainCode(List<User> userList) {
         Map<String, List<String>> groupBy = new HashMap<>();
         for (User nUser : userList) {
-            if (groupBy.containsKey(nUser.strDomainCode)) {
-                groupBy.get(nUser.strDomainCode).add(nUser.strUserID);
+            if (groupBy.containsKey(nUser.getDomainCode())) {
+                groupBy.get(nUser.getDomainCode()).add(nUser.strUserID);
             } else {
                 List<String> users = new ArrayList<>();
                 users.add(nUser.strUserID);
-                groupBy.put(nUser.strDomainCode, users);
+                groupBy.put(nUser.getDomainCode(), users);
             }
         }
         return groupBy;

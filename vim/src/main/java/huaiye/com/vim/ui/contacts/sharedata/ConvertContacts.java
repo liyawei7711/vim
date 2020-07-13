@@ -36,7 +36,7 @@ public class ConvertContacts {
             CStartMeetingReq.UserInfo user = new CStartMeetingReq.UserInfo();
             user.strUserID = item.strUserID;
             user.strUserName = item.strUserName;
-            user.strUserDomainCode = TextUtils.isEmpty(item.strUserDomainCode) ? item.strDomainCode : item.strUserDomainCode;
+            user.strUserDomainCode = item.getDomainCode();
             user.nDevType = item.deviceType;
             list.add(user);
         }

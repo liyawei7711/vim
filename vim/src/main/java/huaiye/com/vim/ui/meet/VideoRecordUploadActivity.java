@@ -134,7 +134,7 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
                 }
             } else {
                 SdpMessageCmProcessIMReq.UserInfo info = new SdpMessageCmProcessIMReq.UserInfo();
-                info.strUserDomainCode = nUser.strDomainCode;
+                info.strUserDomainCode = nUser.getDomainCode();
                 info.strUserID = nUser.strUserID;
                 users.add(info);
             }
@@ -223,7 +223,7 @@ public class VideoRecordUploadActivity extends AppBaseActivity implements VideoR
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             EncryptUtil.encryptFile(file.getPath(), EncryptUtil.getNewFileChuanShu(file.getPath(), fC_LINSHI),
                     true, isGroup, isGroup ? mMeetID + "" : "", isGroup ? nMeetDomain : "",
-                    isGroup ? "" : nUser.strUserID, isGroup ? "" : nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                    isGroup ? "" : nUser.strUserID, isGroup ? "" : nUser.getDomainCode(), users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                         @Override
                         public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                             upFile(file, new File(resp.m_strData));

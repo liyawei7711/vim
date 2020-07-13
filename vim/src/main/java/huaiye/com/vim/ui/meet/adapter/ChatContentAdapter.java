@@ -89,6 +89,8 @@ import huaiye.com.vim.ui.meet.ImageShowActivity;
 import huaiye.com.vim.ui.meet.MediaLocalVideoPlayActivity;
 import huaiye.com.vim.ui.sendBaiduLocation.function.activity.MapLocationActivity;
 import huaiye.com.vim.ui.showfile.ExcelActivity;
+import huaiye.com.vim.ui.showfile.FileOpenActivity;
+import huaiye.com.vim.ui.showfile.PIOOpenActivity;
 import huaiye.com.vim.ui.showfile.WebPageFileActivity;
 import huaiye.com.vim.ui.zhuanfa.ZhuanFaChooseActivity;
 
@@ -2295,17 +2297,18 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private void openFileReal(String m_strData, String name) {
-//        text/word/excel/pdf
-        linShiFile.add(new File(m_strData));
-        String end = m_strData.substring(m_strData.lastIndexOf(".") + 1);
-        if ("txt".equalsIgnoreCase(end) || "ppt".equalsIgnoreCase(end) || "docx".equalsIgnoreCase(end) ||
-                "pdf".equalsIgnoreCase(end) || "png".equalsIgnoreCase(end) || "jpg".equalsIgnoreCase(end) ||
-                "jpeg".equalsIgnoreCase(end) || "pptx".equalsIgnoreCase(end) || "xlw".equalsIgnoreCase(end) ||
-                "xlsb".equalsIgnoreCase(end) || "svg".equalsIgnoreCase(end) || "tif".equalsIgnoreCase(end) ||
-                "xlsm".equalsIgnoreCase(end) || "csv".equalsIgnoreCase(end) || "dbf".equalsIgnoreCase(end) ||
-                "dif".equalsIgnoreCase(end) || "slk".equalsIgnoreCase(end) || "sylk".equalsIgnoreCase(end) ||
-                "prn".equalsIgnoreCase(end) || "ods".equalsIgnoreCase(end) || "fods".equalsIgnoreCase(end) ||
-                "gif".equalsIgnoreCase(end) || "bmp".equalsIgnoreCase(end) || "tiff".equalsIgnoreCase(end)
+        if (nEncryptIMEnable) {
+            //text/word/excel/pdf
+            linShiFile.add(new File(m_strData));
+            String end = m_strData.substring(m_strData.lastIndexOf(".") + 1);
+            if ("txt".equalsIgnoreCase(end) || "ppt".equalsIgnoreCase(end) || "docx".equalsIgnoreCase(end) ||
+                    "pdf".equalsIgnoreCase(end) || "png".equalsIgnoreCase(end) || "jpg".equalsIgnoreCase(end) ||
+                    "jpeg".equalsIgnoreCase(end) || "pptx".equalsIgnoreCase(end) || "xlw".equalsIgnoreCase(end) ||
+                    "xlsb".equalsIgnoreCase(end) || "svg".equalsIgnoreCase(end) || "tif".equalsIgnoreCase(end) ||
+                    "xlsm".equalsIgnoreCase(end) || "csv".equalsIgnoreCase(end) || "dbf".equalsIgnoreCase(end) ||
+                    "dif".equalsIgnoreCase(end) || "slk".equalsIgnoreCase(end) || "sylk".equalsIgnoreCase(end) ||
+                    "prn".equalsIgnoreCase(end) || "ods".equalsIgnoreCase(end) || "fods".equalsIgnoreCase(end) ||
+                    "gif".equalsIgnoreCase(end) || "bmp".equalsIgnoreCase(end) || "tiff".equalsIgnoreCase(end)
 //                "log".equals(end) || "cpp".equals(end) || "c".equals(end) || "conf".equals(end) ||
 //                "class".equals(end) || "h".equals(end) || "htm".equals(end) || "html".equals(end) ||
 //                "js".equals(end) || "java".equals(end) || "mpga".equals(end) || "rar".equals(end) ||
@@ -2314,38 +2317,42 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 //                "rmvb".equals(end) || "wps".equals(end) || "tgz".equals(end) || "tar".equals(end) ||
 //                "sh".equals(end) || "wma".equals(end) || "wmv".equals(end) ||
 //                "wav".equals(end) || "xml".equals(end) || "z".equals(end) || "zip".equals(end)
-        ) {
+            ) {
 //            Intent intent = new Intent(mContext, FileOpenActivity.class);
-            Intent intent = new Intent(mContext, WebPageFileActivity.class);
+                Intent intent = new Intent(mContext, WebPageFileActivity.class);
 //            Intent intent = new Intent(mContext, PIOOpenActivity.class);
-            intent.putExtra("file", m_strData);
-            intent.putExtra("name", name);
-            mContext.startActivity(intent);
-        } else if ("xls".equalsIgnoreCase(end) || "xlsx".equalsIgnoreCase(end)) {
-            Intent intent = new Intent(mContext, ExcelActivity.class);
-            intent.putExtra("file", m_strData);
-            intent.putExtra("name", name);
-            mContext.startActivity(intent);
-        } else {
-            if (nEncryptIMEnable) {
-                showToast("不支持该格式文件");
-            } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_DEFAULT);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    Uri contentUri = FileProvider.getUriForFile(mContext, "huaiye.com.vim.fileprovider", new File(m_strData));
-                    intent.setDataAndType(contentUri, getMIMEType(new File(m_strData)));
-                } else {
-                    intent.setDataAndType(Uri.fromFile(new File(m_strData)), getMIMEType(new File(m_strData)));
-                }
-
+                intent.putExtra("file", m_strData);
+                intent.putExtra("name", name);
                 mContext.startActivity(intent);
+            } else if ("xls".equalsIgnoreCase(end) || "xlsx".equalsIgnoreCase(end)) {
+                Intent intent = new Intent(mContext, ExcelActivity.class);
+                intent.putExtra("file", m_strData);
+                intent.putExtra("name", name);
+                mContext.startActivity(intent);
+            } else {
+                if (nEncryptIMEnable) {
+                    showToast("不支持该格式文件");
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.addCategory(Intent.CATEGORY_DEFAULT);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        Uri contentUri = FileProvider.getUriForFile(mContext, "huaiye.com.vim.fileprovider", new File(m_strData));
+                        intent.setDataAndType(contentUri, getMIMEType(new File(m_strData)));
+                    } else {
+                        intent.setDataAndType(Uri.fromFile(new File(m_strData)), getMIMEType(new File(m_strData)));
+                    }
+
+                    mContext.startActivity(intent);
+                }
             }
+        } else {
+            Intent intent = new Intent(mContext, FileOpenActivity.class);
+            intent.putExtra("file", m_strData);
+            intent.putExtra("name", name);
+            mContext.startActivity(intent);
         }
-
-
     }
 
     private void updateDownloadState(ChatMessageBase data) {

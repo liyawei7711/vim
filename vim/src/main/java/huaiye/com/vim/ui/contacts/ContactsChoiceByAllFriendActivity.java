@@ -290,7 +290,7 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
                             ArrayList<User> userList = new ArrayList<>();
                             for (User item : mAllContacts) {
                                 if (!item.strUserID.equals(AppDatas.Auth().getUserID())) {
-                                    item.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(item.strUserID, item.strDomainCode);
+                                    item.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(item.strUserID, item.getDomainCode());
                                     userList.add(item);
                                 }
                             }

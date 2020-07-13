@@ -287,7 +287,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
                             ArrayList<User> userList = new ArrayList<>();
                             for (User item : mAllContacts) {
                                 if (!item.strUserID.equals(AppDatas.Auth().getUserID())) {
-                                    item.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(item.strUserID, item.strDomainCode);
+                                    item.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(item.strUserID, item.getDomainCode());
                                     userList.add(item);
                                 }
                             }
@@ -309,7 +309,7 @@ public class ZhuanFaChooseActivity extends AppBaseActivity {
             public List<User> doOnThread() {
                 if (null != mAllContacts && mAllContacts.size() > 0 && null != user) {
                     for (User userAll : mAllContacts) {
-                        if (userAll.strDomainCode.equals(user.strDomainCode) && userAll.strUserID.equals(user.strUserID)) {
+                        if (userAll.getDomainCode().equals(user.getDomainCode()) && userAll.strUserID.equals(user.strUserID)) {
                             mAllContacts.set(mAllContacts.indexOf(userAll), user);
                             continue;
                         }

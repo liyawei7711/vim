@@ -101,7 +101,7 @@ public class GroupListActivity extends AppBaseActivity {
     private void initNavigateView() {
         getNavigate().setVisibility(View.VISIBLE);
         getNavigate().setTitlText("我的群组")
-                .setRightText("发起群聊")
+                .setRightText("创建群聊")
                 .setRightClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

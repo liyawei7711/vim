@@ -166,7 +166,7 @@ public class MapActivity extends AppBaseActivity {
                 }
             } else {
                 SdpMessageCmProcessIMReq.UserInfo info = new SdpMessageCmProcessIMReq.UserInfo();
-                info.strUserDomainCode = nUser.strDomainCode;
+                info.strUserDomainCode = nUser.getDomainCode();
                 info.strUserID = nUser.strUserID;
                 users.add(info);
             }
@@ -486,7 +486,7 @@ public class MapActivity extends AppBaseActivity {
                             if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                                 EncryptUtil.encryptFile(data.getPath(), EncryptUtil.getNewFileChuanShu(data.getPath(), fC_LINSHI),
                                         true, isGroup, isGroup ? nMeetID + "" : "", isGroup ? nMeetDomain : "",
-                                        isGroup ? "" : nUser.strUserID, isGroup ? "" : nUser.strDomainCode, users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
+                                        isGroup ? "" : nUser.strUserID, isGroup ? "" : nUser.getDomainCode(), users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                             @Override
                                             public void onSuccess(SdpMessageCmProcessIMRsp resp) {
                                                 upFile(new File(resp.m_strData));

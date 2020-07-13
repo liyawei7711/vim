@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,19 +69,29 @@ public class MoreControlWindow extends PopupWindow implements View.OnClickListen
             control_jingyan.setText("禁言");
         }
         control_jingyan.setOnClickListener(this);
-        if(strKeynoteSpeakerUserID == "") {
+        if(TextUtils.isEmpty(strKeynoteSpeakerUserID)) {
             TextView control_zhujiangren = (TextView) contentView.findViewById(R.id.control_zhujiangren);
             control_zhujiangren.setVisibility(View.VISIBLE);
             TextView control_cancelspeaker = (TextView) contentView.findViewById(R.id.control_cancelspeaker);
             control_cancelspeaker.setVisibility(View.GONE);
             contentView.findViewById(R.id.control_zhujiangren).setOnClickListener(this);
-        }else {
-            TextView control_zhujiangren = (TextView) contentView.findViewById(R.id.control_zhujiangren);
-            control_zhujiangren.setVisibility(View.GONE);
-            TextView control_cancelspeaker = (TextView) contentView.findViewById(R.id.control_cancelspeaker);
-            control_cancelspeaker.setVisibility(View.VISIBLE);
-            contentView.findViewById(R.id.control_cancelspeaker).setOnClickListener(this);
+        } else {
+            if(mUserinfo.strUserTokenID.equals(strKeynoteSpeakerUserID)) {
+                TextView control_zhujiangren = (TextView) contentView.findViewById(R.id.control_zhujiangren);
+                control_zhujiangren.setVisibility(View.GONE);
+                TextView control_cancelspeaker = (TextView) contentView.findViewById(R.id.control_cancelspeaker);
+                control_cancelspeaker.setVisibility(View.VISIBLE);
+                contentView.findViewById(R.id.control_cancelspeaker).setOnClickListener(this);
+            }else {
+                TextView control_zhujiangren = (TextView) contentView.findViewById(R.id.control_zhujiangren);
+                control_zhujiangren.setVisibility(View.VISIBLE);
+                TextView control_cancelspeaker = (TextView) contentView.findViewById(R.id.control_cancelspeaker);
+                control_cancelspeaker.setVisibility(View.GONE);
+                contentView.findViewById(R.id.control_zhujiangren).setOnClickListener(this);
+            }
         }
+
+
         contentView.findViewById(R.id.control_kick_out).setOnClickListener(this);
     }
 

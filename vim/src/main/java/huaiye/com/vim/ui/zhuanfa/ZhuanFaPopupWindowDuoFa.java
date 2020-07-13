@@ -310,7 +310,7 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode, user.strUserName);
+        SendUserBean otherUser = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
@@ -354,7 +354,7 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(user.strUserID, TextUtils.isEmpty(user.strUserDomainCode) ? user.strDomainCode : user.strUserDomainCode, user.strUserName);
+        SendUserBean otherUser = new SendUserBean(user.strUserID, user.getDomainCode(), user.strUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
@@ -561,7 +561,7 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
         if (null == user) {
             return null;
         }
-        return user.strDomainCode + user.strUserID;
+        return user.getDomainCode() + user.strUserID;
     }
 
     private String getSessionName(User user) {

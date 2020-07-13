@@ -253,7 +253,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
                                 nUser = temp;
                                 initView();
 
-                                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), nUser.strUserID, nUser.strDomainCode);
+                                AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), nUser.strUserID, nUser.getDomainCode());
                                 AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(nUser));
 
                                 if (temp.getUserDept() != null) {
@@ -292,7 +292,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
             return;
         }
         CStartTalkbackReq.ToUser toUser = new CStartTalkbackReq.ToUser();
-        toUser.strToUserDomainCode = nUser.strDomainCode;
+        toUser.strToUserDomainCode = nUser.getDomainCode();
         toUser.strToUserID = nUser.strUserID;
         toUser.strToUserName = nUser.strUserName;
 
@@ -320,7 +320,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
             return;
         }
         CStartTalkbackReq.ToUser toUser = new CStartTalkbackReq.ToUser();
-        toUser.strToUserDomainCode = nUser.strDomainCode;
+        toUser.strToUserDomainCode = nUser.getDomainCode();
         toUser.strToUserID = nUser.strUserID;
         toUser.strToUserName = nUser.strUserName;
 
@@ -347,7 +347,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
             return;
         }
         CStartTalkbackReq.ToUser toUser = new CStartTalkbackReq.ToUser();
-        toUser.strToUserDomainCode = nUser.strDomainCode;
+        toUser.strToUserDomainCode = nUser.getDomainCode();
         toUser.strToUserID = nUser.strUserID;
         toUser.strToUserName = nUser.strUserName;
 
@@ -361,7 +361,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
         intent.putExtra("mOtherUserName", nUser.strUserName);
         intent.putExtra("mOtherUserId", nUser.strUserID);
         intent.putExtra("nUser", nUser);
-        intent.putExtra("mOtherUserDomainCode", nUser.strUserDomainCode);
+        intent.putExtra("mOtherUserDomainCode", nUser.getDomainCode());
         startActivity(intent);
         finish();
     }
@@ -430,7 +430,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
         bean.content = msgContent;
 
         bean.type = msgType;
-        bean.sessionID = nUser.strDomainCode + nUser.strUserID;
+        bean.sessionID = nUser.getDomainCode() + nUser.strUserID;
         bean.sessionName = nUser.strUserName;
         bean.fromUserDomain = AppDatas.Auth().getDomainCode();
         bean.fromUserId = AppDatas.Auth().getUserID() + "";
@@ -441,7 +441,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
         bean.time = System.currentTimeMillis() / 1000;
 
         SendUserBean mySelf = new SendUserBean(AppAuth.get().getUserID() + "", AppAuth.get().getDomainCode(), AppAuth.get().getUserName());
-        SendUserBean otherUser = new SendUserBean(nUser.strUserID, nUser.strDomainCode, nUser.strUserName);
+        SendUserBean otherUser = new SendUserBean(nUser.strUserID, nUser.getDomainCode(), nUser.strUserName);
 
         bean.sessionUserList = new ArrayList<>();
         bean.sessionUserList.add(mySelf);
