@@ -505,7 +505,7 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
             intent.putExtra("mUserList", mUserList);
             startActivityForResult(intent, 1000);
         } else if (UserDetailUserListAdapter.TYPE_DEL.equals(item.strUserID)) {
-            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNewOrg.class);
+            Intent intent = new Intent(getSelf(), ContactsAddOrDelActivityNew.class);
             intent.putExtra("titleName", AppUtils.getResourceString(R.string.user_detail_del_user_title));
             intent.putExtra("strGroupDomainCode", strGroupDomainCode);
             intent.putExtra("strGroupID", strGroupID);

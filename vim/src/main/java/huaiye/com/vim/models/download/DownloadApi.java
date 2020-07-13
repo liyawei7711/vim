@@ -257,7 +257,6 @@ public class DownloadApi {
                         createCustomRequestBody(MediaType.parse("multipart/form-data"), new File(filePath), new ProgressListener() {
                             @Override
                             public void onProgress(long totalBytes, long remainingBytes, boolean done) {
-                                System.out.println("ccccccccccccccccccccc "+totalBytes+"   "+remainingBytes);
                                 new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
                                     @Override
                                     public Object doOnThread() {
@@ -289,6 +288,11 @@ public class DownloadApi {
         Client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                if(downloadLoadView != null) {
+                    downloadLoadView.loadingText(fileName).setLoading();
+                    downloadLoadView.setProgress(100, 100);
+                    downloadLoadView.dismiss();
+                }
                 callback.onFailure(null);
             }
 
@@ -298,6 +302,12 @@ public class DownloadApi {
                 try {
                     final Upload upload = new Gson().fromJson(strResp, Upload.class);
                     callback.onSuccess(upload);
+
+                    if(downloadLoadView != null) {
+                        downloadLoadView.loadingText(fileName).setLoading();
+                        downloadLoadView.setProgress(100, 100);
+                        downloadLoadView.dismiss();
+                    }
                 } catch (Exception e) {
                     callback.onFailure(null);
                 }
