@@ -46,6 +46,7 @@ import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
+import huaiye.com.vim.models.contacts.bean.SelectedModeBean;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.GroupInfoViewHolder;
 import huaiye.com.vim.ui.contacts.viewholder.GroupInfoViewOrgHolder;
@@ -96,10 +97,12 @@ public class GroupListOrgActivity extends AppBaseActivity {
     ArrayList<GroupInfo> mCreateGroupInfo = new ArrayList<>();
     LiteBaseAdapter<GroupInfo> myJonieAdapter;
     ArrayList<GroupInfo> mJonieGroupInfo = new ArrayList<>();
-    EXTRecyclerAdapter<User> mChoosedAdapter;
+    EXTRecyclerAdapter<SelectedModeBean> mChoosedAdapter;
 
     @BindExtra
     int max;
+    @BindExtra
+    boolean isZhuanFa;
 
     int requestCount = 0;
     int currentRequestTime = 0;
@@ -163,6 +166,7 @@ public class GroupListOrgActivity extends AppBaseActivity {
                             Intent intent = new Intent(GroupListOrgActivity.this, GroupUserListOrgActivity.class);
                             intent.putExtra("max", max);
                             intent.putExtra("groupInfo", groupInfo);
+                            intent.putExtra("isZhuanFa", isZhuanFa);
                             startActivity(intent);
                         } else {
                             handleChoice(groupInfo);
@@ -184,6 +188,7 @@ public class GroupListOrgActivity extends AppBaseActivity {
                         contactsBean.strGroupID = groupInfo.strGroupID;
                         contactsBean.strGroupDomainCode = groupInfo.strGroupDomainCode;
                         intent.putExtra("mContactsBean", contactsBean);
+                        intent.putExtra("isZhuanFa", isZhuanFa);
                         startActivity(intent);
                     }
                 }, "false");
@@ -203,26 +208,32 @@ public class GroupListOrgActivity extends AppBaseActivity {
         });
 
         rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
+        mChoosedAdapter = new EXTRecyclerAdapter<SelectedModeBean>(R.layout.item_contacts_person_choosed) {
             @Override
-            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                if (contactData.nJoinStatus != 2) {
-                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
-                } else {
-                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
-                }
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, SelectedModeBean contactData) {
+                extViewHolder.setText(R.id.tv_contact_name, contactData.strName);
             }
         };
-        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
+        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getSelectedMode());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                if (mChoosedAdapter.getDatas().get(i).strUserID.equals(AppDatas.Auth().getUserID())) {
+                if (mChoosedAdapter.getDatas().get(i).strId.equals(AppDatas.Auth().getUserID())) {
                     return;
                 }
-                ChoosedContactsNew.get().removeContacts(mChoosedAdapter.getDatas().get(i));
+
+                for(GroupInfo temp : mCreateGroupInfo) {
+                    if(temp.strGroupID.equals(mChoosedAdapter.getDatas().get(i).strId)) {
+                        temp.isSelected = false;
+                        break;
+                    }
+                }
+                myCreateAdapter.notifyDataSetChanged();
+
+                SelectedModeBean bean = mChoosedAdapter.getDatas().get(i);
+                ChoosedContactsNew.get().remove(bean);
                 mChoosedAdapter.notifyDataSetChanged();
-                EventBus.getDefault().post(new EventUserClick(mChoosedAdapter.getDatas().get(i)));
+                EventBus.getDefault().post(new EventUserClick(bean));
             }
         });
         rct_choosed.setAdapter(mChoosedAdapter);
@@ -236,41 +247,46 @@ public class GroupListOrgActivity extends AppBaseActivity {
             public void onSuccess(final ContactsGroupUserListBean contactsBean) {
                 groupInfo.isSelected = !groupInfo.isSelected;
                 if (groupInfo.isSelected) {
+                    ChoosedContactsNew.get().add(groupInfo);
                     if (!selectedMap.contains(groupInfo.strGroupID)) {
                         selectedMap.add(groupInfo.strGroupID);
                     }
                 } else {
+                    ChoosedContactsNew.get().remove(groupInfo);
                     if (selectedMap.contains(groupInfo.strGroupID)) {
                         selectedMap.remove(groupInfo.strGroupID);
                     }
                 }
-                if (contactsBean != null && contactsBean.lstGroupUser != null && contactsBean.lstGroupUser.size() > 0) {
-                    for (User user : contactsBean.lstGroupUser) {
-                        if (!user.strUserID.equals(AppAuth.get().getUserID())) {
+                if (!isZhuanFa) {
+                    if (contactsBean != null && contactsBean.lstGroupUser != null && contactsBean.lstGroupUser.size() > 0) {
+                        for (User user : contactsBean.lstGroupUser) {
+                            if (!user.strUserID.equals(AppAuth.get().getUserID())) {
 
-                            if (groupInfo.isSelected) {
-                                if (!ChoosedContactsNew.get().isContain(user)) {
-                                    if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
-                                        showToast("最多选" + max + "人，已达人数上限");
-                                        return;
+                                if (groupInfo.isSelected) {
+                                    if (!ChoosedContactsNew.get().isContain(user)) {
+                                        if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
+                                            showToast("最多选" + max + "人，已达人数上限");
+                                            return;
+                                        }
+                                        userGroupMap.put(user.strUserID, groupInfo.strGroupID);
+                                        user.isSelected = true;
+                                        ChoosedContactsNew.get().add(user, false);
                                     }
-                                    userGroupMap.put(user.strUserID, groupInfo.strGroupID);
-                                    user.isSelected = true;
-                                    ChoosedContactsNew.get().addContacts(user);
-                                }
-                            } else {
-                                if (ChoosedContactsNew.get().isContain(user)) {
-                                    user.isSelected = false;
-                                    ChoosedContactsNew.get().removeContacts(user);
+                                } else {
+                                    if (ChoosedContactsNew.get().isContain(user)) {
+                                        user.isSelected = false;
+                                        ChoosedContactsNew.get().remove(user);
 
-                                    if (userGroupMap.containsKey(user.strUserID)) {
-                                        userGroupMap.remove(user.strUserID);
+                                        if (userGroupMap.containsKey(user.strUserID)) {
+                                            userGroupMap.remove(user.strUserID);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+
                 mChoosedAdapter.notifyDataSetChanged();
                 myCreateAdapter.notifyDataSetChanged();
 
@@ -380,6 +396,8 @@ public class GroupListOrgActivity extends AppBaseActivity {
                                     mapGroupName.put(temp.strGroupID, "群组(0)");
                                 }
 
+                                temp.strGroupName = mapGroupName.get(contactsBean.strGroupID);
+
                                 if (myCreateAdapter != null) {
                                     myCreateAdapter.notifyDataSetChanged();
                                 }
@@ -389,7 +407,7 @@ public class GroupListOrgActivity extends AppBaseActivity {
                             public void onFailure(HTTPResponse httpResponse) {
                                 super.onFailure(httpResponse);
                                 mapGroupName.put(temp.strGroupID, "群组(0)");
-
+                                temp.strGroupName = mapGroupName.get(temp.strGroupID);
                                 if (myCreateAdapter != null) {
                                     myCreateAdapter.notifyDataSetChanged();
                                 }
@@ -450,12 +468,14 @@ public class GroupListOrgActivity extends AppBaseActivity {
     }
 
     private void changeShowSelected() {
-        if (ChoosedContactsNew.get().getContacts().isEmpty()) {
+        if (ChoosedContactsNew.get().getContactsSize() == 0 &&
+                ChoosedContactsNew.get().getGroups().isEmpty() &&
+                ChoosedContactsNew.get().getDepts().isEmpty()) {
             llChoosedPersons.setVisibility(View.GONE);
             tv_choose_confirm.setText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getContacts().size() + ")");
+            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
         }
     }
 
@@ -463,7 +483,14 @@ public class GroupListOrgActivity extends AppBaseActivity {
     public void onClickSearch(View view) {
         Intent intent = new Intent(this, SearchDeptUserListOrgActivity.class);
         intent.putExtra("max", max);
+        intent.putExtra("isZhuanFa", isZhuanFa);
         startActivity(intent);
+    }
+
+    @OnClick(R.id.tv_choose_confirm)
+    public void onClick(View view) {
+        EventBus.getDefault().post(new EventUserSelectedComplete());
+        finish();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

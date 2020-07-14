@@ -1,4 +1,4 @@
-package huaiye.com.vim.ui.contacts;
+package huaiye.com.vim.ui.zhuanfa;
 
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
@@ -6,11 +6,13 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
+import com.huaiye.sdk.sdpmsgs.social.SendUserBean;
 import com.ttyy.commonanno.anno.BindLayout;
 import com.ttyy.commonanno.anno.BindView;
 import com.ttyy.commonanno.anno.OnClick;
@@ -26,9 +28,9 @@ import java.util.Comparator;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
+import huaiye.com.vim.bus.CloseZhuanFa;
 import huaiye.com.vim.bus.EventUserClick;
 import huaiye.com.vim.bus.EventUserSelected;
-import huaiye.com.vim.bus.EventUserSelectedComplete;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
@@ -36,15 +38,20 @@ import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.ChangyongLianXiRenBean;
+import huaiye.com.vim.dao.msgs.ChatMessageBase;
 import huaiye.com.vim.dao.msgs.User;
+import huaiye.com.vim.dao.msgs.UserInfo;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.models.contacts.bean.SelectedModeBean;
+import huaiye.com.vim.ui.contacts.DeptDeepListOrgActivity;
+import huaiye.com.vim.ui.contacts.DeptListOrgActivity;
+import huaiye.com.vim.ui.contacts.GroupListOrgActivity;
+import huaiye.com.vim.ui.contacts.SearchDeptUserListOrgActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
-import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
 import huaiye.com.vim.ui.contacts.viewholder.UserViewOrgHolder;
 import huaiye.com.vim.ui.home.FragmentContacts;
 import huaiye.com.vim.ui.home.adapter.ContactsDeptViewOrgHolder;
@@ -58,13 +65,16 @@ import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.userDeptMa
 
 /**
  * author: admin
- * date: 2018/01/15
+ * date: 2017/12/28
  * version: 0
  * mail: secret
- * desc: ContactsChoiceActivity
  */
-@BindLayout(R.layout.activity_contacts_root_org)
-public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
+@BindLayout(R.layout.activity_zhuanfa_choose_org)
+public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
+
+    @BindView(R.id.ll_root)
+    View ll_root;
+
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
     @BindView(R.id.et_key)
@@ -82,7 +92,6 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
 
     @BindView(R.id.tv_choose_confirm)
     TextView tv_choose_confirm;
-
     @BindView(R.id.ll_choosed_persons)
     LinearLayout llChoosedPersons;
     @BindView(R.id.rct_choosed)
@@ -96,40 +105,93 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     private ArrayList<User> mAllContacts = new ArrayList<>();//常用联系人
 
     @BindExtra
-    String titleName;
+    String strUserDomainCode;
     @BindExtra
-    boolean isSelectUser;
+    String strUserID;
     @BindExtra
-    boolean isZhuanFa;
+    ChatMessageBase data;
     @BindExtra
-    boolean needAddSelf;
+    ArrayList<UserInfo> users;
+    @BindExtra
+    boolean isGroup;
+    @BindExtra
+    String strGroupID;
+    @BindExtra
+    String strGroupDomain;
+    @BindExtra
+    ArrayList<SendUserBean> mMessageUsersDate;
+
+    boolean isSelectUser = true;
+    boolean isZhuanFa = true;
 
     @Override
     protected void initActionBar() {
         EventBus.getDefault().register(this);
-        tv_choose_confirm.setVisibility(View.GONE);
-        if (TextUtils.isEmpty(titleName)) {
-            titleName = "联系人";
-        }
-        getNavigate().setTitlText(titleName)
+
+        ChoosedContactsNew.get().clear();
+
+        getNavigate().setVisibility(View.VISIBLE);
+        getNavigate().getRightTextView().setPadding(AppUtils.dp2px(this, 8f), AppUtils.dp2px(this, 4f), AppUtils.dp2px(this, 8f), AppUtils.dp2px(this, 4f));
+        getNavigate().setTitlText("联系人")
                 .setRightText("确定")
                 .setLeftClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onBackPressed();
+                        finish();
                     }
                 })
                 .setRightClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onEvent(new EventUserSelectedComplete());
+
+                        if (ChoosedContactsNew.get().getGroups().isEmpty() &&
+                                ChoosedContactsNew.get().getContactsSize() == 0) {
+                            showToast("请选择发送对象");
+                            return;
+                        }
+
+                        if (ChoosedContactsNew.get().getContactsSize() != 0 &&
+                                !ChoosedContactsNew.get().getGroups().isEmpty()) {
+
+                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaGroupPopupWindow.setSendUser(ChoosedContactsNew.get().getGroups());
+                            zhuanFaGroupPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data, null);
+
+                            ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, strUserID,
+                                    strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaPopupWindow.setSendUser(ChoosedContactsNew.get().getContacts());
+                            zhuanFaPopupWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
+                            zhuanFaPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    zhuanFaGroupPopupWindow.sendMessage();
+
+                                    zhuanFaPopupWindow.sendMessage();
+                                }
+                            });
+
+                        } else if (ChoosedContactsNew.get().getContactsSize() != 0 &&
+                                ChoosedContactsNew.get().getGroups().isEmpty()) {
+                            ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, strUserID,
+                                    strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaPopupWindow.setSendUser(ChoosedContactsNew.get().getContacts());
+                            zhuanFaPopupWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
+                            zhuanFaPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data);
+                        } else if (ChoosedContactsNew.get().getContactsSize() == 0 &&
+                                !ChoosedContactsNew.get().getGroups().isEmpty()) {
+                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                            zhuanFaGroupPopupWindow.setSendUser(ChoosedContactsNew.get().getGroups());
+                            zhuanFaGroupPopupWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
+                            zhuanFaGroupPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data);
+                        }
                     }
                 });
-        getNavigate().getRightTextView().setPadding(AppUtils.dp2px(this, 8f), AppUtils.dp2px(this, 4f), AppUtils.dp2px(this, 8f), AppUtils.dp2px(this, 4f));
     }
 
     @Override
     public void doInitDelay() {
+
+        tv_choose_confirm.setVisibility(View.GONE);
 
         refresh_view.setColorSchemeColors(ContextCompat.getColor(this, R.color.blue),
                 ContextCompat.getColor(this, R.color.colorPrimary));
@@ -210,12 +272,13 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
                             deptData.strDomainCode = domain == null ? "" : domain.strDomainCode;
                             ArrayList<String> titleName = new ArrayList<>();
                             titleName.add(TextUtils.isEmpty(deptData.strName) ? deptData.strDepName : deptData.strName);
-                            Intent intent = new Intent(ContactsChoiceByAllFriendOrgActivity.this, DeptDeepListOrgActivity.class);
+                            Intent intent = new Intent(ZhuanFaChooseOrgActivity.this, DeptDeepListOrgActivity.class);
                             intent.putExtra("domainName", (domain == null ? "" : domain.strDomainName));
                             intent.putExtra("titleName", titleName);
                             intent.putExtra("deptData", deptData);
                             intent.putExtra("max", 10000);
                             intent.putExtra("map", FragmentContacts.map);
+                            intent.putExtra("isZhuanFa", isZhuanFa);
                             startActivity(intent);
                         } else {
                             handleChoice(deptData);
@@ -387,24 +450,92 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     protected void updateContacts() {
         mCustomContacts.clear();
         mCustomContacts.addAll(getCustomContacts(mAllContacts));
-        if (mCustomContacts != null) {
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+
+        if (mChoosedAdapter != null) {
+            mChoosedAdapter.notifyDataSetChanged();
+        }
+
+        changeShowSelected();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            setResult(RESULT_OK, data);
-            finish();
+    private void handleChoice(User user) {
+        if (user == null) {
+            return;
         }
+        if (ChoosedContactsNew.get().isContain(user)) {
+            user.isSelected = false;
+            ChoosedContactsNew.get().remove(user);
+        } else {
+            user.isSelected = true;
+            ChoosedContactsNew.get().add(user, true);
+        }
+        adapter.notifyDataSetChanged();
+        mChoosedAdapter.notifyDataSetChanged();
+    }
+
+    private void handleChoice(final DeptData deptData) {
+        ModelApis.Contacts().requestContactsOnly(deptData.strDomainCode, deptData.strDepID, 1, new ModelCallback<ContactsBean>() {
+            @Override
+            public void onSuccess(final ContactsBean contactsBean) {
+                deptData.isSelected = !deptData.isSelected;
+                if (deptData.isSelected) {
+                    ChoosedContactsNew.get().add(deptData);
+                    if (!selectedDept.contains(deptData.strDepID)) {
+                        selectedDept.add(deptData.strDepID);
+                    }
+                } else {
+                    ChoosedContactsNew.get().remove(deptData);
+                    if (selectedDept.contains(deptData.strDepID)) {
+                        selectedDept.remove(deptData.strDepID);
+                    }
+                }
+
+                if(!isZhuanFa) {
+                    if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                        for (User user : contactsBean.userList) {
+                            if (!user.strUserID.equals(AppAuth.get().getUserID())) {
+
+                                if (deptData.isSelected) {
+                                    if (!ChoosedContactsNew.get().isContain(user)) {
+                                        if (ChoosedContactsNew.get().getContacts().size() >= 10000 + 1) {
+                                            showToast("最多选" + 10000 + "人，已达人数上限");
+                                            return;
+                                        }
+                                        userDeptMap.put(user.strUserID, deptData.strDepID);
+                                        user.isSelected = true;
+                                        ChoosedContactsNew.get().add(user, false);
+                                    }
+                                } else {
+                                    if (ChoosedContactsNew.get().isContain(user)) {
+                                        user.isSelected = false;
+                                        ChoosedContactsNew.get().remove(user);
+
+                                        if (userDeptMap.containsKey(user.strUserID)) {
+                                            userDeptMap.remove(user.strUserID);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                mChoosedAdapter.notifyDataSetChanged();
+                adapterAt.notifyDataSetChanged();
+                changeShowSelected();
+
+            }
+        });
     }
 
     @OnClick({R.id.tv_group})
     public void onClick(View view) {
         Intent intent = new Intent(this, GroupListOrgActivity.class);
         intent.putExtra("max", 100000);
+        intent.putExtra("isZhuanFa", isZhuanFa);
         startActivity(intent);
     }
 
@@ -412,6 +543,7 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     public void onClickSearch(View view) {
         Intent intent = new Intent(this, SearchDeptUserListOrgActivity.class);
         intent.putExtra("max", 100000);
+        intent.putExtra("isZhuanFa", isZhuanFa);
         startActivity(intent);
     }
 
@@ -419,6 +551,7 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     public void onClickTitle(View view) {
         Intent intent = new Intent(this, DeptListOrgActivity.class);
         intent.putExtra("max", 100000);
+        intent.putExtra("isZhuanFa", isZhuanFa);
         startActivity(intent);
     }
 
@@ -440,16 +573,22 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    private void onEvent(EventUserSelectedComplete bean) {
-        Intent intent = new Intent();
-        setResult(RESULT_OK, intent);
+    public void onEvent(CloseZhuanFa messageEvent) {
         finish();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+
         updateContacts();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ChoosedContactsNew.get().clear();
+        EventBus.getDefault().unregister(this);
     }
 
     private ArrayList<User> getCustomContacts(ArrayList<User> data) {
@@ -478,92 +617,5 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
         return data;
     }
 
-    private void handleChoice(User user) {
-        if (user == null) {
-            return;
-        }
-        if (ChoosedContactsNew.get().isContain(user)) {
-            user.isSelected = false;
-            ChoosedContactsNew.get().remove(user);
-        } else {
-            user.isSelected = true;
-            ChoosedContactsNew.get().add(user, true);
-        }
-        changeShowSelected();
-        adapter.notifyDataSetChanged();
-        mChoosedAdapter.notifyDataSetChanged();
-    }
-
-    private void handleChoice(final DeptData deptData) {
-        ModelApis.Contacts().requestContactsOnly(deptData.strDomainCode, deptData.strDepID, 1, new ModelCallback<ContactsBean>() {
-            @Override
-            public void onSuccess(final ContactsBean contactsBean) {
-                deptData.isSelected = !deptData.isSelected;
-                if (deptData.isSelected) {
-                    ChoosedContactsNew.get().add(deptData);
-                    if (!selectedDept.contains(deptData.strDepID)) {
-                        selectedDept.add(deptData.strDepID);
-                    }
-                } else {
-                    ChoosedContactsNew.get().remove(deptData);
-                    if (selectedDept.contains(deptData.strDepID)) {
-                        selectedDept.remove(deptData.strDepID);
-                    }
-                }
-                if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                    for (User user : contactsBean.userList) {
-                        if (!user.strUserID.equals(AppAuth.get().getUserID())) {
-
-                            if (deptData.isSelected) {
-                                if (!ChoosedContactsNew.get().isContain(user)) {
-                                    if (ChoosedContactsNew.get().getContacts().size() >= 10000 + 1) {
-                                        showToast("最多选" + 10000 + "人，已达人数上限");
-                                        return;
-                                    }
-                                    userDeptMap.put(user.strUserID, deptData.strDepID);
-                                    user.isSelected = true;
-                                    ChoosedContactsNew.get().add(user, false);
-                                }
-                            } else {
-                                if (ChoosedContactsNew.get().isContain(user)) {
-                                    user.isSelected = false;
-                                    ChoosedContactsNew.get().remove(user);
-
-                                    if (userDeptMap.containsKey(user.strUserID)) {
-                                        userDeptMap.remove(user.strUserID);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    mChoosedAdapter.notifyDataSetChanged();
-                    adapterAt.notifyDataSetChanged();
-                    changeShowSelected();
-                }
-            }
-        });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        UserViewHolder.mIsChoice = true;
-
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
-
-        if (mChoosedAdapter != null) {
-            mChoosedAdapter.notifyDataSetChanged();
-        }
-
-        changeShowSelected();
-    }
 
 }

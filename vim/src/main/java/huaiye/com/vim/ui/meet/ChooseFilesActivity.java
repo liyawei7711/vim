@@ -204,7 +204,7 @@ public class ChooseFilesActivity extends AppBaseActivity {
 //                    mZeusLoadView.dismiss();
 //                }
             }
-        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
+        }, file, AppDatas.Constants().getFileUploadUri(), this);
     }
 
     @Override

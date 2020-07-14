@@ -1,6 +1,8 @@
 package huaiye.com.vim.models.download;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 
 import com.google.gson.Gson;
 
@@ -14,8 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
-import huaiye.com.vim.R;
-import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.rx.RxUtils;
 import huaiye.com.vim.dao.AppDatas;
@@ -238,18 +238,24 @@ public class DownloadApi {
      *
      * @param file
      */
-    public void uploadFile(ModelCallback<Upload> callback, final File file, String end, DownloadLoadView downloadLoadView) {
+    public void uploadFile(ModelCallback<Upload> callback, final File file, String end, Activity activity) {
         String URL = AppDatas.Constants().getFileServerURL() + end;
 
         try {
-            httppost(callback, URL, file.getPath(), file.getName(), downloadLoadView);
+            httppost(callback, URL, file.getPath(), file.getName(), activity);
         } catch (Exception e) {
             callback.onFailure(null);
             e.printStackTrace();
         }
     }
 
-    private void httppost(final ModelCallback<Upload> callback, String url, String filePath, String fileName, final DownloadLoadView downloadLoadView) throws Exception {
+    private void httppost(final ModelCallback<Upload> callback, String url, String filePath, String fileName, final Activity activity) throws Exception {
+        DownloadLoadView downloadLoadView = null;
+        if (activity != null) {
+            downloadLoadView = new DownloadLoadView(activity);
+        }
+        DownloadLoadView finalDownloadLoadView = downloadLoadView;
+
         OkHttpClient Client = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -265,12 +271,12 @@ public class DownloadApi {
 
                                     @Override
                                     public void doOnMain(Object data) {
-                                        if(downloadLoadView != null) {
-                                            downloadLoadView.loadingText(fileName).setLoading();
-                                            downloadLoadView.setProgress(totalBytes, remainingBytes);
+                                        if (finalDownloadLoadView != null) {
+                                            finalDownloadLoadView.loadingText(fileName).setLoading();
+                                            finalDownloadLoadView.setProgress(totalBytes, remainingBytes);
 
-                                            if(done || remainingBytes == 0) {
-                                                downloadLoadView.dismiss();
+                                            if (done || remainingBytes == 0) {
+                                                finalDownloadLoadView.dismiss();
                                             }
                                         }
                                     }
@@ -288,12 +294,28 @@ public class DownloadApi {
         Client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                if(downloadLoadView != null) {
-                    downloadLoadView.loadingText(fileName).setLoading();
-                    downloadLoadView.setProgress(100, 100);
-                    downloadLoadView.dismiss();
+                try {
+                    new RxUtils().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
+                        @Override
+                        public Object doOnThread() {
+                            return "";
+                        }
+
+                        @Override
+                        public void doOnMain(Object data) {
+                            if (finalDownloadLoadView != null) {
+                                finalDownloadLoadView.loadingText(fileName).setLoading();
+                                finalDownloadLoadView.setProgress(100, 100);
+                                finalDownloadLoadView.dismiss();
+                            }
+                            callback.onFailure(null);
+                        }
+                    });
+
+                } catch (Exception ex) {
+
                 }
-                callback.onFailure(null);
+
             }
 
             @Override
@@ -303,11 +325,22 @@ public class DownloadApi {
                     final Upload upload = new Gson().fromJson(strResp, Upload.class);
                     callback.onSuccess(upload);
 
-                    if(downloadLoadView != null) {
-                        downloadLoadView.loadingText(fileName).setLoading();
-                        downloadLoadView.setProgress(100, 100);
-                        downloadLoadView.dismiss();
-                    }
+                    new RxUtils().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
+                        @Override
+                        public Object doOnThread() {
+                            return "";
+                        }
+
+                        @Override
+                        public void doOnMain(Object data) {
+                            if (finalDownloadLoadView != null) {
+                                finalDownloadLoadView.loadingText(fileName).setLoading();
+                                finalDownloadLoadView.setProgress(100, 100);
+                                finalDownloadLoadView.dismiss();
+                            }
+                        }
+                    });
+
                 } catch (Exception e) {
                     callback.onFailure(null);
                 }

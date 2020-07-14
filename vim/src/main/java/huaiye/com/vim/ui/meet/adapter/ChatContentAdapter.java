@@ -93,6 +93,7 @@ import huaiye.com.vim.ui.showfile.FileOpenActivity;
 import huaiye.com.vim.ui.showfile.PIOOpenActivity;
 import huaiye.com.vim.ui.showfile.WebPageFileActivity;
 import huaiye.com.vim.ui.zhuanfa.ZhuanFaChooseActivity;
+import huaiye.com.vim.ui.zhuanfa.ZhuanFaChooseOrgActivity;
 
 import static huaiye.com.vim.common.AppBaseActivity.showToast;
 import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
@@ -2354,7 +2355,6 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             mContext.startActivity(intent);
         }
     }
-
     private void updateDownloadState(ChatMessageBase data) {
         if (isGroup) {
             if (!TextUtils.isEmpty(strGroupID)) {
@@ -3268,7 +3268,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private void delZhuanFaMessage(ChatMessageBase data) {
-        Intent intent = new Intent(mContext, ZhuanFaChooseActivity.class);
+        Intent intent = new Intent(mContext, ZhuanFaChooseOrgActivity.class);
         intent.putExtra("data", data);
         intent.putExtra("users", usersTrans);
         intent.putExtra("strUserID", strUserID);

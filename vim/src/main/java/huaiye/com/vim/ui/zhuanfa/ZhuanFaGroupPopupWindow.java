@@ -1,5 +1,6 @@
 package huaiye.com.vim.ui.zhuanfa;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -290,7 +291,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                     public void onFinish(HTTPResponse httpResponse) {
 
                     }
-                }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(mContext));
+                }, file, AppDatas.Constants().getFileUploadUri(), (Activity) mContext);
             }
         }).start();
 
@@ -463,7 +464,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
                         }, "end");
 
                     }
-                }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(mContext));
+                }, file, AppDatas.Constants().getFileUploadUri(), (Activity) mContext);
             }
         }).start();
     }
@@ -566,7 +567,7 @@ public class ZhuanFaGroupPopupWindow extends PopupWindow {
 //                        if (((AppBaseActivity) mContext).mZeusLoadView != null && ((AppBaseActivity) mContext).mZeusLoadView.isShowing())
 //                            ((AppBaseActivity) mContext).mZeusLoadView.dismiss();
                     }
-                }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(mContext));
+                }, file, AppDatas.Constants().getFileUploadUri(), (Activity) mContext);
             }
         }).start();
 

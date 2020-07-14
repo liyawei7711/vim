@@ -19,6 +19,7 @@ import huaiye.com.vim.R;
 import huaiye.com.vim.common.recycle.LiteViewHolder;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
+import huaiye.com.vim.ui.contacts.GroupListOrgActivity;
 import huaiye.com.vim.ui.home.FragmentMessages;
 
 /**
@@ -70,8 +71,8 @@ public class GroupInfoViewOrgHolder extends LiteViewHolder {
                 .into(iv_user_head);
 
         if (TextUtils.isEmpty(groupInfo.strGroupName)) {
-            if (FragmentMessages.mapGroupName.get(groupInfo.strGroupID) != null) {
-                groupInfo.strGroupName = FragmentMessages.mapGroupName.get(groupInfo.strGroupID);
+            if (GroupListOrgActivity.mapGroupName.get(groupInfo.strGroupID) != null) {
+                groupInfo.strGroupName = GroupListOrgActivity.mapGroupName.get(groupInfo.strGroupID);
             } else {
                 groupInfo.strGroupName = "群组(0)";
             }

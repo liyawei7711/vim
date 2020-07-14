@@ -185,7 +185,9 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
 
     public void sendMessage() {
         for(User temp : users) {
-            sendMessage(temp);
+            if(!temp.strUserID.equals(AppAuth.get().getUserID())) {
+                sendMessage(temp);
+            }
         }
     }
 
@@ -414,15 +416,23 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
         }
         this.data = data;
 
+        User user = new User();
+        for(User temp : users) {
+            if(!temp.strUserID.equals(AppAuth.get().getUserID())) {
+                user = temp;
+                break;
+            }
+        }
+
         Glide.with(mContext)
-                .load(AppDatas.Constants().getFileServerURL() + users.get(0).strHeadUrl)
+                .load(AppDatas.Constants().getFileServerURL() + user.strHeadUrl)
                 .apply(requestOptions)
                 .into(iv_head);
 
-        if (users.size() == 1) {
-            tv_name.setText(users.get(0).strUserName);
+        if (users.size() == 2) {
+            tv_name.setText(user.strUserName);
         } else {
-            tv_name.setText(users.get(0).strUserName + "等对象");
+            tv_name.setText(user.strUserName + "等对象");
         }
 
         if (AppUtils.MESSAGE_TYPE_TEXT == data.type) {
@@ -489,16 +499,23 @@ public class ZhuanFaPopupWindowDuoFa extends PopupWindow {
         if(onClickListener == null) {
             return;
         }
+        User user = new User();
+        for(User temp : users) {
+            if(!temp.strUserID.equals(AppAuth.get().getUserID())) {
+                user = temp;
+                break;
+            }
+        }
 
         Glide.with(mContext)
-                .load(AppDatas.Constants().getFileServerURL() + users.get(0).strHeadUrl)
+                .load(AppDatas.Constants().getFileServerURL() + user.strHeadUrl)
                 .apply(requestOptions)
                 .into(iv_head);
 
-        if (users.size() == 1) {
-            tv_name.setText(users.get(0).strUserName);
+        if (users.size() == 2) {
+            tv_name.setText(user.strUserName);
         } else {
-            tv_name.setText(users.get(0).strUserName + "等对象");
+            tv_name.setText(user.strUserName + "等对象");
         }
 
         if (AppUtils.MESSAGE_TYPE_TEXT == data.type) {

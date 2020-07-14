@@ -176,7 +176,7 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
                 User temp = adapter.getDataForItemPosition(viewHolder.getAdapterPosition());
 //                ChoosedContacts.get().deleteSelected(temp);
 //                mChoicedContacts.remove(temp);
-                ChoosedContactsNew.get().removeContacts(temp);
+                ChoosedContactsNew.get().remove(temp);
                 adapter.notifyDataSetChanged();
             }
 
@@ -199,7 +199,7 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
                         temp_item.strUserName = lstGroupUser.strUserName;
                         temp_item.strDomainCode = lstGroupUser.getDomainCode();
                         temp_item.strHeadUrl = lstGroupUser.strHeadUrl;
-                        ChoosedContactsNew.get().addContacts(temp_item);
+                        ChoosedContactsNew.get().add(temp_item, true);
                     }
                     return "";
                 }

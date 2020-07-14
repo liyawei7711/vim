@@ -1301,7 +1301,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             public void onFinish(HTTPResponse httpResponse) {
 
             }
-        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
+        }, file, AppDatas.Constants().getFileUploadUri(), this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1599,7 +1599,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                     }
                 });
             }
-        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
+        }, file, AppDatas.Constants().getFileUploadUri(), this);
     }
 
     private ArrayList<SendUserBean> getSendUserDate() {
@@ -1777,6 +1777,9 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         for (ChatGroupMsgBean temp1 : allMsg) {
             if (temp1.read == 0) {
                 VimMessageListMessages.get().isRead(temp1.sessionID);
+                AppDatas.MsgDB()
+                        .chatGroupMsgDao()
+                        .updateReadWithMsgID(temp1.groupID, temp1.msgID, AppAuth.get().getUserID());
             }
         }
 

@@ -159,7 +159,7 @@ public class ChoosePhotoAndScreenActivity extends AppBaseActivity {
 //                if (mZeusLoadView != null && mZeusLoadView.isShowing())
 //                    mZeusLoadView.dismiss();
             }
-        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
+        }, file, AppDatas.Constants().getFileUploadUri(), this);
     }
 
     @Override

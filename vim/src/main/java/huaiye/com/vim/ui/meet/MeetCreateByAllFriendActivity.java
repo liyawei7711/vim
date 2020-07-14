@@ -83,6 +83,8 @@ public class MeetCreateByAllFriendActivity extends AppBaseActivity implements Me
 
     @Override
     protected void initActionBar() {
+        ChoosedContactsNew.get().clear();
+
         NavigateView navigateView = getNavigate();
         navigateView.setLeftClickListener(new View.OnClickListener() {
             @Override
@@ -170,7 +172,7 @@ public class MeetCreateByAllFriendActivity extends AppBaseActivity implements Me
                 User temp = adapter.getDataForItemPosition(viewHolder.getAdapterPosition());
 //                ChoosedContacts.get().deleteSelected(temp);
 //                mChoicedContacts.remove(temp);
-                ChoosedContactsNew.get().removeContacts(temp);
+                ChoosedContactsNew.get().remove(temp);
                 adapter.notifyDataSetChanged();
             }
 

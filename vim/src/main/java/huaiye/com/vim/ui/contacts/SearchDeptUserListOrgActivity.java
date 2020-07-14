@@ -33,13 +33,17 @@ import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
+import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
+import huaiye.com.vim.models.contacts.bean.SelectedModeBean;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.DeptUserItemViewOrgHolder;
 import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
+
+import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.atData;
 
 
 /**
@@ -66,10 +70,12 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
 
     LiteBaseAdapter<User> userAdapter;
     ArrayList<User> userInfos = new ArrayList<>();
-    EXTRecyclerAdapter<User> mChoosedAdapter;
+    EXTRecyclerAdapter<SelectedModeBean> mChoosedAdapter;
 
     @BindExtra
     int max;
+    @BindExtra
+    boolean isZhuanFa;
 
     @Override
     protected void initActionBar() {
@@ -110,35 +116,51 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
         rct_view_user.setLayoutManager(new SafeLinearLayoutManager(this));
 
         rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
+        mChoosedAdapter = new EXTRecyclerAdapter<SelectedModeBean>(R.layout.item_contacts_person_choosed) {
             @Override
-            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                if (contactData.nJoinStatus != 2) {
-                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
-                } else {
-                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
-                }
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, SelectedModeBean contactData) {
+                extViewHolder.setText(R.id.tv_contact_name, contactData.strName);
             }
         };
-        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
+        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getSelectedMode());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                if (mChoosedAdapter.getDatas().get(i).strUserID.equals(AppDatas.Auth().getUserID())) {
+                if (mChoosedAdapter.getDatas().get(i).strId.equals(AppDatas.Auth().getUserID())) {
                     return;
                 }
-                boolean isDel = false;
-                for (User item : userInfos) {
-                    if (mChoosedAdapter.getDatas().get(i).strUserID.equals(item.strUserID)) {
-                        handleChoice(item);
-                        isDel = true;
-                        break;
+                if(isZhuanFa) {
+                    if(mChoosedAdapter.getDatas().get(i).isUser()) {
+                        boolean isDel = false;
+                        for (User item : userInfos) {
+                            if (mChoosedAdapter.getDatas().get(i).strId.equals(item.strUserID)) {
+                                handleChoice(item);
+                                isDel = true;
+                                break;
+                            }
+                        }
+                        if (!isDel) {
+                            ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
+                        }
+                    } else if(mChoosedAdapter.getDatas().get(i).isGroup()) {
+                        ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
+                    } else {
+                        ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
+                    }
+                } else {
+                    boolean isDel = false;
+                    for (User item : userInfos) {
+                        if (mChoosedAdapter.getDatas().get(i).strId.equals(item.strUserID)) {
+                            handleChoice(item);
+                            isDel = true;
+                            break;
+                        }
+                    }
+                    if (!isDel) {
+                        ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
                     }
                 }
-                if(!isDel) {
-                    ChoosedContactsNew.get().removeContacts(mChoosedAdapter.getDatas().get(i));
-                    mChoosedAdapter.notifyDataSetChanged();
-                }
+                mChoosedAdapter.notifyDataSetChanged();
                 changeShowSelected();
             }
         });
@@ -222,26 +244,29 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
         }
         if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            ChoosedContactsNew.get().removeContacts(user);
+            ChoosedContactsNew.get().remove(user);
         } else {
             if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
                 showToast("最多选" + max + "人，已达人数上限");
                 return;
             }
             user.isSelected = true;
-            ChoosedContactsNew.get().addContacts(user);
+            ChoosedContactsNew.get().add(user, true);
         }
+        changeShowSelected();
         mChoosedAdapter.notifyDataSetChanged();
         userAdapter.notifyDataSetChanged();
     }
 
     private void changeShowSelected() {
-        if (ChoosedContactsNew.get().getContacts().isEmpty()) {
+        if (ChoosedContactsNew.get().getContactsSize() == 0 &&
+                ChoosedContactsNew.get().getGroups().isEmpty() &&
+                ChoosedContactsNew.get().getDepts().isEmpty()) {
             llChoosedPersons.setVisibility(View.GONE);
             tv_choose_confirm.setText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            tv_choose_confirm.setText("确定("+ChoosedContactsNew.get().getContacts().size()+")");
+            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
         }
     }
 

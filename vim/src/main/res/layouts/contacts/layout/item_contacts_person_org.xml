@@ -47,6 +47,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
+            android:text="下级"
             android:drawableRight="@drawable/bt_next"
             android:drawablePadding="10dp"
             android:textColor="@color/black333"

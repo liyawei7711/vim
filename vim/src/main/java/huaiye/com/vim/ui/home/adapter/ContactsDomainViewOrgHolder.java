@@ -51,6 +51,7 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
     View view_divider;
 
     public static boolean mIsChoice;
+    public static boolean isZhuanFa;
     public static int max;
 
     private RequestOptions requestOptions;
@@ -83,6 +84,8 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
                     for (DeptData temp : contactsBean.departmentInfoList) {
                         if (selectedDept.contains(temp.strDepID)) {
                             temp.isSelected = true;
+                        } else {
+                            temp.isSelected = false;
                         }
                         temp.strDomainCode = domain.strDomainCode;
                         if ("0".equals(temp.strParentID) || "".equals(temp.strParentID)) {
@@ -122,20 +125,23 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
                                         intent.putExtra("deptData", deptData);
                                         intent.putExtra("map", FragmentContacts.map);
                                         intent.putExtra("max", max);
+                                        intent.putExtra("isZhuanFa", isZhuanFa);
                                         context.startActivity(intent);
                                     } else {
                                         deptData.isSelected = !deptData.isSelected;
                                         if (deptData.isSelected) {
+                                            ChoosedContactsNew.get().add(deptData);
                                             if (!selectedDept.contains(deptData.strDepID)) {
                                                 selectedDept.add(deptData.strDepID);
                                             }
                                         } else {
+                                            ChoosedContactsNew.get().remove(deptData);
                                             if (selectedDept.contains(deptData.strDepID)) {
                                                 selectedDept.remove(deptData.strDepID);
                                             }
                                         }
                                         rv_data.getAdapter().notifyDataSetChanged();
-                                        handleChoice(rv_data.getAdapter(), deptData);
+                                        handleChoice(deptData);
                                     }
                                 }
                             }, "false");
@@ -158,7 +164,11 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
         }
     }
 
-    private void handleChoice(RecyclerView.Adapter deptAdapter, final DeptData deptData) {
+    private void handleChoice(final DeptData deptData) {
+        if(isZhuanFa) {
+            EventBus.getDefault().post(new EventUserSelected());
+            return;
+        }
         ModelApis.Contacts().requestContactsOnly(deptData.strDomainCode, deptData.strDepID, 1, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
@@ -166,6 +176,7 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
                     for (User user : contactsBean.userList) {
                         if (!user.strUserID.equals(AppAuth.get().getUserID())) {
                             if (deptData.isSelected) {
+                                ChoosedContactsNew.get().add(deptData);
                                 if (!ChoosedContactsNew.get().isContain(user)) {
                                     if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
                                         showToast("最多选" + max + "人，已达人数上限");
@@ -173,12 +184,13 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
                                     }
                                     userDeptMap.put(user.strUserID, deptData.strDepID);
                                     user.isSelected = true;
-                                    ChoosedContactsNew.get().addContacts(user);
+                                    ChoosedContactsNew.get().add(user, false);
                                 }
                             } else {
+                                ChoosedContactsNew.get().remove(deptData);
                                 if (ChoosedContactsNew.get().isContain(user)) {
                                     user.isSelected = false;
-                                    ChoosedContactsNew.get().removeContacts(user);
+                                    ChoosedContactsNew.get().remove(user);
 
                                     if (userDeptMap.containsKey(user.strUserID)) {
                                         userDeptMap.remove(user.strUserID);

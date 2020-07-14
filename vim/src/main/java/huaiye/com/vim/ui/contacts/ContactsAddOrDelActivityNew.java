@@ -557,7 +557,7 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     }
 
     private void initData() {
-        ChoosedContactsNew.get().getContacts().clear();
+        ChoosedContactsNew.get().clear();
         try {
             if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
                 if (null != mUserList) {
@@ -718,14 +718,14 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
         }
         if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            ChoosedContactsNew.get().removeContacts(user);
+            ChoosedContactsNew.get().remove(user);
         } else {
             if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
                 showToast("最多选" + max + "人，已达人数上限");
                 return;
             }
             user.isSelected = true;
-            ChoosedContactsNew.get().addContacts(user);
+            ChoosedContactsNew.get().add(user, true);
         }
         mChoosedAdapter.notifyDataSetChanged();
         adapter.notifyDataSetChanged();

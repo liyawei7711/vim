@@ -27,14 +27,15 @@ import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.dao.AppDatas;
-import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
+import huaiye.com.vim.models.contacts.bean.SelectedModeBean;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.home.FragmentContacts;
 import huaiye.com.vim.ui.home.adapter.ContactsDomainViewOrgHolder;
-import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
+
+import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.selectedDept;
 
 
 /**
@@ -62,8 +63,10 @@ public class DeptListOrgActivity extends AppBaseActivity {
 
     @BindExtra
     int max;
+    @BindExtra
+    boolean isZhuanFa;
 
-    EXTRecyclerAdapter<User> mChoosedAdapter;
+    EXTRecyclerAdapter<SelectedModeBean> mChoosedAdapter;
     LiteBaseAdapter<DomainInfoList.DomainInfo> adapterDomain;
     ArrayList<DomainInfoList.DomainInfo> domainData = new ArrayList<>();//部门
 
@@ -102,30 +105,31 @@ public class DeptListOrgActivity extends AppBaseActivity {
                     }
                 }, "false");
         ContactsDomainViewOrgHolder.mIsChoice = true;
+        ContactsDomainViewOrgHolder.isZhuanFa = isZhuanFa;
         ContactsDomainViewOrgHolder.max = max;
 
         rct_view_dept.setLayoutManager(new LinearLayoutManager(this));
         rct_view_dept.setAdapter(adapterDomain);
 
         rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
+        mChoosedAdapter = new EXTRecyclerAdapter<SelectedModeBean>(R.layout.item_contacts_person_choosed) {
             @Override
-            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                if (contactData.nJoinStatus != 2) {
-                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
-                } else {
-                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
-                }
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, SelectedModeBean contactData) {
+                extViewHolder.setText(R.id.tv_contact_name, contactData.strName);
             }
         };
-        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
+        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getSelectedMode());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                if (mChoosedAdapter.getDatas().get(i).strUserID.equals(AppDatas.Auth().getUserID())) {
+                if (mChoosedAdapter.getDatas().get(i).strId.equals(AppDatas.Auth().getUserID())) {
                     return;
                 }
-                ChoosedContactsNew.get().removeContacts(mChoosedAdapter.getDatas().get(i));
+
+                selectedDept.remove(mChoosedAdapter.getDatas().get(i).strId);
+                rct_view_dept.setAdapter(adapterDomain);
+
+                ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
                 mChoosedAdapter.notifyDataSetChanged();
                 changeShowSelected();
             }
@@ -159,12 +163,19 @@ public class DeptListOrgActivity extends AppBaseActivity {
     public void onClickSearch(View view) {
         Intent intent = new Intent(this, SearchDeptUserListOrgActivity.class);
         intent.putExtra("max", max);
+        intent.putExtra("isZhuanFa", isZhuanFa);
         startActivity(intent);
+    }
+
+    @OnClick(R.id.tv_choose_confirm)
+    public void onClick(View view) {
+        EventBus.getDefault().post(new EventUserSelectedComplete());
+        finish();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventUserSelected bean) {
-        if(mChoosedAdapter != null) {
+        if (mChoosedAdapter != null) {
             mChoosedAdapter.notifyDataSetChanged();
         }
         changeShowSelected();
@@ -176,12 +187,14 @@ public class DeptListOrgActivity extends AppBaseActivity {
     }
 
     private void changeShowSelected() {
-        if (ChoosedContactsNew.get().getContacts().isEmpty()) {
+        if (ChoosedContactsNew.get().getContactsSize() == 0 &&
+                ChoosedContactsNew.get().getGroups().isEmpty() &&
+                ChoosedContactsNew.get().getDepts().isEmpty()) {
             llChoosedPersons.setVisibility(View.GONE);
             tv_choose_confirm.setText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            tv_choose_confirm.setText("确定("+ChoosedContactsNew.get().getContacts().size()+")");
+            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
         }
     }
 

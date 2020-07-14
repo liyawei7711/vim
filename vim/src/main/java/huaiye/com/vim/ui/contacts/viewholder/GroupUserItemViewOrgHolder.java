@@ -47,8 +47,8 @@ public class GroupUserItemViewOrgHolder extends LiteViewHolder {
         requestOptions.centerCrop()
                 .dontAnimate()
                 .format(DecodeFormat.PREFER_RGB_565)
-                .placeholder(R.drawable.ic_group_chat)
-                .error(R.drawable.ic_group_chat)
+                .placeholder(R.drawable.default_image_personal)
+                .error(R.drawable.default_image_personal)
                 .optionalTransform(new CircleCrop());
     }
 

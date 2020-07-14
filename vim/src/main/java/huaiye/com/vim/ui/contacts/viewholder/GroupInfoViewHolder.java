@@ -2,7 +2,6 @@ package huaiye.com.vim.ui.contacts.viewholder;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,17 +16,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import huaiye.com.vim.R;
-import huaiye.com.vim.common.helper.ChatContactsGroupUserListHelper;
 import huaiye.com.vim.common.recycle.LiteViewHolder;
 import huaiye.com.vim.common.views.CheckableLinearLayout;
 import huaiye.com.vim.dao.AppDatas;
-import huaiye.com.vim.models.ModelApis;
-import huaiye.com.vim.models.ModelCallback;
-import huaiye.com.vim.models.contacts.bean.ContactOrganizationBean;
-import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 import huaiye.com.vim.models.contacts.bean.GroupInfo;
-import huaiye.com.vim.ui.home.FragmentMessages;
-import ttyy.com.jinnetwork.core.work.HTTPResponse;
+import huaiye.com.vim.ui.contacts.GroupListActivity;
 
 /**
  * Created by ywt on 2019/2/25.
@@ -77,8 +70,8 @@ public class GroupInfoViewHolder extends LiteViewHolder {
                 .into(iv_user_head);
 
         if (TextUtils.isEmpty(groupInfo.strGroupName)) {
-            if(FragmentMessages.mapGroupName.get(groupInfo.strGroupID) != null) {
-                groupInfo.strGroupName = FragmentMessages.mapGroupName.get(groupInfo.strGroupID);
+            if (GroupListActivity.mapGroupName.get(groupInfo.strGroupID) != null) {
+                groupInfo.strGroupName = GroupListActivity.mapGroupName.get(groupInfo.strGroupID);
             } else {
                 groupInfo.strGroupName = "群组(0)";
             }

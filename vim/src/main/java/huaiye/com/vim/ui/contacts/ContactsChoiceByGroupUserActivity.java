@@ -71,7 +71,6 @@ public class ContactsChoiceByGroupUserActivity extends AppBaseActivity {
     //    ArrayList<User> stricts = new ArrayList<>();
     private ArrayList<User> mCustomContacts = new ArrayList<>();
 
-
     private ArrayList<User> mAllContacts = new ArrayList<>();
     private ArrayList<User> mOnlineContacts = new ArrayList<>();
     private int mPage = 1;
@@ -327,10 +326,10 @@ public class ContactsChoiceByGroupUserActivity extends AppBaseActivity {
         }
         if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            ChoosedContactsNew.get().removeContacts(user);
+            ChoosedContactsNew.get().remove(user);
         } else {
             user.isSelected = true;
-            ChoosedContactsNew.get().addContacts(user);
+            ChoosedContactsNew.get().add(user, true);
         }
         /*if (mChoicedContacts != null) {
             for (User item : mChoicedContacts) {

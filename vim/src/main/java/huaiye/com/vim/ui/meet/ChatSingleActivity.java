@@ -1060,7 +1060,6 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                     }
                 });
             } catch (Exception e) {
-                System.out.println("VIMApp, eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee " + e);
             }
         }
     }
@@ -1096,7 +1095,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             public void onFinish(HTTPResponse httpResponse) {
 
             }
-        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
+        }, file, AppDatas.Constants().getFileUploadUri(), this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1331,7 +1330,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 //                if (mZeusLoadView != null && mZeusLoadView.isShowing())
 //                    mZeusLoadView.dismiss();
             }
-        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(this));
+        }, file, AppDatas.Constants().getFileUploadUri(), this);
     }
 
     @OnClick(R.id.chat_title_bar_title)
@@ -1439,6 +1438,9 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         for(ChatSingleMsgBean temp1 : allMsg) {
             if(temp1.read == 0) {
                 VimMessageListMessages.get().isRead(temp1.sessionID);
+                AppDatas.MsgDB()
+                        .chatSingleMsgDao()
+                        .updateReadWithMsgID(temp.fromUserId, temp.toUserId, temp.msgID);
             }
         }
 

@@ -382,10 +382,10 @@ public class ContactsChoiceByAllFriendActivity extends AppBaseActivity {
         }
         if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            ChoosedContactsNew.get().removeContacts(user);
+            ChoosedContactsNew.get().remove(user);
         } else {
             user.isSelected = true;
-            ChoosedContactsNew.get().addContacts(user);
+            ChoosedContactsNew.get().add(user, true);
         }
         adapter.notifyDataSetChanged();
         mChoosedAdapter.notifyDataSetChanged();

@@ -297,6 +297,8 @@ public class GroupListActivity extends AppBaseActivity {
                                     mapGroupName.put(temp.strGroupID, "群组(0)");
                                 }
 
+                                temp.strGroupName = mapGroupName.get(contactsBean.strGroupID);
+
                                 if (myCreateAdapter != null) {
                                     myCreateAdapter.notifyDataSetChanged();
                                 }
@@ -306,7 +308,7 @@ public class GroupListActivity extends AppBaseActivity {
                             public void onFailure(HTTPResponse httpResponse) {
                                 super.onFailure(httpResponse);
                                 mapGroupName.put(temp.strGroupID, "群组(0)");
-
+                                temp.strGroupName = mapGroupName.get(temp.strGroupID);
                                 if (myCreateAdapter != null) {
                                     myCreateAdapter.notifyDataSetChanged();
                                 }

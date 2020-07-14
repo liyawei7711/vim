@@ -3,16 +3,12 @@ package huaiye.com.vim.ui.home;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
 
 import com.huaiye.sdk.HYClient;
 import com.huaiye.sdk.logger.Logger;
@@ -150,7 +146,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                 logicDialog.setConfirmClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        try{
+                        try {
                             int i = viewHolder.getAdapterPosition();
                             VimMessageListBean data = datas.get(i);
 
@@ -189,7 +185,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                                     }
                                 }).start();
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
 
                         }
 
@@ -276,7 +272,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
     }
 
     private void requestUser(VimMessageListBean bean) {
-        ((AppBaseActivity)getActivity()).mZeusLoadView.loadingText("正在加载").setLoading();
+        ((AppBaseActivity) getActivity()).mZeusLoadView.loadingText("正在加载").setLoading();
         ModelApis.Contacts().requestContacts(bean.groupDomainCode, bean.groupID, new ModelCallback<ContactsBean>() {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
@@ -289,9 +285,9 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                     groupContactData.userList = contactsBean.userList;
                     intent.putExtra("mContactsBean", groupContactData);
                     startActivity(intent);
-                    ((AppBaseActivity)getActivity()).mZeusLoadView.dismiss();
+                    ((AppBaseActivity) getActivity()).mZeusLoadView.dismiss();
                 } else {
-                    ((AppBaseActivity)getActivity()).mZeusLoadView.dismiss();
+                    ((AppBaseActivity) getActivity()).mZeusLoadView.dismiss();
                     showToast("获取部门联系人失败");
                 }
             }
@@ -299,7 +295,7 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
             @Override
             public void onFailure(HTTPResponse httpResponse) {
                 super.onFailure(httpResponse);
-                ((AppBaseActivity)getActivity()).mZeusLoadView.dismiss();
+                ((AppBaseActivity) getActivity()).mZeusLoadView.dismiss();
                 showToast("获取部门联系人失败");
             }
         });
@@ -340,21 +336,21 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                 }
 
                 mapGroupName.clear();
-                for(VimMessageListBean temp : allBean) {
-                    if(temp.groupType == 1) {
-                        if(TextUtils.isEmpty(temp.sessionName)) {
+                for (VimMessageListBean temp : allBean) {
+                    if (temp.groupType == 1) {
+                        if (TextUtils.isEmpty(temp.sessionName)) {
                             ModelApis.Contacts().requestqueryGroupChatInfo(temp.groupDomainCode, temp.groupID,
                                     new ModelCallback<ContactsGroupUserListBean>() {
                                         @Override
                                         public void onSuccess(final ContactsGroupUserListBean contactsBean) {
-                                            if(contactsBean != null) {
+                                            if (contactsBean != null) {
                                                 ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(contactsBean.strGroupID + "", contactsBean);
-                                                mapGroupName.put(contactsBean.strGroupID, "群组("+contactsBean.lstGroupUser.size()+")");
+                                                mapGroupName.put(contactsBean.strGroupID, "群组(" + contactsBean.lstGroupUser.size() + ")");
                                             } else {
-                                                mapGroupName.put(temp.groupID, "群组(0)");
+                                                mapGroupName.put(contactsBean.strGroupID, "群组(0)");
                                             }
-
-                                            if(adapter != null) {
+                                            temp.sessionName = mapGroupName.get(contactsBean.strGroupID);
+                                            if (adapter != null) {
                                                 adapter.notifyDataSetChanged();
                                             }
                                         }
@@ -363,8 +359,8 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
                                         public void onFailure(HTTPResponse httpResponse) {
                                             super.onFailure(httpResponse);
                                             mapGroupName.put(temp.groupID, "群组(0)");
-
-                                            if(adapter != null) {
+                                            temp.sessionName = mapGroupName.get(temp.groupID);
+                                            if (adapter != null) {
                                                 adapter.notifyDataSetChanged();
                                             }
                                         }

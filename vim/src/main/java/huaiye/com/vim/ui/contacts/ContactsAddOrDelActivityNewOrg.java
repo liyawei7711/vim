@@ -49,6 +49,7 @@ import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
 import huaiye.com.vim.models.contacts.bean.CustomResponse;
 import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
+import huaiye.com.vim.models.contacts.bean.SelectedModeBean;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.UserViewOrgHolder;
 import huaiye.com.vim.ui.home.FragmentContacts;
@@ -98,7 +99,7 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
 
     LiteBaseAdapter<User> adapter;
     LiteBaseAdapter<DeptData> adapterAt;
-    EXTRecyclerAdapter<User> mChoosedAdapter;
+    EXTRecyclerAdapter<SelectedModeBean> mChoosedAdapter;
 
     private ArrayList<User> mCustomContacts = new ArrayList<>();
     private ArrayList<User> mAllContacts = new ArrayList<>();//常用联系人
@@ -127,6 +128,8 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
     String strGroupName;
     @BindExtra
     int max;
+    @BindExtra
+    boolean isZhuanFa;
 
     long currentTime;
 
@@ -335,7 +338,7 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
 //            }
 //        }
 //        if (TextUtils.isEmpty(stringGoupName)) {
-            stringGoupName.append("群聊(" + ChoosedContactsNew.get().getContacts().size() + ")");
+            stringGoupName.append("群聊(" + ChoosedContactsNew.get().getContactsSize() + ")");
 //        }
         }
         return stringGoupName.toString();
@@ -494,33 +497,29 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
         }
 
         rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
+        mChoosedAdapter = new EXTRecyclerAdapter<SelectedModeBean>(R.layout.item_contacts_person_choosed) {
             @Override
-            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                if (contactData.nJoinStatus != 2) {
-                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
-                } else {
-                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
-                }
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, SelectedModeBean contactData) {
+                extViewHolder.setText(R.id.tv_contact_name, contactData.strName);
             }
         };
-        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
+        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getSelectedMode());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                if (mChoosedAdapter.getDatas().get(i).strUserID.equals(AppDatas.Auth().getUserID())) {
+                if (mChoosedAdapter.getDatas().get(i).strId.equals(AppDatas.Auth().getUserID())) {
                     return;
                 }
                 boolean isDel = false;
                 for (User item : mAllContacts) {
-                    if (mChoosedAdapter.getDatas().get(i).strUserID.equals(item.strUserID)) {
+                    if (mChoosedAdapter.getDatas().get(i).strId.equals(item.strUserID)) {
                         handleChoice(item);
                         isDel = true;
                         break;
                     }
                 }
                 if (!isDel) {
-                    ChoosedContactsNew.get().removeContacts(mChoosedAdapter.getDatas().get(i));
+                    ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
                     mChoosedAdapter.notifyDataSetChanged();
                 }
                 changeShowSelected();
@@ -536,18 +535,20 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
             llChoosedPersons.setVisibility(View.GONE);
             return;
         }
-        if (ChoosedContactsNew.get().getContacts().isEmpty()) {
+        if (ChoosedContactsNew.get().getContactsSize() == 0 &&
+                ChoosedContactsNew.get().getGroups().isEmpty() &&
+                ChoosedContactsNew.get().getDepts().isEmpty()) {
             llChoosedPersons.setVisibility(View.GONE);
             getNavigate().setRightText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            getNavigate().setRightText("确定(" + ChoosedContactsNew.get().getContacts().size() + ")");
+            getNavigate().setRightText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
         }
         getNavigate().getRightTextView().setBackgroundResource(R.drawable.shape_choosed_confirm);
     }
 
     private void initData() {
-        ChoosedContactsNew.get().getContacts().clear();
+        ChoosedContactsNew.get().clear();
         try {
             if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
                 if (null != mUserList) {
@@ -708,7 +709,7 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventUserClick bean) {
         for (User item : mAllContacts) {
-            if (bean.user.strUserName.equals(item.strUserName)) {
+            if (bean.user.strId.equals(item.strUserID)) {
                 handleChoice(item);
                 break;
             }
@@ -790,15 +791,16 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
         }
         if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            ChoosedContactsNew.get().removeContacts(user);
+            ChoosedContactsNew.get().remove(user);
         } else {
             if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
                 showToast("最多选" + max + "人，已达人数上限");
                 return;
             }
             user.isSelected = true;
-            ChoosedContactsNew.get().addContacts(user);
+            ChoosedContactsNew.get().add(user, true);
         }
+        changeShowSelected();
         mChoosedAdapter.notifyDataSetChanged();
         adapter.notifyDataSetChanged();
     }
@@ -808,11 +810,14 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
                 deptData.isSelected = !deptData.isSelected;
+
                 if (deptData.isSelected) {
+                    ChoosedContactsNew.get().add(deptData);
                     if (!selectedDept.contains(deptData.strDepID)) {
                         selectedDept.add(deptData.strDepID);
                     }
                 } else {
+                    ChoosedContactsNew.get().remove(deptData);
                     if (selectedDept.contains(deptData.strDepID)) {
                         selectedDept.remove(deptData.strDepID);
                     }
@@ -829,12 +834,12 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
                                     }
                                     userDeptMap.put(user.strUserID, deptData.strDepID);
                                     user.isSelected = true;
-                                    ChoosedContactsNew.get().addContacts(user);
+                                    ChoosedContactsNew.get().add(user, false);
                                 }
                             } else {
                                 if (ChoosedContactsNew.get().isContain(user)) {
                                     user.isSelected = false;
-                                    ChoosedContactsNew.get().removeContacts(user);
+                                    ChoosedContactsNew.get().remove(user);
 
                                     if (userDeptMap.containsKey(user.strUserID)) {
                                         userDeptMap.remove(user.strUserID);

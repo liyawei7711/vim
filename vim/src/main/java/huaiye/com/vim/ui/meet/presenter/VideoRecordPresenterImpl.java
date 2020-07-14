@@ -1,5 +1,6 @@
 package huaiye.com.vim.ui.meet.presenter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.TextureView;
@@ -251,7 +252,7 @@ public class VideoRecordPresenterImpl implements VideoRecordPresenterHelper.Pres
                 callback.onFinish(httpResponse);
 
             }
-        }, file, AppDatas.Constants().getFileUploadUri(), new DownloadLoadView(context));
+        }, file, AppDatas.Constants().getFileUploadUri(), (Activity) context);
     }
 
 }

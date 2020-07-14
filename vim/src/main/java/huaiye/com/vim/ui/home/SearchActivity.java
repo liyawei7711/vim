@@ -311,11 +311,11 @@ public class SearchActivity extends Activity {
         }
         if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            ChoosedContactsNew.get().removeContacts(user);
+            ChoosedContactsNew.get().remove(user);
             mChoosedAdapter.getDatas().remove(user);
         } else {
             user.isSelected = true;
-            ChoosedContactsNew.get().addContacts(user);
+            ChoosedContactsNew.get().add(user, true);
         }
         adapter.notifyDataSetChanged();
         mChoosedAdapter.notifyDataSetChanged();

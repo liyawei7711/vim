@@ -37,6 +37,7 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
+import huaiye.com.vim.models.contacts.bean.SelectedModeBean;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.DepeItemViewOrgHolder;
 import huaiye.com.vim.ui.contacts.viewholder.DepeTopViewHolder;
@@ -45,6 +46,8 @@ import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
 
+import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.atData;
+import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.selectedDept;
 import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.userDeptMap;
 
 
@@ -88,11 +91,13 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
     @BindExtra
     int max;
     @BindExtra
+    boolean isZhuanFa;
+    @BindExtra
     HashMap<String, ArrayList<DeptData>> map;
 
     ArrayList<User> allUserInfos = new ArrayList<>();
     ArrayList<DeptData> allDeptDatas = new ArrayList<>();
-    EXTRecyclerAdapter<User> mChoosedAdapter;
+    EXTRecyclerAdapter<SelectedModeBean> mChoosedAdapter;
 
     LiteBaseAdapter<String> strAdapter;
     ArrayList<String> strDatas = new ArrayList<>();
@@ -196,35 +201,56 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
         rct_view_user.setAdapter(userAdapter);
 
         rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mChoosedAdapter = new EXTRecyclerAdapter<User>(R.layout.item_contacts_person_choosed) {
+        mChoosedAdapter = new EXTRecyclerAdapter<SelectedModeBean>(R.layout.item_contacts_person_choosed) {
             @Override
-            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                if (contactData.nJoinStatus != 2) {
-                    extViewHolder.setText(R.id.tv_contact_name, contactData.strUserName);
-                } else {
-                    extViewHolder.setVisibility(R.id.tv_contact_name, View.GONE);
-                }
+            public void onBindViewHolder(EXTViewHolder extViewHolder, int i, SelectedModeBean contactData) {
+                extViewHolder.setText(R.id.tv_contact_name, contactData.strName);
             }
         };
-        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getContacts());
+        mChoosedAdapter.setDatas(ChoosedContactsNew.get().getSelectedMode());
         mChoosedAdapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(View view, int i) {
-                if (mChoosedAdapter.getDatas().get(i).strUserID.equals(AppDatas.Auth().getUserID())) {
+                if (mChoosedAdapter.getDatas().get(i).strId.equals(AppDatas.Auth().getUserID())) {
                     return;
                 }
-                boolean isDel = false;
-                for (User item : userInfos) {
-                    if (mChoosedAdapter.getDatas().get(i).strUserID.equals(item.strUserID)) {
-                        handleChoice(item);
-                        isDel = true;
-                        break;
+                if(isZhuanFa) {
+                    if(mChoosedAdapter.getDatas().get(i).isUser()) {
+                        boolean isDel = false;
+                        for (User item : userInfos) {
+                            if (mChoosedAdapter.getDatas().get(i).strId.equals(item.strUserID)) {
+                                handleChoice(item);
+                                isDel = true;
+                                break;
+                            }
+                        }
+                        if (!isDel) {
+                            ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
+                        }
+                    } else if(mChoosedAdapter.getDatas().get(i).isGroup()) {
+                        ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
+                    } else {
+                        for (DeptData item : atData) {
+                            if(mChoosedAdapter.getDatas().get(i).strId.equals(item.strDepID)) {
+                                handleChoice(item);
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    boolean isDel = false;
+                    for (User item : userInfos) {
+                        if (mChoosedAdapter.getDatas().get(i).strId.equals(item.strUserID)) {
+                            handleChoice(item);
+                            isDel = true;
+                            break;
+                        }
+                    }
+                    if (!isDel) {
+                        ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
                     }
                 }
-                if (!isDel) {
-                    ChoosedContactsNew.get().removeContacts(mChoosedAdapter.getDatas().get(i));
-                    mChoosedAdapter.notifyDataSetChanged();
-                }
+                mChoosedAdapter.notifyDataSetChanged();
                 changeShowSelected();
             }
         });
@@ -405,15 +431,16 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
         }
         if (ChoosedContactsNew.get().isContain(user)) {
             user.isSelected = false;
-            ChoosedContactsNew.get().removeContacts(user);
+            ChoosedContactsNew.get().remove(user);
         } else {
             if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
                 showToast("最多选" + max + "人，已达人数上限");
                 return;
             }
             user.isSelected = true;
-            ChoosedContactsNew.get().addContacts(user);
+            ChoosedContactsNew.get().add(user, true);
         }
+        changeShowSelected();
         mChoosedAdapter.notifyDataSetChanged();
         userAdapter.notifyDataSetChanged();
     }
@@ -423,46 +450,65 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
             @Override
             public void onSuccess(final ContactsBean contactsBean) {
                 deptData.isSelected = !deptData.isSelected;
-                if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                    for (User user : contactsBean.userList) {
-                        if (!user.strUserID.equals(AppAuth.get().getUserID())) {
-                            if (deptData.isSelected) {
-                                if (!ChoosedContactsNew.get().isContain(user)) {
-                                    if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
-                                        showToast("最多选" + max + "人，已达人数上限");
-                                        return;
-                                    }
-                                    userDeptMap.put(user.strUserID, deptData.strDepID);
-                                    user.isSelected = true;
-                                    ChoosedContactsNew.get().addContacts(user);
-                                }
-                            } else {
-                                if (ChoosedContactsNew.get().isContain(user)) {
-                                    user.isSelected = false;
-                                    ChoosedContactsNew.get().removeContacts(user);
 
-                                    if (userDeptMap.containsKey(user.strUserID)) {
-                                        userDeptMap.remove(user.strUserID);
+                if (deptData.isSelected) {
+                    ChoosedContactsNew.get().add(deptData);
+                    if (!selectedDept.contains(deptData.strDepID)) {
+                        selectedDept.add(deptData.strDepID);
+                    }
+                } else {
+                    ChoosedContactsNew.get().remove(deptData);
+                    if (selectedDept.contains(deptData.strDepID)) {
+                        selectedDept.remove(deptData.strDepID);
+                    }
+                }
+
+                if (!isZhuanFa) {
+                    if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
+                        for (User user : contactsBean.userList) {
+                            if (!user.strUserID.equals(AppAuth.get().getUserID())) {
+                                if (deptData.isSelected) {
+                                    if (!ChoosedContactsNew.get().isContain(user)) {
+                                        if (ChoosedContactsNew.get().getContacts().size() >= max + 1) {
+                                            showToast("最多选" + max + "人，已达人数上限");
+                                            return;
+                                        }
+                                        userDeptMap.put(user.strUserID, deptData.strDepID);
+                                        user.isSelected = true;
+                                        ChoosedContactsNew.get().add(user, false);
+                                    }
+                                } else {
+                                    if (ChoosedContactsNew.get().isContain(user)) {
+                                        user.isSelected = false;
+                                        ChoosedContactsNew.get().remove(user);
+
+                                        if (userDeptMap.containsKey(user.strUserID)) {
+                                            userDeptMap.remove(user.strUserID);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    mChoosedAdapter.notifyDataSetChanged();
-                    deptAdapter.notifyDataSetChanged();
-                    changeShowSelected();
                 }
+
+                mChoosedAdapter.notifyDataSetChanged();
+                deptAdapter.notifyDataSetChanged();
+                changeShowSelected();
+
             }
         });
     }
 
     private void changeShowSelected() {
-        if (ChoosedContactsNew.get().getContacts().isEmpty()) {
+        if (ChoosedContactsNew.get().getContactsSize() == 0 &&
+                ChoosedContactsNew.get().getGroups().isEmpty() &&
+                ChoosedContactsNew.get().getDepts().isEmpty()) {
             llChoosedPersons.setVisibility(View.GONE);
             tv_choose_confirm.setText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getContacts().size() + ")");
+            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
         }
     }
 
@@ -478,6 +524,12 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
         Intent intent = new Intent(this, SearchDeptUserListOrgActivity.class);
         intent.putExtra("max", max);
         startActivity(intent);
+    }
+
+    @OnClick(R.id.tv_choose_confirm)
+    public void onClickView(View view) {
+        EventBus.getDefault().post(new EventUserSelectedComplete());
+        finish();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
