@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
@@ -72,6 +71,8 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
 
     @BindView(R.id.create_meet_rct_view)
     RecyclerView create_meet_rct_view;
+    @BindView(R.id.header)
+    MeetCreateHeaderView header;
 
     @BindExtra
     int nMeetType;//1--即时会议 2--预约会议
@@ -80,7 +81,6 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
 
     private MeetTypeChoosePopupWindow mMeetTypeChoosePopupWindow;
 
-    MeetCreateHeaderView header;
     EXTRecyclerAdapter<User> adapter;
     RequestOptions requestOptions;
     //    ArrayList<ContactData> data = new ArrayList<>();
@@ -133,17 +133,10 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
         adapter = new EXTRecyclerAdapter<User>(R.layout.item_meetcreate_member) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                if (i < getHeaderViewsCount()) {
-                    return;
-                }
-                if (contactData.strUserName.equals(AppDatas.Auth().getUserName())) {
-//                    extViewHolder.setVisibility(R.id.iv_mainer, View.VISIBLE);
+                if (contactData.strUserID.equals(AppDatas.Auth().getUserID())) {
                     extViewHolder.setVisibility(R.id.tv_master, View.VISIBLE);
-//                    extViewHolder.setVisibility(R.id.tv_master_set, View.GONE);
                 } else {
-//                    extViewHolder.setVisibility(R.id.iv_mainer, View.GONE);
                     extViewHolder.setVisibility(R.id.tv_master, View.GONE);
-//                    extViewHolder.setVisibility(R.id.tv_master_set, View.VISIBLE);
                 }
                 extViewHolder.setText(R.id.tv_user_name, contactData.strUserName);
                 ImageView imageView = extViewHolder.itemView.findViewById(R.id.iv_user_head);
@@ -151,44 +144,27 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
                         .load(AppDatas.Constants().getAddressWithoutPort() + contactData.strHeadUrl)
                         .apply(requestOptions)
                         .into(imageView);
-                /*if (map.containsKey(contactData.loginName)) {
-                    if (map.get(contactData.loginName).nState == 2 ||
-                            map.get(contactData.loginName).nState == 3 ||
-                            map.get(contactData.loginName).nState == 4) {
-                        extViewHolder.setImageResouce(R.id.tv_user_status, R.drawable.dian_mang);
-                    } else {
-                        extViewHolder.setImageResouce(R.id.tv_user_status, R.drawable.dian_zaixian);
-                    }
-                } else {
-                    extViewHolder.setImageResouce(R.id.tv_user_status, R.drawable.dian_lixian);
-                }*/
             }
         };
 
-        header = new MeetCreateHeaderView(this, true, nMeetType == 1 ? false : true);
+        header.setOrder(nMeetType == 1 ? false : true);
         header.setmGroupInfoListBean(mGroupInfoListBean);
-        adapter.addHeaderView(header);
         header.setMeetName(AppDatas.Auth().getUserName() + "的会议");
 
         new RecycleTouchUtils().initTouch(new RecycleTouchUtils.ITouchEvent() {
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                User temp = adapter.getDataForItemPosition(viewHolder.getAdapterPosition());
-//                ChoosedContacts.get().deleteSelected(temp);
-//                mChoicedContacts.remove(temp);
+                User temp = ChoosedContactsNew.get().getContacts().get(viewHolder.getAdapterPosition());
                 ChoosedContactsNew.get().remove(temp);
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if (viewHolder.getLayoutPosition() < adapter.getHeaderViewsCount()) {
-                    return 0;
-                }
-
                 return makeMovementFlags(0, ItemTouchHelper.LEFT);
             }
         }).attachToRecyclerView(create_meet_rct_view);
+
         if (null != mGroupInfoListBean && null != mGroupInfoListBean.lstGroupUser && mGroupInfoListBean.lstGroupUser.size() > 0) {
             new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal() {
                 @Override
@@ -208,13 +184,11 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
                 public void doOnMain(Object data) {
                     adapter.setDatas(ChoosedContactsNew.get().getContacts());
                     create_meet_rct_view.setAdapter(adapter);
-
                 }
             });
         } else {
             adapter.setDatas(ChoosedContactsNew.get().getContacts());
             create_meet_rct_view.setAdapter(adapter);
-
         }
 
     }
@@ -451,17 +425,17 @@ public class MeetCreateByGroupUserActivity extends AppBaseActivity implements Me
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK
                 && requestCode == 1000) {
-            /*Bundle bundle = data.getExtras();
-            ArrayList<User> list = bundle.getParcelableArrayList(ContactsChoiceActivity.RESULT_CONTACTS);
-            mChoicedContacts.clear();
-            if (list != null && list.size() > 0) {
-                mChoicedContacts.addAll(list);
-            }*/
-            // requestOnLine(false);
             adapter.notifyDataSetChanged();
-
         } else {
             Log.d("VIMApp", "liupin.................");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(adapter != null) {
+            adapter.notifyDataSetChanged();
         }
     }
 

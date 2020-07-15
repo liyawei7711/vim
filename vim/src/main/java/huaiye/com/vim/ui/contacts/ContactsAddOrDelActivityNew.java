@@ -6,8 +6,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +25,8 @@ import com.ttyy.commonanno.anno.route.BindExtra;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
@@ -44,7 +49,6 @@ import huaiye.com.vim.models.contacts.bean.DomainInfoList;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.viewholder.UserViewHolder;
 import huaiye.com.vim.ui.home.adapter.ContactsViewHolder;
-import huaiye.com.vim.ui.home.view.FragmentContactsHeaderView;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
@@ -63,8 +67,10 @@ import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
 public class ContactsAddOrDelActivityNew extends AppBaseActivity {
     public static final String SELECTED_CONTACTS = "selectedContacts";
     public static final String RESULT_CONTACTS = "resultContacts";
-    @BindView(R.id.ll_root)
-    LinearLayout ll_root;
+
+    @BindView(R.id.et_key)
+    EditText et_key;
+
     @BindView(R.id.refresh_view)
     SwipeRefreshLayout refresh_view;
     @BindView(R.id.rct_view)
@@ -476,10 +482,25 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
             }
         });
 
+        et_key.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateContacts();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         contacts_retrieval_bar.setTextView(tv_letter_high_fidelity_item);
 
-        FragmentContactsHeaderView fragmentContactsHeaderView = new FragmentContactsHeaderView(this);
-        ll_root.addView(fragmentContactsHeaderView, 0);
         rct_view.setAdapter(adapter);
 
         if (isJinJiMore || isAddMore || isCreateGroup || isCreateVideoPish) {
@@ -645,7 +666,16 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
 
     protected void updateContacts() {
         mCustomContacts.clear();
-        mCustomContacts.addAll(getCustomContacts(mAllContacts));
+        if (TextUtils.isEmpty(et_key.getText().toString())) {
+            mCustomContacts.addAll(getCustomContacts(mAllContacts));
+        } else {
+            for (User temp : getCustomContacts(mAllContacts)) {
+                if (temp.strUserName.contains(et_key.getText().toString())) {
+                    mCustomContacts.add(temp);
+                }
+            }
+        }
+
         if (mCustomContacts != null) {
             adapter.notifyDataSetChanged();
         }
@@ -685,7 +715,6 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
         updateContacts();
     }
 
-
     private ArrayList<User> getCustomContacts(ArrayList<User> data) {
         if (data == null || data.size() <= 0) {
             return new ArrayList<>();
@@ -701,6 +730,9 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
             }
             if (TextUtils.isEmpty(item.strUserNamePinYin)) {
                 item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                    item.strUserNamePinYin = "#";
+                }
                 upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
                 upPinYin = item.strUserNamePinYin.toUpperCase();
@@ -708,6 +740,13 @@ public class ContactsAddOrDelActivityNew extends AppBaseActivity {
             String a = "#";
             item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
         }
+
+        Collections.sort(data, new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.pinyin.compareToIgnoreCase(o2.pinyin);
+            }
+        });
 
         return data;
     }

@@ -3,7 +3,6 @@
     android:id="@+id/fl_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/back_gray"
     android:orientation="vertical">
 
     <LinearLayout
@@ -54,6 +53,29 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/ll_selected_all"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="15dp"
+        android:paddingTop="5dp">
+
+        <ImageView
+            android:id="@+id/iv_selected_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_choice" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="全选" />
+
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -72,7 +94,7 @@
                     android:id="@+id/rct_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="15dp" />
+                    android:layout_marginTop="10dp" />
 
             </FrameLayout>
 

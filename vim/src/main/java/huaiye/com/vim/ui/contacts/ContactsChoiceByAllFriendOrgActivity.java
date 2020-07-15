@@ -293,7 +293,7 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
             getNavigate().setRightText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            getNavigate().setRightText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
+            getNavigate().setRightText("确定(" + ChoosedContactsNew.get().getShowTotalSize() + ")");
         }
         getNavigate().getRightTextView().setBackgroundResource(R.drawable.shape_choosed_confirm);
     }
@@ -386,7 +386,7 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
 
     protected void updateContacts() {
         mCustomContacts.clear();
-        mCustomContacts.addAll(getCustomContacts(mAllContacts));
+        mCustomContacts.addAll(mAllContacts);
         if (mCustomContacts != null) {
             adapter.notifyDataSetChanged();
         }
@@ -450,32 +450,6 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     protected void onRestart() {
         super.onRestart();
         updateContacts();
-    }
-
-    private ArrayList<User> getCustomContacts(ArrayList<User> data) {
-        if (data == null || data.size() <= 0) {
-            return new ArrayList<>();
-        }
-        for (User item : data) {
-            String upPinYin = "";
-            item.isSelected = false;
-            for (User temp : ChoosedContactsNew.get().getContacts()) {
-                if (temp.strUserName.equals(item.strUserName)) {
-                    item.isSelected = true;
-                    break;
-                }
-            }
-            if (TextUtils.isEmpty(item.strUserNamePinYin)) {
-                item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
-                upPinYin = item.strUserNamePinYin.toUpperCase();
-            } else {
-                upPinYin = item.strUserNamePinYin.toUpperCase();
-            }
-            String a = "#";
-            item.pinyin = String.valueOf(TextUtils.isEmpty(upPinYin) ? a.charAt(0) : upPinYin.charAt(0));
-        }
-
-        return data;
     }
 
     private void handleChoice(User user) {

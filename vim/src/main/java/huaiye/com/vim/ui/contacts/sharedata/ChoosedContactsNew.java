@@ -388,6 +388,19 @@ public class ChoosedContactsNew {
             return mContacts.size();
         }
     }
+    public int getShowTotalSize() {
+        int total;
+        if (mContacts.contains(mSelf)) {
+            total = mContacts.size() - 1;
+        } else {
+            total = mContacts.size();
+        }
+
+        total += mGroups.size();
+        total += mDepts.size();
+
+        return total;
+    }
 
     public ArrayList<User> getContacts() {
         return mContacts;

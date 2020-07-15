@@ -22,7 +22,6 @@ import huaiye.com.vim.VIMApp;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
-import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
@@ -38,7 +37,6 @@ import huaiye.com.vim.ui.contacts.viewholder.DeptUserItemViewHolder;
 import huaiye.com.vim.ui.contacts.viewholder.GroupInfoViewHolder;
 import huaiye.com.vim.ui.home.FragmentContacts;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
-import ttyy.com.jinnetwork.core.work.HTTPRequest;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 
@@ -168,8 +166,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
             public void onRefresh() {
                 FragmentContacts.requestDeptAll();
                 requestUser();
-//                requestDept();
-//                requestGroupContacts();
+                requestDept();
+                requestGroupContacts();
             }
         });
         et_key.addTextChangedListener(new TextWatcher() {
@@ -182,8 +180,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 FragmentContacts.requestDeptAll();
                 requestUser();
-//                requestDept();
-//                requestGroupContacts();
+                requestDept();
+                requestGroupContacts();
             }
 
             @Override
@@ -197,8 +195,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     FragmentContacts.requestDeptAll();
                     requestUser();
-//                    requestDept();
-//                    requestGroupContacts();
+                    requestDept();
+                    requestGroupContacts();
                     return true;
                 }
                 return false;
@@ -209,17 +207,26 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     }
 
     private void requestUser() {
-        if(TextUtils.isEmpty(et_key.getText().toString())) {
+        if (TextUtils.isEmpty(et_key.getText().toString())) {
             return;
         }
         userInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
-                ModelApis.Contacts().requestContactsByKey(temp.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactsBean>() {
+                ModelApis.Contacts().requestContactsByKey(temp.strDomainCode, null, new ModelCallback<ContactsBean>() {
                     @Override
                     public void onSuccess(final ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
-                            userInfos.addAll(contactsBean.userList);
+
+                            for (User temp : contactsBean.userList) {
+                                if (!TextUtils.isEmpty(temp.strUserName) &&
+                                        temp.strUserName.contains(et_key.getText().toString())) {
+                                    userInfos.add(temp);
+                                } else if (!TextUtils.isEmpty(temp.strPostName) &&
+                                        temp.strPostName.contains(et_key.getText().toString())) {
+                                    userInfos.add(temp);
+                                }
+                            }
                             userAdapter.notifyDataSetChanged();
                         }
 
@@ -241,6 +248,9 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     }
 
     private void requestDept() {
+        if (TextUtils.isEmpty(et_key.getText().toString())) {
+            return;
+        }
         deptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo info : VIMApp.getInstance().mDomainInfoList) {
@@ -277,13 +287,16 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     }
 
     private void requestGroupContacts() {
+        if (TextUtils.isEmpty(et_key.getText().toString())) {
+            return;
+        }
         groupInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
-                ModelApis.Contacts().requestGroupBuddyContacts(-1, 0, 0, null, domainInfo.strDomainCode, new ModelCallback<ContactsGroupChatListBean>() {
+                ModelApis.Contacts().requestGroupBuddyContacts(-1, 0, 0, et_key.getText().toString(), domainInfo.strDomainCode, new ModelCallback<ContactsGroupChatListBean>() {
                     @Override
                     public void onSuccess(final ContactsGroupChatListBean contactsBean) {
-                        if(contactsBean != null && contactsBean.lstGroupInfo != null) {
+                        if (contactsBean != null && contactsBean.lstGroupInfo != null) {
                             groupInfos.addAll(contactsBean.lstGroupInfo);
                             groupAdapter.notifyDataSetChanged();
                         }

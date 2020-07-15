@@ -11,7 +11,6 @@ import android.widget.TextView;
 import huaiye.com.vim.R;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.dao.auth.AppAuth;
-import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivityNew;
 import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivityNewOrg;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContacts;
 import huaiye.com.vim.ui.meet.MeetCreateByAllFriendActivity;
@@ -20,21 +19,23 @@ import static com.huaiye.sdk.HYClient.getContext;
 
 public class ChatMoreStylePopupWindow extends PopupWindow {
     private Context mContext;
-    public ChatMoreStylePopupWindow(Context context){
+
+    public ChatMoreStylePopupWindow(Context context) {
         super(context);
         mContext = context;
     }
 
-    public void initView(){
-        setBackgroundDrawable(null);setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-        setWidth(AppUtils.dip2Px(mContext,171));
+    public void initView() {
+        setBackgroundDrawable(null);
+        setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        setWidth(AppUtils.dip2Px(mContext, 171));
 
-        View view= LayoutInflater.from(mContext).inflate(R.layout.home_popwindow,null);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.home_popwindow, null);
         setContentView(view);
         TextView home_popwindow_bt1 = view.findViewById(R.id.home_popwindow_bt1);
-        if(AppAuth.get().getCreateGroupChatRole()){//只有管理员以及高级用户才可以创建群
+        if (AppAuth.get().getCreateGroupChatRole()) {//只有管理员以及高级用户才可以创建群
             home_popwindow_bt1.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             home_popwindow_bt1.setVisibility(View.GONE);
         }
 
@@ -54,9 +55,9 @@ public class ChatMoreStylePopupWindow extends PopupWindow {
             }
         });
         TextView home_popwindow_bt3 = view.findViewById(R.id.home_popwindow_bt3);
-        if(AppAuth.get().getCreateMeetRole()){
+        if (AppAuth.get().getCreateMeetRole()) {
             home_popwindow_bt3.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             home_popwindow_bt3.setVisibility(View.GONE);
         }
         home_popwindow_bt3.setOnClickListener(new View.OnClickListener() {
@@ -83,7 +84,7 @@ public class ChatMoreStylePopupWindow extends PopupWindow {
         intent.putExtra("titleName", AppUtils.getResourceString(R.string.main_chat_push_video));
         intent.putExtra("isSelectUser", true);
         intent.putExtra("isCreateGroup", false);
-        intent.putExtra("isCreateVideoPish",true);
+        intent.putExtra("isCreateVideoPish", true);
         intent.putExtra("isAddMore", false);
         mContext.startActivity(intent);
     }

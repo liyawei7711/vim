@@ -475,7 +475,7 @@ public class GroupListOrgActivity extends AppBaseActivity {
             tv_choose_confirm.setText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
+            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getShowTotalSize() + ")");
         }
     }
 

@@ -1440,7 +1440,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 VimMessageListMessages.get().isRead(temp1.sessionID);
                 AppDatas.MsgDB()
                         .chatSingleMsgDao()
-                        .updateReadWithMsgID(temp.fromUserId, temp.toUserId, temp.msgID);
+                        .updateReadWithMsgID(temp1.fromUserId, temp1.toUserId, temp1.msgID);
             }
         }
 

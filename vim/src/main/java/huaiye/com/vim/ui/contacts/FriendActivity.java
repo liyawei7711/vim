@@ -336,6 +336,9 @@ public class FriendActivity extends AppBaseActivity {
             }
             if (TextUtils.isEmpty(item.strUserNamePinYin)) {
                 item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                    item.strUserNamePinYin = "#";
+                }
                 upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
                 upPinYin = item.strUserNamePinYin.toUpperCase();

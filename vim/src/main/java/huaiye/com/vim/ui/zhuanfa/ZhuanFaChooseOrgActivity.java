@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -79,6 +80,10 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
     SwipeRefreshLayout refresh_view;
     @BindView(R.id.et_key)
     TextView et_key;
+    @BindView(R.id.ll_selected_all)
+    View ll_selected_all;
+    @BindView(R.id.iv_selected_all)
+    ImageView iv_selected_all;
 
     @BindView(R.id.ll_search)
     View ll_search;
@@ -103,6 +108,8 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
 
     private ArrayList<User> mCustomContacts = new ArrayList<>();
     private ArrayList<User> mAllContacts = new ArrayList<>();//常用联系人
+
+    boolean tagSelected = false;
 
     @BindExtra
     String strUserDomainCode;
@@ -145,45 +152,49 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
                     public void onClick(View v) {
 
                         if (ChoosedContactsNew.get().getGroups().isEmpty() &&
-                                ChoosedContactsNew.get().getContactsSize() == 0) {
+                                ChoosedContactsNew.get().getContactsSize() == 0 &&
+                                ChoosedContactsNew.get().getDepts().isEmpty()) {
                             showToast("请选择发送对象");
                             return;
                         }
 
-                        if (ChoosedContactsNew.get().getContactsSize() != 0 &&
-                                !ChoosedContactsNew.get().getGroups().isEmpty()) {
 
-                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
-                            zhuanFaGroupPopupWindow.setSendUser(ChoosedContactsNew.get().getGroups());
-                            zhuanFaGroupPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data, null);
-
-                            ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, strUserID,
-                                    strUserDomainCode, isGroup, strGroupID, strGroupDomain);
-                            zhuanFaPopupWindow.setSendUser(ChoosedContactsNew.get().getContacts());
-                            zhuanFaPopupWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
-                            zhuanFaPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    zhuanFaGroupPopupWindow.sendMessage();
-
-                                    zhuanFaPopupWindow.sendMessage();
-                                }
-                            });
-
-                        } else if (ChoosedContactsNew.get().getContactsSize() != 0 &&
-                                ChoosedContactsNew.get().getGroups().isEmpty()) {
-                            ZhuanFaPopupWindowDuoFa zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, strUserID,
-                                    strUserDomainCode, isGroup, strGroupID, strGroupDomain);
-                            zhuanFaPopupWindow.setSendUser(ChoosedContactsNew.get().getContacts());
-                            zhuanFaPopupWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
-                            zhuanFaPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data);
-                        } else if (ChoosedContactsNew.get().getContactsSize() == 0 &&
-                                !ChoosedContactsNew.get().getGroups().isEmpty()) {
-                            ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
-                            zhuanFaGroupPopupWindow.setSendUser(ChoosedContactsNew.get().getGroups());
-                            zhuanFaGroupPopupWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
-                            zhuanFaGroupPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data);
+                        String header;
+                        String name;
+                        if (ChoosedContactsNew.get().getContactsSize() != 0) {
+                            header = ChoosedContactsNew.get().getContacts().get(0).strHeadUrl;
+                            name = ChoosedContactsNew.get().getContacts().get(0).strUserName;
+                        } else if (!ChoosedContactsNew.get().getGroups().isEmpty()) {
+                            header = ChoosedContactsNew.get().getGroups().get(0).strHeadUrl;
+                            name = ChoosedContactsNew.get().getGroups().get(0).strGroupName;
+                        } else {
+                            header = "";
+                            name = ChoosedContactsNew.get().getDepts().get(0).getName();
                         }
+                        int total = ChoosedContactsNew.get().getContactsSize() + ChoosedContactsNew.get().getGroups().size() + ChoosedContactsNew.get().getDepts().size();
+
+                        ZhuanFaGroupPopupWindowDuoFa zhuanFaGroupPopupWindow = new ZhuanFaGroupPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                        zhuanFaGroupPopupWindow.setSendUser(ChoosedContactsNew.get().getGroups());
+                        zhuanFaGroupPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data, null);
+
+                        ZhuanFaDeptPopupWindowDuoFa zhuanFaDeptPopupWindowDuoFa = new ZhuanFaDeptPopupWindowDuoFa(ZhuanFaChooseOrgActivity.this, users, strUserID, strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                        zhuanFaDeptPopupWindowDuoFa.setSendUser(ChoosedContactsNew.get().getDepts());
+                        zhuanFaDeptPopupWindowDuoFa.showData(ZhuanFaChooseOrgActivity.this.data, null);
+
+                        ZhuanFaPopupWindowDuoFaOrg zhuanFaPopupWindow = new ZhuanFaPopupWindowDuoFaOrg(ZhuanFaChooseOrgActivity.this, strUserID,
+                                strUserDomainCode, isGroup, strGroupID, strGroupDomain);
+                        zhuanFaPopupWindow.setSendUser(ChoosedContactsNew.get().getContacts());
+                        zhuanFaPopupWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
+                        zhuanFaPopupWindow.showData(ZhuanFaChooseOrgActivity.this.data, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                zhuanFaGroupPopupWindow.sendMessage();
+                                zhuanFaDeptPopupWindowDuoFa.sendMessage();
+
+                                zhuanFaPopupWindow.sendMessage();
+                            }
+                        }, header, name, total > 1);
+
                     }
                 });
     }
@@ -303,8 +314,8 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
                     return;
                 }
 
-                if(isZhuanFa) {
-                    if(mChoosedAdapter.getDatas().get(i).isUser()) {
+                if (isZhuanFa) {
+                    if (mChoosedAdapter.getDatas().get(i).isUser()) {
                         boolean isDel = false;
                         for (User item : mAllContacts) {
                             if (mChoosedAdapter.getDatas().get(i).strId.equals(item.strUserID)) {
@@ -316,11 +327,11 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
                         if (!isDel) {
                             ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
                         }
-                    } else if(mChoosedAdapter.getDatas().get(i).isGroup()) {
+                    } else if (mChoosedAdapter.getDatas().get(i).isGroup()) {
                         ChoosedContactsNew.get().remove(mChoosedAdapter.getDatas().get(i));
                     } else {
                         for (DeptData item : atData) {
-                            if(mChoosedAdapter.getDatas().get(i).strId.equals(item.strDepID)) {
+                            if (mChoosedAdapter.getDatas().get(i).strId.equals(item.strDepID)) {
                                 handleChoice(item);
                                 break;
                             }
@@ -349,6 +360,30 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
     }
 
     private void changeShowSelected() {
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+        if (adapterAt != null) {
+            adapterAt.notifyDataSetChanged();
+        }
+        if (mChoosedAdapter != null) {
+            mChoosedAdapter.notifyDataSetChanged();
+        }
+
+        boolean hasNoSelected = false;
+
+        for (User user : mCustomContacts) {
+            if (!user.isSelected) {
+                hasNoSelected = true;
+                break;
+            }
+        }
+
+        if (hasNoSelected) {
+            tagSelected = false;
+            iv_selected_all.setImageResource(R.drawable.ic_choice);
+        }
+
         if (ChoosedContactsNew.get().getContactsSize() == 0 &&
                 ChoosedContactsNew.get().getGroups().isEmpty() &&
                 ChoosedContactsNew.get().getDepts().isEmpty()) {
@@ -356,7 +391,7 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
             getNavigate().setRightText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            getNavigate().setRightText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
+            getNavigate().setRightText("确定(" + ChoosedContactsNew.get().getShowTotalSize() + ")");
         }
         getNavigate().getRightTextView().setBackgroundResource(R.drawable.shape_choosed_confirm);
     }
@@ -442,6 +477,13 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
                 mCustomContacts.add(temp);
             }
         }
+
+        if (mCustomContacts.isEmpty()) {
+            ll_selected_all.setVisibility(View.GONE);
+        } else {
+            ll_selected_all.setVisibility(View.VISIBLE);
+        }
+
         adapter.notifyDataSetChanged();
 
         refresh_view.setRefreshing(false);
@@ -493,7 +535,7 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
                     }
                 }
 
-                if(!isZhuanFa) {
+                if (!isZhuanFa) {
                     if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
                         for (User user : contactsBean.userList) {
                             if (!user.strUserID.equals(AppAuth.get().getUserID())) {
@@ -555,6 +597,33 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
         startActivity(intent);
     }
 
+    @OnClick(R.id.ll_selected_all)
+    void selectedAll() {
+        if (tagSelected) {
+            tagSelected = false;
+            iv_selected_all.setImageResource(R.drawable.ic_choice);
+        } else {
+            tagSelected = true;
+            iv_selected_all.setImageResource(R.drawable.ic_choice_checked);
+        }
+
+        for (User user : mCustomContacts) {
+            if (tagSelected) {
+                user.isSelected = true;
+                if (!ChoosedContactsNew.get().isContain(user)) {
+                    ChoosedContactsNew.get().add(user, true);
+                }
+            } else {
+                user.isSelected = false;
+                if (ChoosedContactsNew.get().isContain(user)) {
+                    ChoosedContactsNew.get().remove(user);
+                }
+            }
+        }
+
+        changeShowSelected();
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventUserClick bean) {
         for (User item : mAllContacts) {
@@ -606,6 +675,9 @@ public class ZhuanFaChooseOrgActivity extends AppBaseActivity {
             }
             if (TextUtils.isEmpty(item.strUserNamePinYin)) {
                 item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                    item.strUserNamePinYin = "#";
+                }
                 upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
                 upPinYin = item.strUserNamePinYin.toUpperCase();

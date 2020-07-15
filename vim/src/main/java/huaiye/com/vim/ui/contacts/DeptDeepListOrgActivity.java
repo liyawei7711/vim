@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -59,8 +60,10 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
 
     @BindView(R.id.ll_search)
     View ll_search;
-    @BindView(R.id.et_key)
-    TextView et_key;
+    @BindView(R.id.ll_selected_all)
+    View ll_selected_all;
+    @BindView(R.id.iv_selected_all)
+    ImageView iv_selected_all;
 
     @BindView(R.id.rct_view_item)
     RecyclerView rct_view_item;
@@ -79,6 +82,8 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
     RecyclerView rct_choosed;
     @BindView(R.id.tv_choose_confirm)
     TextView tv_choose_confirm;
+
+    boolean tagSelected = false;
 
     @BindExtra
     boolean isHide;
@@ -263,22 +268,6 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
             }
         });
 
-        et_key.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String s = et_key.getText().toString();
-                    if (s != null && s.length() > 0) {
-                        showData(s.toString());
-                    } else {
-                        showData("");
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
-
         requestUser();
         requestDept();
 
@@ -306,7 +295,7 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
                         }
                         temp.strDomainCode = deptData.strDomainCode;
                     }
-                    showData(et_key.getText().toString());
+                    showData("");
                 }
             }
 
@@ -327,7 +316,7 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
             allDeptDatas.addAll(map.get(deptData.strDepID));
         }
 //        requestNum();
-        showData(et_key.getText().toString());
+        showData("");
     }
 
     private void requestNum() {
@@ -419,6 +408,12 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
                 return o1.nPriority - o2.nPriority;
             }
         });
+
+        if(userInfos.isEmpty()) {
+            ll_selected_all.setVisibility(View.GONE);
+        } else {
+            ll_selected_all.setVisibility(View.VISIBLE);
+        }
         userAdapter.notifyDataSetChanged();
         if (!deptDatas.isEmpty()) {
             deptAdapter.notifyDataSetChanged();
@@ -501,6 +496,27 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
     }
 
     private void changeShowSelected() {
+        if (userAdapter != null) {
+            userAdapter.notifyDataSetChanged();
+        }
+        if (mChoosedAdapter != null) {
+            mChoosedAdapter.notifyDataSetChanged();
+        }
+
+        boolean hasNoSelected = false;
+
+        for (User user : userInfos) {
+            if (!user.isSelected) {
+                hasNoSelected = true;
+                break;
+            }
+        }
+
+        if (hasNoSelected) {
+            tagSelected = false;
+            iv_selected_all.setImageResource(R.drawable.ic_choice);
+        }
+
         if (ChoosedContactsNew.get().getContactsSize() == 0 &&
                 ChoosedContactsNew.get().getGroups().isEmpty() &&
                 ChoosedContactsNew.get().getDepts().isEmpty()) {
@@ -508,7 +524,7 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
             tv_choose_confirm.setText("确定(0)");
         } else {
             llChoosedPersons.setVisibility(View.VISIBLE);
-            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getSelectedModeSize() + ")");
+            tv_choose_confirm.setText("确定(" + ChoosedContactsNew.get().getShowTotalSize() + ")");
         }
     }
 
@@ -530,6 +546,33 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
     public void onClickView(View view) {
         EventBus.getDefault().post(new EventUserSelectedComplete());
         finish();
+    }
+
+    @OnClick(R.id.ll_selected_all)
+    void selectedAll() {
+        if (tagSelected) {
+            tagSelected = false;
+            iv_selected_all.setImageResource(R.drawable.ic_choice);
+        } else {
+            tagSelected = true;
+            iv_selected_all.setImageResource(R.drawable.ic_choice_checked);
+        }
+
+        for (User user : userInfos) {
+            if(tagSelected) {
+                user.isSelected = true;
+                if (!ChoosedContactsNew.get().isContain(user)) {
+                    ChoosedContactsNew.get().add(user, true);
+                }
+            } else {
+                user.isSelected = false;
+                if (ChoosedContactsNew.get().isContain(user)) {
+                    ChoosedContactsNew.get().remove(user);
+                }
+            }
+        }
+
+        changeShowSelected();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

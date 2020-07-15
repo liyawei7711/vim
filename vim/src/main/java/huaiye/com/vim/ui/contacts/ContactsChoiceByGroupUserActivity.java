@@ -309,6 +309,9 @@ public class ContactsChoiceByGroupUserActivity extends AppBaseActivity {
             String upPinYin = "";
             if (TextUtils.isEmpty(temp.strUserNamePinYin)) {
                 temp.strUserNamePinYin = Pinyin.toPinyin(temp.strUserName, "_");
+                if (TextUtils.isEmpty(temp.strUserNamePinYin)) {
+                    temp.strUserNamePinYin = "#";
+                }
                 upPinYin = temp.strUserNamePinYin.toUpperCase();
             } else {
                 upPinYin = temp.strUserNamePinYin.toUpperCase();

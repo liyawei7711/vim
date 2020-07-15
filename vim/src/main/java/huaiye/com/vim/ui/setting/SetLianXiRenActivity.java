@@ -20,7 +20,6 @@ import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
 import huaiye.com.vim.dao.msgs.JinJiLianXiRenBean;
 import huaiye.com.vim.dao.msgs.User;
-import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivityNew;
 import huaiye.com.vim.ui.contacts.ContactsAddOrDelActivityNewOrg;
 import huaiye.com.vim.ui.meet.adapter.UserDetailUserListAdapter;
 import huaiye.com.vim.ui.setting.adapter.SetLianXiRenListAdapter;
@@ -43,6 +42,7 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
 
     private SetLianXiRenListAdapter adapter;
     private boolean isDeling;
+
     @Override
     protected void initActionBar() {
         getNavigate().setVisibility(View.VISIBLE);
@@ -93,7 +93,7 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
         ll_root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isDeling) {
+                if (!isDeling) {
                     return;
                 }
                 isDeling = false;
@@ -112,7 +112,7 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
             mUserList.addAll(AppDatas.MsgDB()
                     .getJinJiLianXiRenDao().queryOneItem(AppAuth.get().getUserID(), AppAuth.get().getDomainCode()).getUserRel());
         }
-        for(User temp : mUserList) {
+        for (User temp : mUserList) {
             temp.canDel = false;
         }
         initAdd();
@@ -171,9 +171,9 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
                 temp.canDel = true;
             }
             adapter.notifyDataSetChanged();
-        } else if(isDeling){
+        } else if (isDeling) {
             mUserList.remove(item);
-            if(mUserList.isEmpty()) {
+            if (mUserList.isEmpty()) {
                 ll_root.performClick();
                 return;
             }
@@ -186,19 +186,19 @@ public class SetLianXiRenActivity extends AppBaseActivity implements SetLianXiRe
         int addIndex = -1;
         int delIndex = -1;
         int i = 0;
-        for(User temp : mUserList) {
-            if(temp.strUserID == UserDetailUserListAdapter.TYPE_DEL) {
+        for (User temp : mUserList) {
+            if (temp.strUserID == UserDetailUserListAdapter.TYPE_DEL) {
                 delIndex = i;
             }
-            if(temp.strUserID == UserDetailUserListAdapter.TYPE_ADD) {
+            if (temp.strUserID == UserDetailUserListAdapter.TYPE_ADD) {
                 addIndex = i;
             }
             i++;
         }
-        if(delIndex != -1) {
+        if (delIndex != -1) {
             mUserList.remove(delIndex);
         }
-        if(addIndex != -1) {
+        if (addIndex != -1) {
             mUserList.remove(addIndex);
         }
     }

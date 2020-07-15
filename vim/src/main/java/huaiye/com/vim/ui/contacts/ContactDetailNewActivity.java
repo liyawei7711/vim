@@ -55,7 +55,6 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.DeptData;
 import huaiye.com.vim.models.contacts.bean.DomainInfoList;
-import huaiye.com.vim.ui.contacts.viewholder.DepeItemViewHolder;
 import huaiye.com.vim.ui.contacts.viewholder.UserDetailDepeItemViewHolder;
 import huaiye.com.vim.ui.home.FragmentContacts;
 import huaiye.com.vim.ui.meet.ChatSingleActivity;
@@ -93,6 +92,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
     private RequestOptions requestOptions;
     public String mState;
     public String mName;
+    public String postName;
     public String mSex;
     public String mStrDepName;
 
@@ -181,6 +181,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
 
     private void initView() {
         mName = nUser.strUserName;
+        postName = nUser.strPostName;
 
         if (nUser.nStatus == -1) {
             mState = "(未登录)";
@@ -224,7 +225,7 @@ public class ContactDetailNewActivity extends AppBaseActivity {
     }
 
     private void bindDtae() {
-        contactDetailName.setText(mName);
+        contactDetailName.setText(mName + " " + postName);
         contactDetailStrName.setText(mState);
     }
 

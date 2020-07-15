@@ -39,6 +39,7 @@ import huaiye.com.vim.ui.home.FragmentContacts;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
 
 import static huaiye.com.vim.common.AppBaseActivity.showToast;
+import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.atData;
 import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.selectedDept;
 import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.userDeptMap;
 
@@ -128,6 +129,12 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
                                         intent.putExtra("isZhuanFa", isZhuanFa);
                                         context.startActivity(intent);
                                     } else {
+                                        if(isZhuanFa) {
+                                            if(!atData.contains(deptData.strDepID)) {
+                                                showToast("只能给所在部门发送消息");
+                                                return;
+                                            }
+                                        }
                                         deptData.isSelected = !deptData.isSelected;
                                         if (deptData.isSelected) {
                                             ChoosedContactsNew.get().add(deptData);

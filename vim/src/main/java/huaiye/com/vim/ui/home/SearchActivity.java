@@ -294,6 +294,9 @@ public class SearchActivity extends Activity {
             }
             if (TextUtils.isEmpty(item.strUserNamePinYin)) {
                 item.strUserNamePinYin = Pinyin.toPinyin(item.strUserName, "_");
+                if (TextUtils.isEmpty(item.strUserNamePinYin)) {
+                    item.strUserNamePinYin = "#";
+                }
                 upPinYin = item.strUserNamePinYin.toUpperCase();
             } else {
                 upPinYin = item.strUserNamePinYin.toUpperCase();

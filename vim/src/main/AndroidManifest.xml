@@ -252,10 +252,6 @@
             android:name=".ui.chat.ModifyGroupAnnouncementActivity"
             android:screenOrientation="portrait" />
 
-
-        <activity
-            android:name=".ui.contacts.GroupCreateActivity"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.home.AudioSettingActivity"
             android:screenOrientation="portrait" />

@@ -151,7 +151,8 @@ public class OrderMeetDetailActivity extends AppBaseActivity {
             }
         };
 
-        header = new MeetCreateHeaderView(OrderMeetDetailActivity.this, true, true);
+        header = new MeetCreateHeaderView(OrderMeetDetailActivity.this);
+        header.setOrder(true);
         adapter.addHeaderView(header);
         adapter.setDatas(data);
         rct_view.setAdapter(adapter);

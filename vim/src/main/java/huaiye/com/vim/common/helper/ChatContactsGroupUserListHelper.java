@@ -1,14 +1,15 @@
 package huaiye.com.vim.common.helper;
 
 import android.text.TextUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 
 /**
  * 缓存群信息(包含群成员)
  */
-import huaiye.com.vim.models.contacts.bean.ContactsGroupUserListBean;
 
 public class ChatContactsGroupUserListHelper {
 
@@ -29,8 +30,8 @@ public class ChatContactsGroupUserListHelper {
     }
 
     public void cacheContactsGroupDetail(String key, ContactsGroupUserListBean value) {
-        if (null != chatCache) {
-            chatCache.clear();
+        if (chatCache.containsKey(key)) {
+            chatCache.remove(key);
         }
         chatCache.put(key, value);
     }

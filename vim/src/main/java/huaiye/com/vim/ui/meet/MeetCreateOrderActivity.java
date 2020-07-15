@@ -109,7 +109,8 @@ public class MeetCreateOrderActivity extends AppBaseActivity {
             }
         };
 
-        header = new MeetCreateHeaderView(this, true, true);
+        header = new MeetCreateHeaderView(this);
+        header.setOrder(true);
         adapter.addHeaderView(header);
         adapter.setDatas(data);
 

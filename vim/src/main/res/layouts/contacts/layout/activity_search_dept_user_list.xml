@@ -30,7 +30,7 @@
                 android:background="@color/transparent"
                 android:drawableLeft="@drawable/common_icon_search"
                 android:drawablePadding="5dp"
-                android:hint="搜索:联系人"
+                android:hint="搜索"
                 android:imeOptions="actionSearch"
                 android:paddingLeft="8dp"
                 android:paddingTop="10dp"
@@ -102,7 +102,6 @@
 
                     <huaiye.com.vim.views.MaxRecyclerView
                         android:id="@+id/rct_view_group"
-                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -114,13 +113,12 @@
                         android:paddingTop="10dp"
                         android:paddingBottom="10dp"
                         android:text="部门"
+                        android:visibility="gone"
                         android:textColor="#333333"
-                        android:textSize="16sp"
-                        android:visibility="gone" />
+                        android:textSize="16sp"/>
 
                     <huaiye.com.vim.views.MaxRecyclerView
                         android:id="@+id/rct_view_dept"
-                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

@@ -30,7 +30,7 @@
                 android:background="@color/transparent"
                 android:drawableLeft="@drawable/common_icon_search"
                 android:drawablePadding="5dp"
-                android:hint="搜索:联系人"
+                android:hint="搜索"
                 android:imeOptions="actionSearch"
                 android:paddingLeft="8dp"
                 android:paddingTop="10dp"

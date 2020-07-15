@@ -20,8 +20,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="false"
-            android:background="@drawable/search_bar_bg">
+            android:background="@drawable/search_bar_bg"
+            android:clickable="false">
 
             <TextView
                 android:id="@+id/et_key"
@@ -83,12 +83,13 @@
             android:background="#ffffff"
             android:drawableLeft="@drawable/qunzu"
             android:drawablePadding="20dp"
-            android:visibility="gone"
             android:gravity="center_vertical"
             android:paddingLeft="16dp"
             android:text="我的好友"
             android:textColor="#333333"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:visibility="gone" />
+
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/refresh_view"
@@ -99,6 +100,7 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -122,15 +124,34 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/ll_selected_all"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
                         android:paddingLeft="15dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
-                        android:textColor="#333333"
-                        android:text="常用联系人"
-                        android:textSize="16sp" />
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp">
+
+                        <ImageView
+                            android:id="@+id/iv_selected_all"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_choice" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="15dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:text="常用联系人"
+                            android:textColor="#333333"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
 
                     <huaiye.com.vim.views.MaxRecyclerView
                         android:id="@+id/rct_view"
@@ -165,10 +186,10 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/shape_choosed_confirm"
             android:gravity="center"
-            android:paddingBottom="6dp"
             android:paddingLeft="15dp"
-            android:paddingRight="15dp"
             android:paddingTop="6dp"
+            android:paddingRight="15dp"
+            android:paddingBottom="6dp"
             android:text="确定"
             android:textColor="@color/white"
             android:textSize="14sp" />

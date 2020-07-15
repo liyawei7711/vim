@@ -390,16 +390,16 @@ public class MessageReceiver {
                                 new ModelCallback<ContactsGroupUserListBean>() {
                                     @Override
                                     public void onSuccess(final ContactsGroupUserListBean contactsBean) {
-                                        if (beanCreate != null) {
+                                        if (contactsBean != null) {
                                             if (null != contactsBean.lstGroupUser) {
-                                                beanCreate.strGroupName = "群组(" + contactsBean.lstGroupUser.size() + ")";
+                                                contactsBean.strGroupName = "群组(" + contactsBean.lstGroupUser.size() + ")";
                                             } else {
-                                                beanCreate.strGroupName = "群组(0)";
+                                                contactsBean.strGroupName = "群组(0)";
                                             }
-                                            ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(beanCreate.strGroupID + "", beanCreate);
-                                            EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_CREATE_GROUP_SUCCESS_ADDGROUP_TO_LIST, beanCreate.strGroupID));
+                                            ChatContactsGroupUserListHelper.getInstance().cacheContactsGroupDetail(contactsBean.strGroupID + "", contactsBean);
+                                            EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_CREATE_GROUP_SUCCESS_ADDGROUP_TO_LIST, contactsBean.strGroupID));
                                         } else {
-                                            beanCreate.strGroupName = "群组(0)";
+                                            contactsBean.strGroupName = "群组(0)";
                                         }
                                     }
                                 });

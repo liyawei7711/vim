@@ -68,13 +68,13 @@ public class MeetCreateByAllFriendActivity extends AppBaseActivity implements Me
 
     @BindView(R.id.create_meet_rct_view)
     RecyclerView create_meet_rct_view;
-
+    @BindView(R.id.header)
+    MeetCreateHeaderView header;
     @BindExtra
     int nMeetType;//1--即时会议 2--预约会议
 
     private MeetTypeChoosePopupWindow mMeetTypeChoosePopupWindow;
 
-    MeetCreateHeaderView header;
     EXTRecyclerAdapter<User> adapter;
 
     private RequestOptions requestOptions;
@@ -130,17 +130,10 @@ public class MeetCreateByAllFriendActivity extends AppBaseActivity implements Me
         adapter = new EXTRecyclerAdapter<User>(R.layout.item_meetcreate_member) {
             @Override
             public void onBindViewHolder(EXTViewHolder extViewHolder, int i, User contactData) {
-                if (i < getHeaderViewsCount()) {
-                    return;
-                }
                 if (contactData.strUserName.equals(AppDatas.Auth().getUserName())) {
-//                    extViewHolder.setVisibility(R.id.iv_mainer, View.VISIBLE);
                     extViewHolder.setVisibility(R.id.tv_master, View.VISIBLE);
-//                    extViewHolder.setVisibility(R.id.tv_master_set, View.GONE);
                 } else {
-//                    extViewHolder.setVisibility(R.id.iv_mainer, View.GONE);
                     extViewHolder.setVisibility(R.id.tv_master, View.GONE);
-//                    extViewHolder.setVisibility(R.id.tv_master_set, View.VISIBLE);
                 }
                 extViewHolder.setText(R.id.tv_user_name, contactData.strUserName);
                 ImageView imageView = extViewHolder.itemView.findViewById(R.id.iv_user_head);
@@ -162,26 +155,19 @@ public class MeetCreateByAllFriendActivity extends AppBaseActivity implements Me
             }
         };
 
-        header = new MeetCreateHeaderView(this, true, nMeetType == 1 ? false : true);
-        adapter.addHeaderView(header);
+        header.setOrder(nMeetType == 1 ? false : true);
         header.setMeetName(AppDatas.Auth().getUserName() + "的会议");
 
         new RecycleTouchUtils().initTouch(new RecycleTouchUtils.ITouchEvent() {
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
                 User temp = adapter.getDataForItemPosition(viewHolder.getAdapterPosition());
-//                ChoosedContacts.get().deleteSelected(temp);
-//                mChoicedContacts.remove(temp);
                 ChoosedContactsNew.get().remove(temp);
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if (viewHolder.getLayoutPosition() < adapter.getHeaderViewsCount()) {
-                    return 0;
-                }
-
                 return makeMovementFlags(0, ItemTouchHelper.LEFT);
             }
         }).attachToRecyclerView(create_meet_rct_view);
