@@ -73,8 +73,9 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
     LiteBaseAdapter<GroupInfo> groupAdapter;
     ArrayList<GroupInfo> groupInfos = new ArrayList<>();
 
-    int totalRequest = 0;
-    ArrayList<DeptData> allDeptDatas = new ArrayList<>();
+    int requestUser = 0;
+    int requestGroup = 0;
+    int requestDept = 0;
 
     @Override
     protected void initActionBar() {
@@ -210,8 +211,14 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
         if (TextUtils.isEmpty(et_key.getText().toString())) {
             return;
         }
+
+        if (requestUser != 0) {
+            return;
+        }
+
         userInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
+            requestUser++;
             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
                 ModelApis.Contacts().requestContactsByKey(temp.strDomainCode, null, new ModelCallback<ContactsBean>() {
                     @Override
@@ -235,12 +242,19 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                         } else {
                             tv_user_title.setVisibility(View.VISIBLE);
                         }
+                        requestUser--;
                     }
 
                     @Override
                     public void onFinish(HTTPResponse httpResponse) {
                         super.onFinish(httpResponse);
                         refresh_view.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(HTTPResponse httpResponse) {
+                        super.onFailure(httpResponse);
+                        requestUser--;
                     }
                 });
             }
@@ -251,9 +265,15 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
         if (TextUtils.isEmpty(et_key.getText().toString())) {
             return;
         }
+
+        if (requestDept != 0) {
+            return;
+        }
+
         deptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo info : VIMApp.getInstance().mDomainInfoList) {
+                requestDept++;
                 ModelApis.Contacts().requestOrganization("search 181 ", info.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactOrganizationBean>() {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
@@ -274,12 +294,20 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                         } else {
                             tv_dept_title.setVisibility(View.VISIBLE);
                         }
+
+                        requestDept--;
                     }
 
                     @Override
                     public void onFinish(HTTPResponse httpResponse) {
                         super.onFinish(httpResponse);
                         refresh_view.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(HTTPResponse httpResponse) {
+                        super.onFailure(httpResponse);
+                        requestDept--;
                     }
                 });
             }
@@ -290,9 +318,15 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
         if (TextUtils.isEmpty(et_key.getText().toString())) {
             return;
         }
+
+        if (requestGroup != 0) {
+            return;
+        }
+
         groupInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
+                requestGroup++;
                 ModelApis.Contacts().requestGroupBuddyContacts(-1, 0, 0, et_key.getText().toString(), domainInfo.strDomainCode, new ModelCallback<ContactsGroupChatListBean>() {
                     @Override
                     public void onSuccess(final ContactsGroupChatListBean contactsBean) {
@@ -307,6 +341,8 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                             tv_group_title.setVisibility(View.VISIBLE);
                         }
 
+                        requestGroup--;
+
                     }
 
                     @Override
@@ -314,6 +350,13 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
                         super.onFinish(httpResponse);
                         refresh_view.setRefreshing(false);
                     }
+
+                    @Override
+                    public void onFailure(HTTPResponse httpResponse) {
+                        super.onFailure(httpResponse);
+                        requestGroup--;
+                    }
+
                 });
             }
         } else {
