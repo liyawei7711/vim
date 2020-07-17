@@ -199,7 +199,11 @@ public class MainActivity extends AppBaseActivity {
             clearSafe();
         }
         VIMApp.getInstance().getDomainCodeList();
-        startService(new Intent(this, MusicService.class));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, MusicService.class));
+        } else {
+            startService(new Intent(this, MusicService.class));
+        }
 
         if (!TextUtils.isEmpty(from)) {
             Intent intent = getIntent();

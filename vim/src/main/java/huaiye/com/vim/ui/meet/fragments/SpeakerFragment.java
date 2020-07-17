@@ -64,6 +64,7 @@ import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.ContactsApi;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendActivity;
+import huaiye.com.vim.ui.contacts.ContactsChoiceByAllFriendOrgActivity;
 import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
 import huaiye.com.vim.ui.contacts.sharedata.ConvertContacts;
 import huaiye.com.vim.ui.meet.ChooseFilesActivity;
@@ -1165,7 +1166,7 @@ public class SpeakerFragment extends AppBaseFragment {
                                         public void doOnMain(ArrayList<CGetMeetingInfoRsp.UserInfo> data) {
                                             ChoosedContactsNew.get().clear();
                                             ChoosedContactsNew.get().setContacts(ConvertContacts.ConvertMeetUserInfoToContacts(data));
-                                            Intent intent = new Intent(getActivity(), ContactsChoiceByAllFriendActivity.class);
+                                            Intent intent = new Intent(getActivity(), ContactsChoiceByAllFriendOrgActivity.class);
                                             intent.putExtra("titleName", "邀请参会");
                                             getActivity().startActivityForResult(intent, 1000);
 

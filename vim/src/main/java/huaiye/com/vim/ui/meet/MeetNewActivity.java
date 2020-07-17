@@ -589,6 +589,7 @@ public class MeetNewActivity extends AppBaseActivity implements SdpUITask.SdpUIL
         strMeetDomainCode = temp.strMeetingDomainCode;
         nMeetID = temp.nMeetingID;
         mMediaMode = temp.getRequiredMediaMode();
+        isCloseVideo = mMediaMode.value() == 1;
         strInviteUserId = temp.strInviteUserId;
         strInviteUserDomainCode = temp.strInviteUserDomainCode;
 

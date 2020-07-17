@@ -98,8 +98,6 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     @BindExtra
     String titleName;
     @BindExtra
-    boolean isSelectUser;
-    @BindExtra
     boolean isZhuanFa;
     @BindExtra
     boolean needAddSelf;
@@ -222,7 +220,7 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
                         }
                     }
                 }, "false");
-        ContactsDeptViewOrgHolder.mIsChoice = isSelectUser;
+        ContactsDeptViewOrgHolder.mIsChoice = true;
         rct_view_suozai.setAdapter(adapterAt);
 
         rct_choosed.setLayoutManager(new SafeLinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));

@@ -94,6 +94,8 @@ import huaiye.com.vim.ui.showfile.PIOOpenActivity;
 import huaiye.com.vim.ui.showfile.WebPageFileActivity;
 import huaiye.com.vim.ui.zhuanfa.ZhuanFaChooseActivity;
 import huaiye.com.vim.ui.zhuanfa.ZhuanFaChooseOrgActivity;
+import huaiye.com.vim.views.UniformScaleTransformation;
+import huaiye.com.vim.views.UniformScaleTransformationRight;
 
 import static huaiye.com.vim.common.AppBaseActivity.showToast;
 import static huaiye.com.vim.common.AppUtils.nEncryptIMEnable;
@@ -955,9 +957,10 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 Glide.with(mContext).load(AppDatas.Constants().getFileServerURL() + data.fileUrl).listener(requestListener).into(viewHolder.right_content_image);
             } else {
                 Glide.with(mContext)
+                        .asBitmap()
                         .load(AppDatas.Constants().getFileServerURL() + data.fileUrl)
                         .apply(requestOptions)
-                        .into(viewHolder.right_content_image);
+                        .into(new UniformScaleTransformationRight(viewHolder.right_content_image));
             }
             viewHolder.right_content_image.setOnClickListener(new OnImageViewClicked(AppDatas.Constants().getFileServerURL() + data.fileUrl, false));
         }
@@ -1163,9 +1166,10 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 Glide.with(mContext).load(AppDatas.Constants().getFileServerURL() + data.fileUrl).listener(requestListener).into(viewHolder.left_content_image);
             } else {
                 Glide.with(mContext)
+                        .asBitmap()
                         .load(AppDatas.Constants().getFileServerURL() + data.fileUrl)
                         .apply(requestOptions)
-                        .into(viewHolder.left_content_image);
+                        .into(new UniformScaleTransformation(viewHolder.left_content_image));
             }
             viewHolder.left_content_image.setOnClickListener(new OnImageViewClicked(AppDatas.Constants().getFileServerURL() + data.fileUrl, false));
         }

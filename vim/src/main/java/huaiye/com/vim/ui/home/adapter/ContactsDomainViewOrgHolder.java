@@ -130,7 +130,14 @@ public class ContactsDomainViewOrgHolder extends LiteViewHolder {
                                         context.startActivity(intent);
                                     } else {
                                         if(isZhuanFa) {
-                                            if(!atData.contains(deptData.strDepID)) {
+                                            boolean canSend = false;
+                                            for(DeptData temp : atData) {
+                                                if(temp.strDepID.equals(deptData.strDepID)) {
+                                                    canSend = true;
+                                                    break;
+                                                }
+                                            }
+                                            if(!canSend) {
                                                 showToast("只能给所在部门发送消息");
                                                 return;
                                             }

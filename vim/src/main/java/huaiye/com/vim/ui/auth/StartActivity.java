@@ -225,14 +225,6 @@ public class StartActivity extends AppBaseActivity {
                         public void onFailure(HTTPResponse httpResponse) {
                             super.onFailure(httpResponse);
                             view_load.setVisibility(View.GONE);
-                            //被取消了就啥都不干
-                            try {
-                                if (httpResponse.getHttpRequest() != null && httpResponse.getHttpRequest().isCanceled()) {
-                                    return;
-                                }
-                            } catch (Exception e) {
-
-                            }
                             if (httpResponse.getStatusCode() == 0 && !TextUtils.isEmpty(httpResponse.getErrorMessage())) {
                                 showToast(httpResponse.getErrorMessage());
                             } else {

@@ -175,6 +175,20 @@ public class DeptDeepListOrgActivity extends AppBaseActivity {
                         if (v.getId() == R.id.tv_next) {
                             jumpToNext(deptData);
                         } else {
+
+                            if(isZhuanFa) {
+                                boolean canSend = false;
+                                for(DeptData temp : atData) {
+                                    if(temp.strDepID.equals(deptData.strDepID)) {
+                                        canSend = true;
+                                        break;
+                                    }
+                                }
+                                if(!canSend) {
+                                    showToast("只能给所在部门发送消息");
+                                    return;
+                                }
+                            }
                             handleChoice(deptData);
                         }
 

@@ -337,15 +337,20 @@ public class MultiPlayerHelper {
                             ivNoVideo.setVisibility(View.VISIBLE);
                         }
                     } else {
-                        if (newUserInfo.videoParams != null) {
-                            if (newUserInfo.showVideo && needUseCacheState && localState) {
-                                ivNoVideo.setVisibility(View.GONE);
-                                HYClient.getHYPlayer().setPreviewWindow(newUserInfo.videoParams, textureView);
-                            } else {
-                                ivNoVideo.setVisibility(View.VISIBLE);
-                                HYClient.getHYPlayer().setPreviewWindow(newUserInfo.videoParams, null);
+                        try {
+                            if (newUserInfo != null && newUserInfo.videoParams != null) {
+                                if (newUserInfo.showVideo && needUseCacheState && localState) {
+                                    ivNoVideo.setVisibility(View.GONE);
+                                    HYClient.getHYPlayer().setPreviewWindow(newUserInfo.videoParams, textureView);
+                                } else {
+                                    ivNoVideo.setVisibility(View.VISIBLE);
+                                    HYClient.getHYPlayer().setPreviewWindow(newUserInfo.videoParams, null);
+                                }
                             }
+                        } catch (Exception e) {
+
                         }
+
                     }
                 }
                 break;
@@ -370,7 +375,8 @@ public class MultiPlayerHelper {
         tv.setText(newUserInfo.userInfo.strUserName);
         TextView tvDesc = newChild.findViewById(R.id.tv_desc);
         if (newUserInfo.needShowDesc) {
-            tvDesc.setVisibility(View.VISIBLE);
+//            tvDesc.setVisibility(View.VISIBLE);
+            tvDesc.setVisibility(View.GONE);
             tvDesc.setText(newUserInfo.desc);
         } else {
             tvDesc.setVisibility(View.GONE);

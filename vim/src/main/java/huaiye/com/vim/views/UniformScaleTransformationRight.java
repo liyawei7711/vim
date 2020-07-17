@@ -9,11 +9,11 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 import huaiye.com.vim.common.AppUtils;
 
 
-public class UniformScaleTransformation extends ImageViewTarget<Bitmap> {
+public class UniformScaleTransformationRight extends ImageViewTarget<Bitmap> {
 
     private ImageView target;
 
-    public UniformScaleTransformation(ImageView target) {
+    public UniformScaleTransformationRight(ImageView target) {
         super(target);
         this.target = target;
     }
@@ -41,6 +41,7 @@ public class UniformScaleTransformation extends ImageViewTarget<Bitmap> {
 
         if (height > imageViewHeigh) {
             float bili = (float) (height * 1.0 / imageViewHeigh);
+
             float widthNew = width / bili;
             float total;
             if (widthNew < imageViewWidth) {
@@ -49,7 +50,7 @@ public class UniformScaleTransformation extends ImageViewTarget<Bitmap> {
                 if(total > 0) {
                     total = 0;
                 }
-                params.setMargins((int) total, 0, 0, 0);
+                params.setMargins(0, 0, (int) total, 0);
                 target.setLayoutParams(params);
             } else {
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) target.getLayoutParams();
@@ -65,7 +66,7 @@ public class UniformScaleTransformation extends ImageViewTarget<Bitmap> {
                 if(total > 0) {
                     total = 0;
                 }
-                params.setMargins((int) total, 0, 0, 0);
+                params.setMargins( 0, 0, (int) total,0);
                 target.setLayoutParams(params);
             } else {
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) target.getLayoutParams();

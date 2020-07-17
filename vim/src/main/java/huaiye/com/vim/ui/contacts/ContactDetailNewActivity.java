@@ -225,7 +225,12 @@ public class ContactDetailNewActivity extends AppBaseActivity {
     }
 
     private void bindDtae() {
-        contactDetailName.setText(mName + " " + postName);
+        if (!TextUtils.isEmpty(postName)) {
+            contactDetailName.setText(mName);
+        } else {
+            contactDetailName.setText(mName + " " + postName);
+        }
+
         contactDetailStrName.setText(mState);
     }
 

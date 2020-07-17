@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/left_time"
@@ -11,18 +10,19 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
-        android:textSize="13sp"
+        android:text="xxxx"
         android:textColor="@color/black999"
-        android:text="xxxx"/>
+        android:textSize="13sp" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
             android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
             android:layout_marginRight="15dp"
             android:orientation="horizontal">
 
@@ -33,45 +33,42 @@
                 android:src="@drawable/default_image_personal" />
 
             <LinearLayout
-                android:layout_marginRight="60dp"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="11dp"
+                android:layout_marginRight="60dp"
+                android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/left_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
                     android:layout_marginBottom="10dp"
-                    android:textSize="15sp"
-                    android:visibility="gone"
+                    android:text="xxxx"
                     android:textColor="@color/black666"
-                    android:text="xxxx"/>
+                    android:textSize="15sp"
+                    android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/left_content_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
+                    android:layout_width="150dp"
+                    android:layout_height="100dp"/>
             </LinearLayout>
 
             <CheckBox
                 android:id="@+id/cb_selected"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:enabled="false"
                 android:button="@drawable/selector_check_uncheck_red"
-                android:visibility="gone"
-                />
+                android:enabled="false"
+                android:visibility="gone" />
         </LinearLayout>
 
         <View
             android:id="@+id/view_cover"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
     </FrameLayout>
 
 </LinearLayout>

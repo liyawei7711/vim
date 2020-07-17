@@ -52,6 +52,7 @@ import ttyy.com.jinnetwork.core.work.HTTPResponse;
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
 
+import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.atData;
 import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.selectedDept;
 import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.userDeptMap;
 import static huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew.userGroupMap;
@@ -152,6 +153,17 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                         if (v.getId() == R.id.tv_next) {
                             jumpToNext(deptData);
                         } else {
+                            boolean canSend = false;
+                            for(DeptData temp : atData) {
+                                if(temp.strDepID.equals(deptData.strDepID)) {
+                                    canSend = true;
+                                    break;
+                                }
+                            }
+                            if(!canSend) {
+                                showToast("只能给所在部门发送消息");
+                                return;
+                            }
                             handleChoice(deptData);
                         }
                     }
