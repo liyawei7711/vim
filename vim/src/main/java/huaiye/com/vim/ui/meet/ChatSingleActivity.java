@@ -154,6 +154,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     View tv_send_trans;
 
     @BindExtra
+    int indexDatas;
+    @BindExtra
     String from;
     @BindExtra
     User nUser;
@@ -443,9 +445,18 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                     public List<ChatSingleMsgBean> doOnThread() {
                         List<ChatSingleMsgBean> mLocalBeans = new ArrayList<>();
                         List<ChatSingleMsgBean> nChatSingleMsgBeans = new ArrayList<>();
-                        List<ChatSingleMsgBean> datas = AppDatas.MsgDB()
-                                .chatSingleMsgDao()
-                                .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", index, limit);
+
+                        List<ChatSingleMsgBean> datas;
+                        if(indexDatas != -1) {
+                            datas = AppDatas.MsgDB()
+                                    .chatSingleMsgDao()
+                                    .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", 0, 999999999);
+                        } else {
+                            datas = AppDatas.MsgDB()
+                                    .chatSingleMsgDao()
+                                    .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", index, limit);
+                        }
+
                         for(ChatSingleMsgBean temp : datas) {
                             if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
                                 msgChatIdUnEncrypt.add(temp.msgID);
@@ -1458,10 +1469,15 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             }
         });
         mChatContentAdapter.notifyDataSetChanged();
-        if (position != -1) {
-            chat_recycler.scrollToPosition(PAGE_SIZE);
+        if(indexDatas != -1) {
+            chat_recycler.scrollToPosition(indexDatas);
+            indexDatas = -1;
         } else {
-            chat_recycler.scrollToPosition(allMsg.size() - 1);
+            if (position != -1) {
+                chat_recycler.scrollToPosition(PAGE_SIZE);
+            } else {
+                chat_recycler.scrollToPosition(allMsg.size() - 1);
+            }
         }
         isLoadingData = false;
     }

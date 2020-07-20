@@ -159,6 +159,8 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     View tv_send_trans;
 
     @BindExtra
+    int indexDatas = 0;
+    @BindExtra
     String from;
     @BindExtra
     CreateGroupContactData mContactsBean;
@@ -172,8 +174,6 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     private ChatMsgViewModel chatMsgViewModel;
     private ChatContentAdapter mChatContentAdapter;
     private ChatMoreFunctionAdapter mChatMoreFunctionAdapter;
-
-    boolean isNeedScroll2Buttom = true;
 
     private List<ChatGroupMsgBean> mChatGroupMsgBeans = new ArrayList<>();
     private List<ChatGroupMsgBean> allMsg = new ArrayList<>();
@@ -603,9 +603,17 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                     public List<ChatGroupMsgBean> doOnThread() {
                         List<ChatGroupMsgBean> mLocalBeans = new ArrayList<>();
                         List<ChatGroupMsgBean> nChatGroupMsgBeans = new ArrayList<>();
-                        List<ChatGroupMsgBean> datas = AppDatas.MsgDB()
-                                .chatGroupMsgDao()
-                                .queryPagingItemWithoutLive(mContactsBean.strGroupID, AppAuth.get().getUserID(), index, limit);
+
+                        List<ChatGroupMsgBean> datas;
+                        if(indexDatas != -1) {
+                            datas = AppDatas.MsgDB()
+                                    .chatGroupMsgDao()
+                                    .queryPagingItemWithoutLive(mContactsBean.strGroupID, AppAuth.get().getUserID(), 0, 999999999);
+                        } else {
+                            datas = AppDatas.MsgDB()
+                                    .chatGroupMsgDao()
+                                    .queryPagingItemWithoutLive(mContactsBean.strGroupID, AppAuth.get().getUserID(), index, limit);
+                        }
                         for (ChatGroupMsgBean temp : datas) {
                             if (!msgChatIdUnEncrypt.contains(temp.msgID)) {
                                 msgChatIdUnEncrypt.add(temp.msgID);
@@ -1797,11 +1805,18 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
             }
         });
         mChatContentAdapter.notifyDataSetChanged();
-        if (position != -1) {
-            chat_recycler.scrollToPosition(PAGE_SIZE);
+
+        if(indexDatas != -1) {
+            chat_recycler.scrollToPosition(indexDatas);
+            indexDatas = -1;
         } else {
-            chat_recycler.scrollToPosition(allMsg.size() - 1);
+            if (position != -1) {
+                chat_recycler.scrollToPosition(PAGE_SIZE);
+            } else {
+                chat_recycler.scrollToPosition(allMsg.size() - 1);
+            }
         }
+
         isLoadingData = false;
     }
 

@@ -6,23 +6,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.huaiye.sdk.logger.Logger;
 import com.huaiye.sdk.sdpmsgs.social.SendUserBean;
 
 import java.util.ArrayList;
@@ -33,14 +26,15 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import huaiye.com.vim.R;
-import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.dialog.ZeusLoadView;
 import huaiye.com.vim.common.recycle.LiteBaseAdapter;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
-import huaiye.com.vim.common.views.FastRetrievalBar;
 import huaiye.com.vim.dao.AppDatas;
 import huaiye.com.vim.dao.auth.AppAuth;
+import huaiye.com.vim.dao.msgs.ChatGroupMsgBean;
+import huaiye.com.vim.dao.msgs.ChatSingleMsgBean;
+import huaiye.com.vim.dao.msgs.SearchMessageBean;
 import huaiye.com.vim.dao.msgs.User;
 import huaiye.com.vim.dao.msgs.VimMessageListBean;
 import huaiye.com.vim.dao.msgs.VimMessageListMessages;
@@ -48,17 +42,10 @@ import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.contacts.bean.ContactsBean;
 import huaiye.com.vim.models.contacts.bean.CreateGroupContactData;
-import huaiye.com.vim.models.contacts.bean.CustomContacts;
-import huaiye.com.vim.ui.chat.holder.ChatListViewHolder;
-import huaiye.com.vim.ui.contacts.ContactDetailNewActivity;
-import huaiye.com.vim.ui.contacts.sharedata.ChoosedContactsNew;
-import huaiye.com.vim.ui.home.adapter.ContactsItemAdapter;
+import huaiye.com.vim.ui.chat.holder.ChatListViewNewHolder;
 import huaiye.com.vim.ui.meet.ChatGroupActivityNew;
 import huaiye.com.vim.ui.meet.ChatSingleActivity;
 import ttyy.com.jinnetwork.core.work.HTTPResponse;
-import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
-import ttyy.com.recyclerexts.base.EXTViewHolder;
-import ttyy.com.recyclerexts.tags.TagsAdapter;
 
 import static huaiye.com.vim.common.AppBaseActivity.showToast;
 
@@ -73,18 +60,18 @@ public class SearchChatActivity extends Activity {
     TextView et_search_cancel;
     @BindView(R.id.close)
     ImageView close;
-    @BindView(R.id.refresh_view)
-    SwipeRefreshLayout refresh_view;
     @BindView(R.id.rct_view)
     RecyclerView rct_view;
     @BindView(R.id.iv_empty_view)
     View iv_empty_view;
 
-    LiteBaseAdapter<VimMessageListBean> adapter;
-    ArrayList<VimMessageListBean> datas = new ArrayList<>();
-    Map<String, VimMessageListBean> maps = new HashMap<>();
-    String mSearchKey;
+    LiteBaseAdapter<SearchMessageBean> adapter;
+    ArrayList<SearchMessageBean> datas = new ArrayList<>();//展示数据
+    Map<String, SearchMessageBean> maps = new HashMap<>();
     public ZeusLoadView mZeusLoadView;
+
+    boolean canShow = false;
+    int totalNum = 0;
 
     @SuppressLint("ResourceAsColor")
     @Override
@@ -103,8 +90,8 @@ public class SearchChatActivity extends Activity {
     private void initData() {
         adapter = new LiteBaseAdapter<>(this,
                 datas,
-                ChatListViewHolder.class,
-                R.layout.item_chat_list_view,
+                ChatListViewNewHolder.class,
+                R.layout.item_chat_list_new_view,
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -113,47 +100,45 @@ public class SearchChatActivity extends Activity {
                 }, "false");
         rct_view.setLayoutManager(new SafeLinearLayoutManager(this));
         rct_view.setAdapter(adapter);
-
     }
 
     private void dealAdapterItemClick(View v) {
-        VimMessageListBean bean = (VimMessageListBean) v.getTag();
-        bean.isRead = 1;
-        VimMessageListMessages.get().isRead(bean);
+        SearchMessageBean bean = (SearchMessageBean) v.getTag();
+        bean.listBean.isRead = 1;
+        VimMessageListMessages.get().isRead(bean.listBean);
         adapter.notifyDataSetChanged();
 
         Intent intent;
-        if(bean.groupType == 2) {
-            requestUser(bean);
-        } else if (bean.groupType == 1) {
+        if (bean.listBean.groupType == 2) {
+            requestUser(bean.listBean);
+        } else if (bean.listBean.groupType == 1) {
             intent = new Intent(this, ChatGroupActivityNew.class);
             CreateGroupContactData contactsBean = new CreateGroupContactData();
-            contactsBean.strGroupDomainCode = bean.groupDomainCode;
-            contactsBean.strGroupID = bean.groupID;
-            contactsBean.sessionName = bean.sessionName;
+            contactsBean.strGroupDomainCode = bean.listBean.groupDomainCode;
+            contactsBean.strGroupID = bean.listBean.groupID;
+            contactsBean.sessionName = bean.listBean.sessionName;
             intent.putExtra("mContactsBean", contactsBean);
             startActivity(intent);
         } else {
             intent = new Intent(this, ChatSingleActivity.class);
-            intent.putExtra("mOtherUserName", bean.sessionName);
+            intent.putExtra("mOtherUserName", bean.listBean.sessionName);
             User nUser = new User();
-            if (!bean.sessionUserList.get(0).strUserID.equals(AppAuth.get().getUserID())) {
-                intent.putExtra("mOtherUserId", bean.sessionUserList.get(0).strUserID);
-                nUser.strUserName = bean.sessionUserList.get(0).strUserName;
-                nUser.strUserID = bean.sessionUserList.get(0).strUserID;
-                nUser.strUserDomainCode = bean.sessionUserList.get(0).strUserDomainCode;
-                nUser.strDomainCode = bean.sessionUserList.get(0).strUserDomainCode;
+            if (!bean.listBean.sessionUserList.get(0).strUserID.equals(AppAuth.get().getUserID())) {
+                intent.putExtra("mOtherUserId", bean.listBean.sessionUserList.get(0).strUserID);
+                nUser.strUserName = bean.listBean.sessionUserList.get(0).strUserName;
+                nUser.strUserID = bean.listBean.sessionUserList.get(0).strUserID;
+                nUser.strUserDomainCode = bean.listBean.sessionUserList.get(0).strUserDomainCode;
+                nUser.strDomainCode = bean.listBean.sessionUserList.get(0).strUserDomainCode;
             } else {
-                intent.putExtra("mOtherUserId", bean.sessionUserList.get(1).strUserID);
-                nUser.strUserName = bean.sessionUserList.get(1).strUserName;
-                nUser.strUserID = bean.sessionUserList.get(1).strUserID;
-                nUser.strUserDomainCode = bean.sessionUserList.get(1).strUserDomainCode;
-                nUser.strDomainCode = bean.sessionUserList.get(1).strUserDomainCode;
+                intent.putExtra("mOtherUserId", bean.listBean.sessionUserList.get(1).strUserID);
+                nUser.strUserName = bean.listBean.sessionUserList.get(1).strUserName;
+                nUser.strUserID = bean.listBean.sessionUserList.get(1).strUserID;
+                nUser.strUserDomainCode = bean.listBean.sessionUserList.get(1).strUserDomainCode;
+                nUser.strDomainCode = bean.listBean.sessionUserList.get(1).strUserDomainCode;
 
             }
-
             intent.putExtra("nUser", nUser);
-            intent.putExtra("sessionUserList", bean.sessionUserList);
+            intent.putExtra("sessionUserList", bean.listBean.sessionUserList);
             intent.putExtra("mOtherUserDomainCode", nUser.getDomainCode());
             startActivity(intent);
         }
@@ -214,14 +199,13 @@ public class SearchChatActivity extends Activity {
     }
 
     private void refreshDatas(String key) {
+        canShow = false;
+        totalNum = 0;
         datas.clear();
         adapter.notifyDataSetChanged();
 
-        mSearchKey = key;
         maps.clear();
-        for (VimMessageListBean temp : datas) {
-            maps.put(temp.sessionID, temp);
-        }
+
         new RxUtils<>().doOnThreadObMain(new RxUtils.IThreadAndMainDeal<List<VimMessageListBean>>() {
             @Override
             public List<VimMessageListBean> doOnThread() {
@@ -233,7 +217,6 @@ public class SearchChatActivity extends Activity {
                         ArrayList<SendUserBean> messageUsers = vimMessageListBean.sessionUserList;
                         if (messageUsers != null && messageUsers.size() > 0) {
                             if (messageUsers.size() == 2) {
-                                Logger.err("receive single chat list not 2 is " + messageUsers.size());
                                 SendUserBean friend = null;
                                 for (SendUserBean sendUserBean : messageUsers) {
                                     if (!sendUserBean.strUserID.equals(AppDatas.Auth().getUserID())) {
@@ -243,10 +226,7 @@ public class SearchChatActivity extends Activity {
                                 }
                                 vimMessageListBean.strHeadUrl = AppDatas.MsgDB().getFriendListDao().getFriendHeadPic(friend.strUserID, friend.strUserDomainCode);
                             }
-
-
                         }
-
                     }
                 }
                 return allBean;
@@ -254,30 +234,102 @@ public class SearchChatActivity extends Activity {
 
             @Override
             public void doOnMain(List<VimMessageListBean> data) {
+                totalNum = data.size();
                 for (VimMessageListBean temp : data) {
                     if (maps.containsKey(temp.sessionID)) {
-                        VimMessageListBean tempLin = maps.get(temp.sessionID);
+                        VimMessageListBean tempLin = maps.get(temp.sessionID).listBean;
                         if (tempLin.mStrEncrypt.equals(temp.msgTxt)) {
                             temp.isUnEncrypt = tempLin.isUnEncrypt;
                             temp.msgTxt = tempLin.msgTxt;
                         }
                     }
-                }
 
-                ArrayList<VimMessageListBean> tempDatas = new ArrayList<>();
-                for(VimMessageListBean temp : data) {
-                    if(!TextUtils.isEmpty(temp.sessionName) && temp.sessionName.contains(mSearchKey)) {
-                        tempDatas.add(temp);
+                    maps.put(temp.sessionID, new SearchMessageBean(temp));
+                    switch (temp.groupType) {
+                        case 1:
+                        case 2:
+                            loadPageDataGroup(temp, temp.groupID, key);
+                            break;
+                        default:
+                            String otherUserId = "";
+                            for (SendUserBean user : temp.sessionUserList) {
+                                if (!user.strUserID.equals(AppAuth.get().getUserID())) {
+                                    otherUserId = user.strUserID;
+                                    break;
+                                }
+                            }
+                            loadPageDataUser(temp, otherUserId, key);
+                            break;
                     }
                 }
-                datas.clear();
-                datas.addAll(tempDatas);
-                adapter.notifyDataSetChanged();
-                showEmpty();
-
-                VimMessageListMessages.get().getMessagesUnReadNum();
             }
         });
+    }
+
+    private void loadPageDataUser(VimMessageListBean listBean, String otherUserId, String key) {
+        List<ChatSingleMsgBean> datas = AppDatas.MsgDB()
+                .chatSingleMsgDao()
+                .queryPagingItemWithoutLive(otherUserId, AppAuth.get().getUserID() + "", 0, 99999999);
+        for (ChatSingleMsgBean temp : datas) {
+            if ((temp.msgTxt != null && temp.msgTxt.contains(key)) ||
+                    (temp.fileName != null && temp.fileName.contains(key)) ||
+                    (temp.fileUrl != null && temp.fileUrl.contains(key)) ||
+                    (temp.summary != null && temp.summary.contains(key))) {
+                if (!maps.containsKey(listBean.sessionID)) {
+                    maps.put(listBean.sessionID, new SearchMessageBean(listBean));
+                }
+                temp.index = datas.indexOf(temp);
+                SearchMessageBean searchMessageBean = maps.get(listBean.sessionID);
+                searchMessageBean.chatMessageBases.add(temp);
+            }
+        }
+
+        totalNum--;
+        if (totalNum == 0) {
+            showData(key);
+        }
+    }
+
+    private void loadPageDataGroup(VimMessageListBean listBean, String strGroupID, String key) {
+
+        List<ChatGroupMsgBean> datas = AppDatas.MsgDB()
+                .chatGroupMsgDao()
+                .queryPagingItemWithoutLive(strGroupID, AppAuth.get().getUserID(), 0, 99999999);
+
+        for (ChatGroupMsgBean temp : datas) {
+            if ((temp.msgTxt != null && temp.msgTxt.contains(key)) ||
+                    (temp.fileName != null && temp.fileName.contains(key)) ||
+                    (temp.fileUrl != null && temp.fileUrl.contains(key)) ||
+                    (temp.summary != null && temp.summary.contains(key))) {
+
+                if (!maps.containsKey(listBean.sessionID)) {
+                    maps.put(listBean.sessionID, new SearchMessageBean(listBean));
+                }
+                temp.index = datas.indexOf(temp);
+                SearchMessageBean searchMessageBean = maps.get(listBean.sessionID);
+                searchMessageBean.chatMessageBases.add(temp);
+            }
+        }
+
+        totalNum--;
+        if (totalNum == 0) {
+            showData(key);
+        }
+    }
+
+    private void showData(String key) {
+        for (Map.Entry<String, SearchMessageBean> entry : maps.entrySet()) {
+            String mapKey = entry.getKey();
+            SearchMessageBean mapValue = entry.getValue();
+            if (!mapValue.chatMessageBases.isEmpty() ||
+                    (!TextUtils.isEmpty(mapValue.listBean.sessionName) && mapValue.listBean.sessionName.contains(key))) {
+                datas.add(mapValue);
+            }
+        }
+        adapter.notifyDataSetChanged();
+        showEmpty();
+
+        VimMessageListMessages.get().getMessagesUnReadNum();
     }
 
     private void showEmpty() {

@@ -110,6 +110,9 @@ public class ChatMessageBase implements Serializable {
     public String headPic;//头像
 
     @Ignore
+    public int index;//位置
+
+    @Ignore
     public ArrayList<SendUserBean> sessionUserList;
 
     public boolean isShow() {

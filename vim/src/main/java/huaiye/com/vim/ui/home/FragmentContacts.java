@@ -92,7 +92,6 @@ public class FragmentContacts extends AppBaseFragment {
     private boolean isFreadList = true;
     private boolean isSOS;
 
-    static int totalRequest = 0;
     public static HashMap<String, ArrayList<DeptData>> map = new HashMap<>();
     public static ArrayList<DeptData> allDeptDatas = new ArrayList<>();
     static boolean isReq;
@@ -334,7 +333,6 @@ public class FragmentContacts extends AppBaseFragment {
         allDeptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
-                totalRequest++;
                 ModelApis.Contacts().requestOrganization("contacts 321 ", domainInfo.strDomainCode, "", new ModelCallback<ContactOrganizationBean>() {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
@@ -361,21 +359,19 @@ public class FragmentContacts extends AppBaseFragment {
     }
 
     static void doCallBack(DomainInfoList.DomainInfo domainInfo) {
-        totalRequest--;
-        if (totalRequest == 0) {
-            map.clear();
-            for (DeptData temp : allDeptDatas) {
-                temp.strDomainCode = domainInfo.strDomainCode;
-                if (map.containsKey(temp.strParentID)) {
-                    ArrayList<DeptData> datas = map.get(temp.strParentID);
-                    datas.add(temp);
-                } else {
-                    ArrayList<DeptData> datas = new ArrayList<>();
-                    datas.add(temp);
-                    map.put(temp.strParentID, datas);
-                }
+        map.clear();
+        for (DeptData temp : allDeptDatas) {
+            temp.strDomainCode = domainInfo.strDomainCode;
+            if (map.containsKey(temp.strParentID)) {
+                ArrayList<DeptData> datas = map.get(temp.strParentID);
+                datas.add(temp);
+            } else {
+                ArrayList<DeptData> datas = new ArrayList<>();
+                datas.add(temp);
+                map.put(temp.strParentID, datas);
             }
         }
+
         isReq = false;
     }
 

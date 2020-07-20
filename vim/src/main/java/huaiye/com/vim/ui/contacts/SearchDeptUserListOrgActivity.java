@@ -111,9 +111,7 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
 
     ArrayList<String> selectedMap = new ArrayList<>();
 
-    int requestUser = 0;
-    int requestGroup = 0;
-    int requestDept = 0;
+    ArrayList<String> contactId = new ArrayList<>();
 
     @Override
     protected void initActionBar() {
@@ -266,6 +264,7 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
             @Override
             public void onRefresh() {
                 FragmentContacts.requestDeptAll();
+                contactId.clear();
                 requestUser();
                 requestDept();
                 requestGroupContacts();
@@ -280,6 +279,7 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 FragmentContacts.requestDeptAll();
+                contactId.clear();
                 requestUser();
                 requestDept();
                 requestGroupContacts();
@@ -295,6 +295,7 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     FragmentContacts.requestDeptAll();
+                    contactId.clear();
                     requestUser();
                     requestDept();
                     requestGroupContacts();
@@ -314,14 +315,9 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
             return;
         }
 
-        if (requestUser != 0) {
-            return;
-        }
-
         userInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
-                requestUser++;
                 ModelApis.Contacts().requestContactsByKey(temp.strDomainCode, null, new ModelCallback<ContactsBean>() {
                     @Override
                     public void onSuccess(final ContactsBean contactsBean) {
@@ -329,10 +325,14 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
 
                             for (User temp : contactsBean.userList) {
                                 if (!TextUtils.isEmpty(temp.strUserName) &&
-                                        temp.strUserName.contains(et_key.getText().toString())) {
+                                        temp.strUserName.contains(et_key.getText().toString()) &&
+                                        !contactId.contains(temp.strUserID)) {
+                                    contactId.add(temp.strUserID);
                                     userInfos.add(temp);
                                 } else if (!TextUtils.isEmpty(temp.strPostName) &&
-                                        temp.strPostName.contains(et_key.getText().toString())) {
+                                        temp.strPostName.contains(et_key.getText().toString()) &&
+                                        !contactId.contains(temp.strUserID)) {
+                                    contactId.add(temp.strUserID);
                                     userInfos.add(temp);
                                 }
                             }
@@ -352,8 +352,6 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                             changeShowSelected();
 
                             refresh_view.setRefreshing(false);
-
-                            requestUser--;
                         }
                     }
 
@@ -363,11 +361,6 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                         refresh_view.setRefreshing(false);
                     }
 
-                    @Override
-                    public void onFailure(HTTPResponse httpResponse) {
-                        super.onFailure(httpResponse);
-                        requestUser--;
-                    }
                 });
             }
         }
@@ -378,14 +371,9 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
             return;
         }
 
-        if (requestDept != 0) {
-            return;
-        }
-
         deptDatas.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo info : VIMApp.getInstance().mDomainInfoList) {
-                requestDept++;
                 ModelApis.Contacts().requestOrganization("search 181 ", info.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactOrganizationBean>() {
                     @Override
                     public void onSuccess(final ContactOrganizationBean contactsBean) {
@@ -396,6 +384,12 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                                     deptData.domainInfo = temp;
                                     break;
                                 }
+
+                                if (!contactId.contains(deptData.strDepID)) {
+                                    contactId.add(deptData.strDepID);
+                                    deptDatas.add(deptData);
+                                }
+
                             }
                         }
                         deptDatas.addAll(contactsBean.departmentInfoList);
@@ -409,7 +403,6 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                         changeShowSelected();
                         refresh_view.setRefreshing(false);
 
-                        requestDept--;
                     }
 
                     @Override
@@ -418,11 +411,6 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                         refresh_view.setRefreshing(false);
                     }
 
-                    @Override
-                    public void onFailure(HTTPResponse httpResponse) {
-                        super.onFailure(httpResponse);
-                        requestDept--;
-                    }
                 });
             }
         }
@@ -433,19 +421,19 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
             return;
         }
 
-        if (requestGroup != 0) {
-            return;
-        }
-
         groupInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo domainInfo : VIMApp.getInstance().mDomainInfoList) {
-                requestGroup++;
                 ModelApis.Contacts().requestGroupBuddyContacts(-1, 0, 0, et_key.getText().toString(), domainInfo.strDomainCode, new ModelCallback<ContactsGroupChatListBean>() {
                     @Override
                     public void onSuccess(final ContactsGroupChatListBean contactsBean) {
                         if (contactsBean != null && contactsBean.lstGroupInfo != null) {
-                            groupInfos.addAll(contactsBean.lstGroupInfo);
+                            for (GroupInfo groupInfo : contactsBean.lstGroupInfo) {
+                                if (!contactId.contains(groupInfo.strGroupID)) {
+                                    contactId.add(groupInfo.strGroupID);
+                                    groupInfos.add(groupInfo);
+                                }
+                            }
                         }
 
                         if (groupInfos.isEmpty()) {
@@ -457,7 +445,6 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                         changeShowSelected();
                         refresh_view.setRefreshing(false);
 
-                        requestGroup--;
                     }
 
                     @Override
@@ -466,11 +453,6 @@ public class SearchDeptUserListOrgActivity extends AppBaseActivity {
                         refresh_view.setRefreshing(false);
                     }
 
-                    @Override
-                    public void onFailure(HTTPResponse httpResponse) {
-                        super.onFailure(httpResponse);
-                        requestGroup--;
-                    }
                 });
             }
         } else {

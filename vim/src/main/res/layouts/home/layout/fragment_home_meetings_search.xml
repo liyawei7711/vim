@@ -9,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
         android:layout_marginTop="10dp"
+        android:layout_marginRight="15dp"
         android:orientation="horizontal">
 
         <RelativeLayout
@@ -18,14 +18,15 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/search_bar_bg">
+
             <EditText
                 android:id="@+id/et_key"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:drawableLeft="@drawable/common_icon_search"
-                android:drawablePadding="5dp"
                 android:layout_toLeftOf="@+id/close"
                 android:background="@color/transparent"
+                android:drawableLeft="@drawable/common_icon_search"
+                android:drawablePadding="5dp"
                 android:hint="搜索"
                 android:imeOptions="actionSearch"
                 android:paddingLeft="8dp"
@@ -40,7 +41,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/cross_re"/>
+                android:src="@drawable/cross_re" />
         </RelativeLayout>
 
         <TextView
@@ -54,48 +55,40 @@
             android:textSize="15sp" />
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/rct_view_layout"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/refresh_view"
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rct_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rct_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </android.support.v4.widget.SwipeRefreshLayout>
+        <LinearLayout
+            android:id="@+id/iv_empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#fff"
+            android:gravity="center"
+            android:orientation="vertical">
 
-    </RelativeLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/image_zanwuxiaoxi" />
 
-    <LinearLayout
-        android:id="@+id/iv_empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#fff"
-        android:gravity="center"
-        android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/image_zanwuxiaoxi"
+                android:text="暂时没有新消息"
+                android:textColor="@color/black333"
+                android:textSize="16sp" />
+        </LinearLayout>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/image_zanwuxiaoxi"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:src="@drawable/image_zanwuxiaoxi"
-            android:text="暂时没有新消息"
-            android:textColor="@color/black333"
-            android:textSize="16sp" />
-    </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>
