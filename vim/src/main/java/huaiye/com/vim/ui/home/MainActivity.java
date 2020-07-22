@@ -123,7 +123,7 @@ public class MainActivity extends AppBaseActivity {
     private LocationService locationService;
 
     ArrayList<FileBean> temps = new ArrayList<>();//待发送数据
-
+////
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         this.savedInstanceState = savedInstanceState;
