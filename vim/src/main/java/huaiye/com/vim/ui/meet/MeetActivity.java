@@ -190,7 +190,7 @@ public class MeetActivity extends AppBaseActivity implements SdpUITask.SdpUIList
     @Override
     protected void initActionBar() {
         getNavigate().setVisibility(View.GONE);
-
+//
         EventBus.getDefault().register(this);
         mSdpUITask = new SdpUITask();
         mSdpUITask.setSdpMessageListener(this);
