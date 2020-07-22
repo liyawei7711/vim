@@ -10,11 +10,14 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import huaiye.com.vim.R;
+import huaiye.com.vim.bus.EventStartMusic;
 import ttyy.com.jinnetwork.Https;
 import ttyy.com.jinnetwork.core.callback.HTTPCallback;
 import ttyy.com.jinnetwork.core.work.HTTPRequest;
@@ -87,12 +90,7 @@ public class MusicService extends Service {
         super.onDestroy();
         stopPlayMusic();
         // 重启自己
-        Intent intent = new Intent(getApplicationContext(), MusicService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent);
-        } else {
-            startService(intent);
-        }
+        EventBus.getDefault().post(new EventStartMusic());
      }
 
 }

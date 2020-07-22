@@ -1241,8 +1241,10 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             mChatSendLocationDialog.dismiss();
             mChatSendLocationDialog = null;
         }
-        mChatContentAdapter.dismissDialog();
-        mChatContentAdapter.stopVoice();
+        if(mChatContentAdapter != null) {
+            mChatContentAdapter.dismissDialog();
+            mChatContentAdapter.stopVoice();
+        }
         EventBus.getDefault().unregister(this);
 
         VIMApp.getInstance().removeLinShiFile();

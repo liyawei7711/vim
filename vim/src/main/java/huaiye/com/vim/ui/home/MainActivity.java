@@ -41,6 +41,7 @@ import huaiye.com.vim.BuildConfig;
 import huaiye.com.vim.EncryptUtil;
 import huaiye.com.vim.R;
 import huaiye.com.vim.VIMApp;
+import huaiye.com.vim.bus.EventStartMusic;
 import huaiye.com.vim.bus.MessageEvent;
 import huaiye.com.vim.bus.NewMessageNum;
 import huaiye.com.vim.bus.ReafBean;
@@ -199,11 +200,8 @@ public class MainActivity extends AppBaseActivity {
             clearSafe();
         }
         VIMApp.getInstance().getDomainCodeList();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(this, MusicService.class));
-        } else {
-            startService(new Intent(this, MusicService.class));
-        }
+
+        onEvent(new EventStartMusic());
 
         if (!TextUtils.isEmpty(from)) {
             Intent intent = getIntent();
@@ -525,6 +523,15 @@ public class MainActivity extends AppBaseActivity {
                     doChuanShu(fileBean);
                 }
                 break;
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(EventStartMusic bean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, MusicService.class));
+        } else {
+            startService(new Intent(this, MusicService.class));
         }
     }
 

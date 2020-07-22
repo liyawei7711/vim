@@ -1502,8 +1502,10 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
     protected void onDestroy() {
         super.onDestroy();
         stopSpeakerLound();
-        mChatContentAdapter.dismissDialog();
-        mChatContentAdapter.stopVoice();
+        if(mChatContentAdapter != null) {
+            mChatContentAdapter.dismissDialog();
+            mChatContentAdapter.stopVoice();
+        }
         EventBus.getDefault().unregister(this);
 
         VIMApp.getInstance().removeLinShiFile();
