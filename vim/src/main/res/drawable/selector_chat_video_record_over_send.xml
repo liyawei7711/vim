@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:state_pressed="true"
-        android:drawable="@drawable/paizhao_back_press"/>
+        android:drawable="@drawable/queding_send_dui"/>
 
     <item android:drawable="@drawable/queding_send_dui_press"/>
 

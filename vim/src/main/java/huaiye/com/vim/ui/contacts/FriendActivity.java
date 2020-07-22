@@ -67,8 +67,6 @@ public class FriendActivity extends AppBaseActivity {
     RelativeLayout rct_view_layout;*/
     @BindView(R.id.rct_view)
     RecyclerView rct_view;
-    @BindView(R.id.view_list)
-    RecyclerView view_list;
     @BindView(R.id.iv_empty_view)
     View iv_empty_view;
     @BindView(R.id.tv_title)

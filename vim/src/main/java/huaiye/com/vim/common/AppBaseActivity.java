@@ -62,11 +62,7 @@ import huaiye.com.vim.ui.guide.WelcomeActivity;
 import huaiye.com.vim.ui.home.MainActivity;
 import huaiye.com.vim.ui.meet.InviteAlarmActivity;
 import huaiye.com.vim.ui.meet.MeetCreateByAllFriendActivity;
-import huaiye.com.vim.ui.meet.MeetCreateOrderActivity;
-import huaiye.com.vim.ui.meet.MeetDetailActivity;
 import huaiye.com.vim.ui.meet.MeetNewActivity;
-import huaiye.com.vim.ui.meet.NickJoinMeetActivity;
-import huaiye.com.vim.ui.meet.OrderMeetDetailActivity;
 import huaiye.com.vim.ui.meet.VideoRecordUploadActivity;
 
 import static huaiye.com.vim.common.AppUtils.XIAOMI;
@@ -144,9 +140,7 @@ public abstract class AppBaseActivity extends FragmentActivity implements Messag
 
         mLogicDialog = new LogicDialog(this);
 
-        if (this instanceof MeetCreateByAllFriendActivity
-                || this instanceof OrderMeetDetailActivity
-                || this instanceof MeetCreateOrderActivity) {
+        if (this instanceof MeetCreateByAllFriendActivity) {
             getMeetConfig();
         }
 
@@ -210,8 +204,7 @@ public abstract class AppBaseActivity extends FragmentActivity implements Messag
         // 后台接受消息
         if (AppBaseActivity.this instanceof StartActivity ||
                 AppBaseActivity.this instanceof WelcomeActivity ||
-                AppBaseActivity.this instanceof GuideActivity ||
-                AppBaseActivity.this instanceof NickJoinMeetActivity) {
+                AppBaseActivity.this instanceof GuideActivity) {
             return;
         }
         PushService.actionStop(this);
@@ -222,8 +215,7 @@ public abstract class AppBaseActivity extends FragmentActivity implements Messag
         super.onStop();
         if (AppBaseActivity.this instanceof StartActivity ||
                 AppBaseActivity.this instanceof WelcomeActivity ||
-                AppBaseActivity.this instanceof GuideActivity ||
-                AppBaseActivity.this instanceof NickJoinMeetActivity) {
+                AppBaseActivity.this instanceof GuideActivity) {
             return;
         }
         try {
@@ -520,8 +512,7 @@ public abstract class AppBaseActivity extends FragmentActivity implements Messag
     }
 
     private void setStatusbarAndTitleColor() {
-        if (this instanceof MeetDetailActivity
-                || this instanceof WelcomeActivity
+        if (this instanceof WelcomeActivity
                 || this instanceof StartActivity
                 || this instanceof VideoRecordUploadActivity) {
             StatusbarUtil.transparencyBar(this);

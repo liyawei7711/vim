@@ -86,14 +86,7 @@
         <activity
             android:name=".ui.showfile.WebPageFileActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.showfile.PIOOpenActivity"
-            android:screenOrientation="portrait" />
 
-        <activity
-            android:name=".ui.meet.ChoosePhotoAndScreenActivity"
-            android:configChanges="screenSize|orientation|screenLayout|smallestScreenSize"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.auth.SettingAddressActivity"
             android:screenOrientation="portrait" />
@@ -105,14 +98,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.home.MainActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing" />
-        <activity
-            android:name=".ui.home.MeetControlActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing" />
-        <activity
-            android:name=".ui.home.MeetLayoutActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
@@ -268,25 +253,21 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".ui.home.transfile.ChooseEncryptFileActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name=".ui.home.transfile.ChuanShuShowActivity"
             android:screenOrientation="portrait" />
 
 
-        <activity
-            android:name=".ui.meet.NickJoinMeetActivity"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <data android:scheme="huaiyemc" />
-                <!--下面这几行也必须得设置-->
-                <category android:name="android.intent.category.DEFAULT" />
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-        </activity>
+<!--        <activity-->
+<!--            android:name=".ui.meet.NickJoinMeetActivity"-->
+<!--            android:screenOrientation="portrait">-->
+<!--            <intent-filter>-->
+<!--                <data android:scheme="huaiyemc" />-->
+<!--                &lt;!&ndash;下面这几行也必须得设置&ndash;&gt;-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <action android:name="android.intent.action.VIEW" />-->
+<!--                <category android:name="android.intent.category.BROWSABLE" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
 
 
         <activity
@@ -298,40 +279,8 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
-            android:name=".ui.meet.OrderMeetDetailActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing" />
-        <activity
-            android:name=".ui.meet.MeetDetailActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing" />
-        <activity
-            android:name=".ui.meet.MeetCreateOrderActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".ui.meet.MeetJoineActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".ui.meet.CodeScanActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".ui.meet.MeetPlaybackActivity"
-            android:configChanges="screenSize|keyboardHidden|orientation"
-            android:screenOrientation="landscape" />
-        <!--<activity
-            android:name=".ui.meet.MeetActivity"
-            android:configChanges="screenSize|orientation|screenLayout|smallestScreenSize"
-            android:screenOrientation="landscape" />-->
-        <activity
             android:name=".ui.meet.MeetNewActivity"
             android:configChanges="screenSize|orientation|screenLayout|smallestScreenSize" />
-        <activity
-            android:name=".ui.meet.MeetWatchActivity"
-            android:configChanges="screenSize|orientation|screenLayout|smallestScreenSize"
-            android:screenOrientation="landscape" />
         <activity
             android:name=".ui.meet.ChoosePhotoActivity"
             android:screenOrientation="portrait" />
@@ -369,9 +318,6 @@
             android:name=".models.download.ErrorDialogActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Dialog" />
-        <activity
-            android:name=".ui.meet.MeetDetailEditActivity"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.meet.MeetControlActivity"
             android:screenOrientation="portrait" />
@@ -454,7 +400,6 @@
 
         <service android:name="com.huaiye.sdk.sdkabi.common.PushService" />
 
-        <service android:name=".services.UpdateService" />
         <service android:name=".models.download.DownloadService" />
         <service
             android:name=".services.MusicService"
@@ -462,12 +407,6 @@
             android:exported="true"
             android:process=":remote" />
 
-        <receiver android:name=".services.PhoneReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".services.PackageInstallReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />

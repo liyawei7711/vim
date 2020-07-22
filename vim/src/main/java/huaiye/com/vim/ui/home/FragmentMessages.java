@@ -78,9 +78,6 @@ public class FragmentMessages extends AppBaseFragment implements MessageNotify {
     RecyclerView message_list;
     @BindView(R.id.ll_empty)
     View ll_empty;
-    @BindView(R.id.fl_search)
-    View fl_search;
-
 
     ArrayList<VimMessageListBean> datas = new ArrayList<>();
     Map<String, VimMessageListBean> maps = new HashMap<>();
