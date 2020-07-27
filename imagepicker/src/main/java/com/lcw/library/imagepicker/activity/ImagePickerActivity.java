@@ -577,6 +577,7 @@ public class ImagePickerActivity extends BaseActivity implements ImagePickerAdap
                 SelectionManager.getInstance().addImageToSelectList(mFilePath);
                 ArrayList<String> list = new ArrayList<>(SelectionManager.getInstance().getSelectPaths());
                 Intent intent = new Intent();
+                intent.putExtra("type", "select");
                 intent.putStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES, list);
                 setResult(RESULT_OK, intent);
                 SelectionManager.getInstance().removeAll();//清空选中记录
