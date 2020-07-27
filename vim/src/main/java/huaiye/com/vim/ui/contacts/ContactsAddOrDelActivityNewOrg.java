@@ -700,8 +700,24 @@ public class ContactsAddOrDelActivityNewOrg extends AppBaseActivity {
     protected void updateContacts() {
         mCustomContacts.clear();
         mCustomContacts.addAll(mAllContacts);
-        if (mCustomContacts != null) {
+
+        for (User user : mAllContacts) {
+            if (ChoosedContactsNew.get().isContain(user)) {
+                user.isSelected = true;
+            } else {
+                user.isSelected = false;
+            }
+        }
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
+        }
+
+        if (adapterAt != null) {
+            adapterAt.notifyDataSetChanged();
+        }
+
+        if(mChoosedAdapter != null) {
+            mChoosedAdapter.notifyDataSetChanged();
         }
     }
 

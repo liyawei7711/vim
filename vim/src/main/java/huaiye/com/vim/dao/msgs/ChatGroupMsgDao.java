@@ -47,8 +47,14 @@ public interface ChatGroupMsgDao {
     @Query("update tb_chat_group_msg set read= 1 where sessionID=:sessionID and extend1 =:userId AND type!=9996 AND bFire!=1")
     void updateSessionIDRead(String sessionID, String userId);
 
+    @Query("update tb_chat_group_msg set read= :read where sessionID=:sessionID and extend1 =:userId AND type!=9996 AND bFire!=1")
+    void updateSessionIDRead(int read, String sessionID, String userId);
+
     @Query("update tb_chat_group_msg set read= 1 where groupID=:strGroupID and extend1 =:userId AND msgID=:msgID")
     void updateReadWithMsgID(String strGroupID, String msgID, String userId);
+
+    @Query("update tb_chat_group_msg set read= :read where groupID=:strGroupID and extend1 =:userId AND msgID=:msgID")
+    void updateReadWithMsgID(int read, String strGroupID, String msgID, String userId);
 
     @Query("update tb_chat_group_msg set localFilePath=:localFilePath where groupID=:strGroupID and extend1 =:userId AND id=:messageId")
     void updateDownloadState(String strGroupID, String localFilePath, long messageId, String userId);

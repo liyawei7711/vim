@@ -50,8 +50,13 @@ public interface ChatSingleMsgDao {
     @Query("update tb_chat_single_msg set read= 1 where ((fromUserId=:firstUserID  AND toUserId=:secondUserId ) or (fromUserId=:secondUserId AND toUserId=:firstUserID)) AND msgID=:msgID")
     void updateReadWithMsgID(String firstUserID, String secondUserId, String msgID);
 
+    @Query("update tb_chat_single_msg set read= :read where ((fromUserId=:firstUserID  AND toUserId=:secondUserId ) or (fromUserId=:secondUserId AND toUserId=:firstUserID)) AND msgID=:msgID")
+    void updateReadWithMsgID(int read, String firstUserID, String secondUserId, String msgID);
+
     @Query("update tb_chat_single_msg set read= 1 where sessionID=:sessionID")
     void updateReadMsgID(String sessionID);
+    @Query("update tb_chat_single_msg set read= :read where sessionID=:sessionID")
+    void updateReadMsgID(int read, String sessionID);
 
     @Query("update tb_chat_single_msg set localFilePath=:localFilePath where id=:messageId")
     void updateDownloadState(String localFilePath, long messageId);

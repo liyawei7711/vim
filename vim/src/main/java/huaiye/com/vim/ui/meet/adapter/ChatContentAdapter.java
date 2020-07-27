@@ -1887,8 +1887,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     viewHolderLeft.left_content_voice_time.setVisibility(View.GONE);
 
                 }
-                if (data.read == 1) {
-                    viewHolderLeft.left_content_voice_state.setVisibility(View.GONE);
+                if (data.read == 1) {viewHolderLeft.left_content_voice_state.setVisibility(View.GONE);
                 } else {
                     viewHolderLeft.left_content_voice_state.setVisibility(View.VISIBLE);
                 }
@@ -2357,6 +2356,7 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             mContext.startActivity(intent);
         }
     }
+
     private void updateDownloadState(ChatMessageBase data) {
         if (isGroup) {
             if (!TextUtils.isEmpty(strGroupID)) {
@@ -3198,6 +3198,11 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void showPopWindows(boolean isShow, View view, ChatMessageBase data) {
         final List<String> dataList = new ArrayList<>();
+        if (data.read == 1) {
+            dataList.add("未读");
+        } else {
+            dataList.add("已读");
+        }
         if (isShow) {
             dataList.add(AppUtils.getString(R.string.user_detail_zhuanfa_perple));
         }
@@ -3213,57 +3218,59 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mPopupWindowList.hide();
-                if (dataList.size() == 4) {
-                    switch (position) {
-                        case 0://删除
-                            delZhuanFaMessage(data);
-                            break;
-                        case 1://转发
-                            if (data.bEncrypt == 1 && !data.isUnEncrypt) {
-                                showToast("信息尚未解密");
-                            } else {
-                                deleChatRecord(data);
-                            }
-                            break;
-                        case 2:
-                            if (data.bEncrypt == 1) {
-                                if (!data.isUnEncrypt) {
-                                    showToast("信息尚未解密");
-                                } else {
-                                    //传输
-                                    sendFile(data);
-                                }
-                            } else {
-                                showToast("仅支持加密文件传输");
-                            }
-                            break;
-                        case 3:
-                            canSelected = !canSelected;
-                            for (ChatMessageBase bean : mDataList) {
-                                bean.isSelected = false;
-                            }
-                            all_file.clear();
-                            notifyDataSetChanged();
-                            EventBus.getDefault().post(new StartTransModelBean(canSelected));
-                            break;
-                    }
-                } else if (dataList.size() == 2) {
-                    switch (position) {
-                        case 0://转发
-                            delZhuanFaMessage(data);
-                            break;
-                        case 1://删除
-                            if (data.bEncrypt == 1 && !data.isUnEncrypt) {
-                                showToast("信息尚未解密");
-                            } else {
-                                deleChatRecord(data);
-                            }
-                            break;
-                    }
-                } else {
-                    if (0 == position) {//删除
+                String str = dataList.get(position);
+                if (str.equals("删除")) {
+                    delZhuanFaMessage(data);
+                } else if (str.equals("转发")) {
+                    if (data.bEncrypt == 1 && !data.isUnEncrypt) {
+                        showToast("信息尚未解密");
+                    } else {
                         deleChatRecord(data);
                     }
+                } else if (str.equals("传输")) {
+                    if (data.bEncrypt == 1) {
+                        if (!data.isUnEncrypt) {
+                            showToast("信息尚未解密");
+                        } else {
+                            //传输
+                            sendFile(data);
+                        }
+                    } else {
+                        showToast("仅支持加密文件传输");
+                    }
+                } else if (str.equals("多选")) {
+                    canSelected = !canSelected;
+                    for (ChatMessageBase bean : mDataList) {
+                        bean.isSelected = false;
+                    }
+                    all_file.clear();
+                    notifyDataSetChanged();
+                    EventBus.getDefault().post(new StartTransModelBean(canSelected));
+                } else if (str.equals("已读") ||
+                        str.equals("未读")) {
+                    if (data.read == 1) {
+                        data.read = 0;
+                    } else {
+                        data.read = 1;
+                    }
+
+                    if (isGroup) {
+                        if (!TextUtils.isEmpty(strGroupID)) {
+                            AppDatas.MsgDB()
+                                    .chatGroupMsgDao()
+                                    .updateReadWithMsgID(data.read, strGroupID, data.msgID, AppAuth.get().getUserID());
+                        }
+                    } else {
+                        AppDatas.MsgDB()
+                                .chatSingleMsgDao()
+                                .updateReadWithMsgID(data.read, data.fromUserId, AppAuth.get().getUserID() + "", data.msgID);
+                    }
+                    if (data.read == 0) {
+                        VimMessageListMessages.get().isUnRead(data.sessionID);
+                    } else {
+                        VimMessageListMessages.get().isRead(data.sessionID);
+                    }
+                    notifyItemChanged(mDataList.indexOf(data));
                 }
             }
         });

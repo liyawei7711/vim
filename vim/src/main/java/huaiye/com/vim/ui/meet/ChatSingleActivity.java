@@ -1,6 +1,8 @@
 package huaiye.com.vim.ui.meet;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -59,7 +61,6 @@ import huaiye.com.vim.bus.StartTransModelBean;
 import huaiye.com.vim.common.AppBaseActivity;
 import huaiye.com.vim.common.AppUtils;
 import huaiye.com.vim.common.SP;
-import huaiye.com.vim.common.dialog.DownloadLoadView;
 import huaiye.com.vim.common.helper.ChatLocalPathHelper;
 import huaiye.com.vim.common.recycle.SafeLinearLayoutManager;
 import huaiye.com.vim.common.rx.RxUtils;
@@ -83,7 +84,6 @@ import huaiye.com.vim.map.baidu.LocationStrategy;
 import huaiye.com.vim.models.ModelApis;
 import huaiye.com.vim.models.ModelCallback;
 import huaiye.com.vim.models.auth.bean.Upload;
-import huaiye.com.vim.models.download.ProgressListener;
 import huaiye.com.vim.models.meet.bean.ChatMoreFunctionBean;
 import huaiye.com.vim.ui.chat.dialog.ChatSendLocationDialog;
 import huaiye.com.vim.ui.contacts.UserDetailActivity;
@@ -195,6 +195,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 
     ChatPresent chatPresent;
     File fC_LINSHI;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -247,7 +248,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             sharePopupLeaveWindow.showAtLocation(ll_root, Gravity.CENTER, 0, 0);
         }
 
-        AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(),AppAuth.get().getDomainCode(), nUser.strUserID, nUser.getDomainCode());
+        AppDatas.MsgDB().getChangYongLianXiRen().deleteByUser(AppAuth.get().getUserID(), AppAuth.get().getDomainCode(), nUser.strUserID, nUser.getDomainCode());
         AppDatas.MsgDB().getChangYongLianXiRen().insertAll(ChangyongLianXiRenBean.converToChangyongLianXiRen(nUser));
     }
 
@@ -273,8 +274,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         chat_edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    if(chat_more_function.getVisibility() == View.VISIBLE) {
+                if (hasFocus) {
+                    if (chat_more_function.getVisibility() == View.VISIBLE) {
                         chat_more_function.setVisibility(View.GONE);
                     }
                 }
@@ -317,8 +318,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                     List<ChatSingleMsgBean> datas = AppDatas.MsgDB()
                                             .chatSingleMsgDao()
                                             .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", allMsg.size(), PAGE_SIZE);
-                                    for(ChatSingleMsgBean temp : datas) {
-                                        if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                                    for (ChatSingleMsgBean temp : datas) {
+                                        if (!msgChatIdUnEncrypt.contains(temp.msgID)) {
                                             msgChatIdUnEncrypt.add(temp.msgID);
                                             nChatSingleMsgBeans.add(temp);
                                         }
@@ -354,7 +355,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                                 unEncryptSingle(temp, true, scroll2position, i++);
                                             }
                                         } else {
-                                            if(nEncryptIMEnable) {
+                                            if (nEncryptIMEnable) {
                                                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                                                 finish();
                                                 return;
@@ -447,7 +448,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                         List<ChatSingleMsgBean> nChatSingleMsgBeans = new ArrayList<>();
 
                         List<ChatSingleMsgBean> datas;
-                        if(indexDatas != -1) {
+                        if (indexDatas != -1) {
                             datas = AppDatas.MsgDB()
                                     .chatSingleMsgDao()
                                     .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", 0, 999999999);
@@ -457,8 +458,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                     .queryPagingItemWithoutLive(mOtherUserId, AppAuth.get().getUserID() + "", index, limit);
                         }
 
-                        for(ChatSingleMsgBean temp : datas) {
-                            if(!msgChatIdUnEncrypt.contains(temp.msgID)) {
+                        for (ChatSingleMsgBean temp : datas) {
+                            if (!msgChatIdUnEncrypt.contains(temp.msgID)) {
                                 msgChatIdUnEncrypt.add(temp.msgID);
                                 nChatSingleMsgBeans.add(temp);
                             }
@@ -491,7 +492,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                 unEncryptSingle(temp, false, -1, -1);
                             }
                         } else {
-                            if(nEncryptIMEnable) {
+                            if (nEncryptIMEnable) {
                                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                                 finish();
                                 return;
@@ -547,7 +548,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
             encrypt(AppUtils.MESSAGE_TYPE_TEXT, msgText, false, false, 0, -1, "", false);
         } else {
-            if(nEncryptIMEnable) {
+            if (nEncryptIMEnable) {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 finish();
                 return;
@@ -955,7 +956,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                     encrypt(AppUtils.MESSAGE_TYPE_FILE, upload.file1_name, true, false, 0, fileSize, fileName, false);
                 } else {
-                    if(nEncryptIMEnable) {
+                    if (nEncryptIMEnable) {
                         EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                         finish();
                         return;
@@ -972,7 +973,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                     encrypt(AppUtils.MESSAGE_TYPE_VIDEO_FILE, upload.file1_name, true, true, recordTime, fileSize, fileName, false);
                 } else {
-                    if(nEncryptIMEnable) {
+                    if (nEncryptIMEnable) {
                         EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                         finish();
                         return;
@@ -985,6 +986,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                 }
             } else if (resultCode == RESULT_OK && requestCode == AppUtils.REQUEST_CODE_SELECT_IMAGES_CODE) {
                 imagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+                final String type = data.getStringExtra("type");
                 mapImg.clear();
                 imageSize = imagePaths.size();
 //                mZeusLoadView.loadingText("正在上传").setLoading();
@@ -1005,7 +1007,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                 nUser.strUserID, nUser.getDomainCode(), users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                     @Override
                                     public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                        upFile(file, new File(resp.m_strData));
+                                        upFile(file, new File(resp.m_strData), type);
                                     }
 
                                     @Override
@@ -1020,12 +1022,12 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                 }
                         );
                     } else {
-                        if(nEncryptIMEnable) {
+                        if (nEncryptIMEnable) {
                             EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                             finish();
                             return;
                         }
-                        upFile(file, file);
+                        upFile(file, file, type);
                     }
                 }
             }
@@ -1056,7 +1058,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                                     0, finalFile.length(),
                                     temp.substring(temp.lastIndexOf("/") + 1), true);
                         } else {
-                            if(nEncryptIMEnable) {
+                            if (nEncryptIMEnable) {
                                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                                 finish();
                                 return;
@@ -1075,7 +1077,13 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
         }
     }
 
-    private void upFile(File fileOld, File file) {
+    private void upFile(File fileOld, File file, String type) {
+        if (!TextUtils.isEmpty(type)) {
+            Bitmap bitmap = BitmapFactory.decodeFile(file.toString());
+            Bitmap bitmap1 = AppUtils.AddTimeWatermark(bitmap);
+            AppUtils.saveBitmapToSd(bitmap1, file.toString());
+        }
+
         ModelApis.Download().uploadFile(new ModelCallback<Upload>() {
             @Override
             public void onSuccess(final Upload upload) {
@@ -1201,7 +1209,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                     if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                         encrypt(AppUtils.MESSAGE_TYPE_ADDRESS, msgContentAddress, false, false, 0, -1, "", false);
                     } else {
-                        if(nEncryptIMEnable) {
+                        if (nEncryptIMEnable) {
                             EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                             finish();
                             return;
@@ -1217,7 +1225,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(StartTransModelBean bean) {
-        if(bean.canSelected) {
+        if (bean.canSelected) {
             tv_send_trans.setVisibility(View.VISIBLE);
         } else {
             tv_send_trans.setVisibility(View.GONE);
@@ -1226,7 +1234,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 
     @Override
     public void onBackPressed() {
-        if(tv_send_trans.getVisibility() == View.VISIBLE) {
+        if (tv_send_trans.getVisibility() == View.VISIBLE) {
             mChatContentAdapter.changeSelectedModel(false);
         } else {
             super.onBackPressed();
@@ -1241,7 +1249,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             mChatSendLocationDialog.dismiss();
             mChatSendLocationDialog = null;
         }
-        if(mChatContentAdapter != null) {
+        if (mChatContentAdapter != null) {
             mChatContentAdapter.dismissDialog();
             mChatContentAdapter.stopVoice();
         }
@@ -1285,7 +1293,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                     }
             );
         } else {
-            if(nEncryptIMEnable) {
+            if (nEncryptIMEnable) {
                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                 finish();
                 return;
@@ -1314,7 +1322,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
                         if (HYClient.getSdkOptions().encrypt().isEncryptBind() && nEncryptIMEnable) {
                             encrypt(AppUtils.MESSAGE_TYPE_AUDIO_FILE, upload.file1_name, true, true, recordTime, file.length(), fileOld.getAbsolutePath().substring(fileOld.getAbsolutePath().lastIndexOf("/") + 1), false);
                         } else {
-                            if(nEncryptIMEnable) {
+                            if (nEncryptIMEnable) {
                                 EventBus.getDefault().post(new MessageEvent(AppUtils.EVENT_INIT_FAILED, -4, "error"));
                                 finish();
                                 return;
@@ -1448,8 +1456,8 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
 
         }
 
-        for(ChatSingleMsgBean temp1 : allMsg) {
-            if(temp1.read == 0) {
+        for (ChatSingleMsgBean temp1 : allMsg) {
+            if (temp1.read == 0) {
                 VimMessageListMessages.get().isRead(temp1.sessionID);
                 AppDatas.MsgDB()
                         .chatSingleMsgDao()
@@ -1471,7 +1479,7 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
             }
         });
         mChatContentAdapter.notifyDataSetChanged();
-        if(indexDatas != -1) {
+        if (indexDatas != -1) {
             chat_recycler.scrollToPosition(indexDatas);
             indexDatas = -1;
         } else {

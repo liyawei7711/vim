@@ -11,7 +11,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -23,10 +29,14 @@ import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.ClipboardManager;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.baidu.location.BDLocation;
 import com.huaiye.sdk.HYClient;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -762,6 +772,73 @@ public final class AppUtils {
         }
         return daoHangAppInfolist;
     }
+
+    public static Bitmap AddTimeWatermark(Bitmap mBitmap) {
+        //获取原始图片与水印图片的宽与高
+        int mBitmapWidth = mBitmap.getWidth();
+        int mBitmapHeight = mBitmap.getHeight();
+        //定义底片 大小 将mBitmap填充
+        Bitmap mNewBitmap = Bitmap.createBitmap(mBitmapWidth, mBitmapHeight, Bitmap.Config.ARGB_8888);
+        Canvas mCanvas = new Canvas(mNewBitmap);
+        //向位图中开始画入MBitmap原始图片
+        mCanvas.drawBitmap(mBitmap, 0, 0, null);
+
+        StringBuilder sb = new StringBuilder(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss EEEE").format(new Date()));
+        BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();
+        if (null != nBDLocation) {
+            sb.append("\n" + nBDLocation.getAddrStr());
+        }
+        System.out.println("cccccccccccccccccccccc "+sb);
+        //水印的位置坐标
+        TextPaint tp = new TextPaint();
+        tp.setColor(Color.RED);
+        tp.setStyle(Paint.Style.FILL);
+        tp.setTextSize(getScreenDens() * 40);
+
+//        Paint mPaint = new Paint();
+//        mPaint.setColor(Color.BLUE);
+//        Path mPath = new Path();
+//        RectF mRectF = new RectF(20, 20, 240, 240);
+//        mPath.addRect(mRectF, Path.Direction.CCW);
+//        mPaint.setStrokeWidth(20);
+//        mPaint.setStyle(Paint.Style.STROKE);
+//        mCanvas.drawPath(mPath, mPaint);
+
+        mCanvas.translate((mBitmapWidth * 1) / 10, (mBitmapHeight * 14) / 15);
+        StaticLayout myStaticLayout = new StaticLayout(sb.toString(), tp, mCanvas.getWidth(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+
+        myStaticLayout.draw(mCanvas);
+
+        mCanvas.save();
+        mCanvas.restore();
+        return mNewBitmap;
+    }
+
+    public static boolean saveBitmapToSd(Bitmap bitmap, String filePath) {
+        FileOutputStream outputStream = null;
+        try {
+            File file = new File(filePath);
+            if (file.exists() || file.isDirectory()) {
+                file.delete();
+            }
+            file.createNewFile();
+            outputStream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        } catch (IOException e) {
+            return false;
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.flush();
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
+
 
     public static boolean isRightPwd(String str) {
         char[] c = str.toCharArray();

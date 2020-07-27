@@ -527,8 +527,19 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
         super.onResume();
         UserViewHolder.mIsChoice = true;
 
+        for (User user : mAllContacts) {
+            if (ChoosedContactsNew.get().isContain(user)) {
+                user.isSelected = true;
+            } else {
+                user.isSelected = false;
+            }
+        }
         if (adapter != null) {
             adapter.notifyDataSetChanged();
+        }
+
+        if (adapterAt != null) {
+            adapterAt.notifyDataSetChanged();
         }
 
         if (mChoosedAdapter != null) {

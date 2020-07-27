@@ -2,6 +2,8 @@ package huaiye.com.vim.ui.meet;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -1177,6 +1179,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                 }
             } else if (resultCode == RESULT_OK && requestCode == AppUtils.REQUEST_CODE_SELECT_IMAGES_CODE) {
                 List<String> imagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+                final String type = data.getStringExtra("type");
                 mapImg.clear();
                 imageSize = imagePaths.size();
 //                mZeusLoadView.loadingText("正在上传").setLoading();
@@ -1199,7 +1202,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                                 "", "", users, new SdkCallback<SdpMessageCmProcessIMRsp>() {
                                     @Override
                                     public void onSuccess(SdpMessageCmProcessIMRsp resp) {
-                                        upFile(file, new File(resp.m_strData));
+                                        upFile(file, new File(resp.m_strData), type);
                                     }
 
                                     @Override
@@ -1218,7 +1221,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
                             finish();
                             return;
                         }
-                        upFile(file, file);
+                        upFile(file, file, type);
                     }
 
                 }
@@ -1277,7 +1280,13 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         }
     }
 
-    private void upFile(File fileOld, File file) {
+    private void upFile(File fileOld, File file, String type) {
+        if (!TextUtils.isEmpty(type)) {
+            Bitmap bitmap = BitmapFactory.decodeFile(file.toString());
+            Bitmap bitmap1 = AppUtils.AddTimeWatermark(bitmap);
+            AppUtils.saveBitmapToSd(bitmap1, file.toString());
+        }
+
         ModelApis.Download().uploadFile(new ModelCallback<Upload>() {
             @Override
             public void onSuccess(final Upload upload) {

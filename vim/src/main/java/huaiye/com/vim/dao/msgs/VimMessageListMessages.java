@@ -145,6 +145,7 @@ public class VimMessageListMessages {
                 .addUpdateColumn("isRead", 1)
                 .update();
     }
+
     public void isRead(String sessionID) {
         AppDatas.DB().updateQuery(VimMessageListBean.class)
                 .addWhereColumn("sessionID", sessionID)
@@ -159,6 +160,22 @@ public class VimMessageListMessages {
         AppDatas.MsgDB()
                 .chatSingleMsgDao()
                 .updateReadMsgID(sessionID);
+    }
+
+    public void isUnRead(String sessionID) {
+        AppDatas.DB().updateQuery(VimMessageListBean.class)
+                .addWhereColumn("sessionID", sessionID)
+                .addWhereColumn("ownerId", AppDatas.Auth().getUserID())
+                .addWhereColumn("ownerDomain", AppDatas.Auth().getDomainCode())
+                .addUpdateColumn("isRead", 0)
+                .update();
+
+        AppDatas.MsgDB()
+                .chatGroupMsgDao()
+                .updateSessionIDRead(0, sessionID, AppAuth.get().getUserID());
+        AppDatas.MsgDB()
+                .chatSingleMsgDao()
+                .updateReadMsgID(0, sessionID);
     }
 
     public void updateMsgTop(String sessionID, int nMsgTop) {
