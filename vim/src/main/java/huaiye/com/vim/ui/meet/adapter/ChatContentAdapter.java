@@ -3198,11 +3198,11 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void showPopWindows(boolean isShow, View view, ChatMessageBase data) {
         final List<String> dataList = new ArrayList<>();
-        if (data.read == 1) {
-            dataList.add("未读");
-        } else {
-            dataList.add("已读");
-        }
+//        if (data.read == 1) {
+//            dataList.add("未读");
+//        } else {
+//            dataList.add("已读");
+//        }
         if (isShow) {
             dataList.add(AppUtils.getString(R.string.user_detail_zhuanfa_perple));
         }

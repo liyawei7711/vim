@@ -15,9 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -32,6 +30,7 @@ import android.text.ClipboardManager;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -783,31 +782,49 @@ public final class AppUtils {
         //向位图中开始画入MBitmap原始图片
         mCanvas.drawBitmap(mBitmap, 0, 0, null);
 
-        StringBuilder sb = new StringBuilder(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss EEEE").format(new Date()));
-        BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();
-        if (null != nBDLocation) {
-            sb.append("\n" + nBDLocation.getAddrStr());
-        }
-        System.out.println("cccccccccccccccccccccc "+sb);
+        StringBuilder sb1 = new StringBuilder(new SimpleDateFormat("hh:mm").format(new Date()));
         //水印的位置坐标
+        TextPaint tp0 = new TextPaint();
+        tp0.setColor(Color.WHITE);
+        tp0.setStyle(Paint.Style.FILL);
+        tp0.setTextSize(getScreenDens() * 60);
+
+        mCanvas.translate((float) ((mBitmapWidth * 1) / 2 - getScreenDens() * 60 * 3), (mBitmapHeight * 12) / 15);
+        StaticLayout myStaticLayout0 = new StaticLayout(sb1, tp0, (int) (getScreenDens() * 60 * 5), Layout.Alignment.ALIGN_OPPOSITE, 1.0f, 0.0f, false);
+        myStaticLayout0.draw(mCanvas);
+
+        StringBuilder sb = new StringBuilder(" ");
+        sb.append(new SimpleDateFormat("yyyy-MM-dd EEEE").format(new Date()));
         TextPaint tp = new TextPaint();
-        tp.setColor(Color.RED);
+        tp.setColor(Color.WHITE);
         tp.setStyle(Paint.Style.FILL);
         tp.setTextSize(getScreenDens() * 40);
 
-//        Paint mPaint = new Paint();
-//        mPaint.setColor(Color.BLUE);
-//        Path mPath = new Path();
-//        RectF mRectF = new RectF(20, 20, 240, 240);
-//        mPath.addRect(mRectF, Path.Direction.CCW);
-//        mPaint.setStrokeWidth(20);
-//        mPaint.setStyle(Paint.Style.STROKE);
-//        mCanvas.drawPath(mPath, mPaint);
-
-        mCanvas.translate((mBitmapWidth * 1) / 10, (mBitmapHeight * 14) / 15);
-        StaticLayout myStaticLayout = new StaticLayout(sb.toString(), tp, mCanvas.getWidth(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-
+        mCanvas.translate((float) (getScreenDens() * 60 * 2.5), getScreenDens() * 12);
+        StaticLayout myStaticLayout = new StaticLayout(sb.toString(), tp, (mCanvas.getWidth() * 1) / 2, Layout.Alignment.ALIGN_OPPOSITE, 1.0f, 0.0f, false);
         myStaticLayout.draw(mCanvas);
+
+        BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();
+        if (null != nBDLocation) {
+            //水印的位置坐标
+            TextPaint tp2 = new TextPaint();
+            tp2.setColor(Color.WHITE);
+            tp2.setStyle(Paint.Style.FILL);
+            tp2.setTextSize(getScreenDens() * 40);
+
+            mCanvas.translate(0, getScreenDens() * 60);
+
+            StringBuilder sbStr = new StringBuilder(nBDLocation.getAddrStr());
+            if(!TextUtils.isEmpty(nBDLocation.getBuildingName())) {
+                sbStr.append(nBDLocation.getBuildingName());
+            }
+            if(!TextUtils.isEmpty(nBDLocation.getFloor())) {
+                sbStr.append(nBDLocation.getFloor());
+            }
+            StaticLayout myStaticLayout2 = new StaticLayout(sbStr, tp2, (int) ((mCanvas.getWidth() * 1) / 2 + getScreenDens() * 60), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+
+            myStaticLayout2.draw(mCanvas);
+        }
 
         mCanvas.save();
         mCanvas.restore();
