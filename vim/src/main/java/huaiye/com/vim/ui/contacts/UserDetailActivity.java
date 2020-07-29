@@ -663,6 +663,9 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
     }
 
     private void queryGroupChatInfo() {
+        if(!isGroupChat) {
+            return;
+        }
         ModelApis.Contacts().requestqueryGroupChatInfo(strGroupDomainCode, strGroupID, new ModelCallback<ContactsGroupUserListBean>() {
             @Override
             public void onSuccess(final ContactsGroupUserListBean contactsBean) {

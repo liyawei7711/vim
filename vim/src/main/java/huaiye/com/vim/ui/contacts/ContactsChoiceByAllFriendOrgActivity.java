@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -72,6 +73,10 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
 
     @BindView(R.id.ll_search)
     View ll_search;
+    @BindView(R.id.ll_selected_all)
+    View ll_selected_all;
+    @BindView(R.id.iv_selected_all)
+    ImageView iv_selected_all;
 
     @BindView(R.id.rct_view_suozai)
     RecyclerView rct_view_suozai;
@@ -95,6 +100,7 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     private ArrayList<User> mCustomContacts = new ArrayList<>();
     private ArrayList<User> mAllContacts = new ArrayList<>();//常用联系人
 
+    boolean tagSelected = false;
     @BindExtra
     String titleName;
     @BindExtra
@@ -284,6 +290,17 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
     }
 
     private void changeShowSelected() {
+
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+        if (adapterAt != null) {
+            adapterAt.notifyDataSetChanged();
+        }
+        if (mChoosedAdapter != null) {
+            mChoosedAdapter.notifyDataSetChanged();
+        }
+
         if (ChoosedContactsNew.get().getContactsSize() == 0 &&
                 ChoosedContactsNew.get().getGroups().isEmpty() &&
                 ChoosedContactsNew.get().getDepts().isEmpty()) {
@@ -293,6 +310,21 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
             llChoosedPersons.setVisibility(View.VISIBLE);
             getNavigate().setRightText("确定(" + ChoosedContactsNew.get().getShowTotalSize() + ")");
         }
+
+        boolean hasNoSelected = false;
+
+        for (User user : mCustomContacts) {
+            if (!user.isSelected) {
+                hasNoSelected = true;
+                break;
+            }
+        }
+
+        if (hasNoSelected) {
+            tagSelected = false;
+            iv_selected_all.setImageResource(R.drawable.ic_choice);
+        }
+
         getNavigate().getRightTextView().setBackgroundResource(R.drawable.shape_choosed_confirm);
     }
 
@@ -377,6 +409,13 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
                 mCustomContacts.add(temp);
             }
         }
+
+        if(mCustomContacts.isEmpty()) {
+            ll_selected_all.setVisibility(View.GONE);
+        } else {
+            ll_selected_all.setVisibility(View.VISIBLE);
+        }
+
         adapter.notifyDataSetChanged();
 
         refresh_view.setRefreshing(false);
@@ -418,6 +457,33 @@ public class ContactsChoiceByAllFriendOrgActivity extends AppBaseActivity {
         Intent intent = new Intent(this, DeptListOrgActivity.class);
         intent.putExtra("max", 100000);
         startActivity(intent);
+    }
+
+    @OnClick(R.id.ll_selected_all)
+    void selectedAll() {
+        if (tagSelected) {
+            tagSelected = false;
+            iv_selected_all.setImageResource(R.drawable.ic_choice);
+        } else {
+            tagSelected = true;
+            iv_selected_all.setImageResource(R.drawable.ic_choice_checked);
+        }
+
+        for (User user : mCustomContacts) {
+            if (tagSelected) {
+                user.isSelected = true;
+                if (!ChoosedContactsNew.get().isContain(user)) {
+                    ChoosedContactsNew.get().add(user, true);
+                }
+            } else {
+                user.isSelected = false;
+                if (ChoosedContactsNew.get().isContain(user)) {
+                    ChoosedContactsNew.get().remove(user);
+                }
+            }
+        }
+
+        changeShowSelected();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

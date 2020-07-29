@@ -342,6 +342,13 @@ public class ContactsApi {
     public void requestqueryGroupChatInfo(String strGroupDomainCode, String strGroupID, ModelCallback<ContactsGroupUserListBean> callback) {
         String URL = AppDatas.Constants().getVimAddressBaseURL() + "httpjson/query_group_chat_info";
 
+        if(TextUtils.isEmpty(strGroupDomainCode)) {
+            return;
+        }
+        if(TextUtils.isEmpty(strGroupID)) {
+            return;
+        }
+
         Https.post(URL)
                 .addHeader("Connection", "close")
                 .addParam("strGroupDomainCode", strGroupDomainCode)

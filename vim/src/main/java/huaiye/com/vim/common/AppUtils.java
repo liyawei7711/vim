@@ -782,49 +782,26 @@ public final class AppUtils {
         //向位图中开始画入MBitmap原始图片
         mCanvas.drawBitmap(mBitmap, 0, 0, null);
 
-        StringBuilder sb1 = new StringBuilder(new SimpleDateFormat("hh:mm").format(new Date()));
+        StringBuilder sbStr = new StringBuilder(new SimpleDateFormat("hh:mm").format(new Date()) + " " + new SimpleDateFormat("yyyy-MM-dd EEEE").format(new Date()));
+
+        BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();
+        if (null != nBDLocation) {
+            //水印的位置坐标
+            sbStr.append("\n");
+            if (!TextUtils.isEmpty(nBDLocation.getAddrStr())) {
+                sbStr.append(nBDLocation.getAddrStr());
+            }
+        }
+
         //水印的位置坐标
-        TextPaint tp0 = new TextPaint();
-        tp0.setColor(Color.WHITE);
-        tp0.setStyle(Paint.Style.FILL);
-        tp0.setTextSize(getScreenDens() * 60);
-
-        mCanvas.translate((float) ((mBitmapWidth * 1) / 2 - getScreenDens() * 60 * 3), (mBitmapHeight * 12) / 15);
-        StaticLayout myStaticLayout0 = new StaticLayout(sb1, tp0, (int) (getScreenDens() * 60 * 5), Layout.Alignment.ALIGN_OPPOSITE, 1.0f, 0.0f, false);
-        myStaticLayout0.draw(mCanvas);
-
-        StringBuilder sb = new StringBuilder(" ");
-        sb.append(new SimpleDateFormat("yyyy-MM-dd EEEE").format(new Date()));
         TextPaint tp = new TextPaint();
         tp.setColor(Color.WHITE);
         tp.setStyle(Paint.Style.FILL);
         tp.setTextSize(getScreenDens() * 40);
 
-        mCanvas.translate((float) (getScreenDens() * 60 * 2.5), getScreenDens() * 12);
-        StaticLayout myStaticLayout = new StaticLayout(sb.toString(), tp, (mCanvas.getWidth() * 1) / 2, Layout.Alignment.ALIGN_OPPOSITE, 1.0f, 0.0f, false);
+        mCanvas.translate((mBitmapWidth * 1) / 2, (mBitmapHeight * 12) / 15);
+        StaticLayout myStaticLayout = new StaticLayout(sbStr, tp, (mBitmapWidth * 1) / 2, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
         myStaticLayout.draw(mCanvas);
-
-        BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();
-        if (null != nBDLocation) {
-            //水印的位置坐标
-            TextPaint tp2 = new TextPaint();
-            tp2.setColor(Color.WHITE);
-            tp2.setStyle(Paint.Style.FILL);
-            tp2.setTextSize(getScreenDens() * 40);
-
-            mCanvas.translate(0, getScreenDens() * 60);
-
-            StringBuilder sbStr = new StringBuilder(nBDLocation.getAddrStr());
-            if(!TextUtils.isEmpty(nBDLocation.getBuildingName())) {
-                sbStr.append(nBDLocation.getBuildingName());
-            }
-            if(!TextUtils.isEmpty(nBDLocation.getFloor())) {
-                sbStr.append(nBDLocation.getFloor());
-            }
-            StaticLayout myStaticLayout2 = new StaticLayout(sbStr, tp2, (int) ((mCanvas.getWidth() * 1) / 2 + getScreenDens() * 60), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-
-            myStaticLayout2.draw(mCanvas);
-        }
 
         mCanvas.save();
         mCanvas.restore();

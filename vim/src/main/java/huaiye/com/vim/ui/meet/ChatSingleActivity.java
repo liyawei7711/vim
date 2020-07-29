@@ -1080,8 +1080,12 @@ public class ChatSingleActivity extends AppBaseActivity implements ChatMoreFunct
     private void upFile(File fileOld, File file, String type) {
         if (!TextUtils.isEmpty(type)) {
             Bitmap bitmap = BitmapFactory.decodeFile(file.toString());
-            Bitmap bitmap1 = AppUtils.AddTimeWatermark(bitmap);
-            AppUtils.saveBitmapToSd(bitmap1, file.toString());
+            if(bitmap != null && bitmap.getByteCount() > 0) {
+                Bitmap bitmap1 = AppUtils.AddTimeWatermark(bitmap);
+                if(bitmap1 != null && bitmap1.getByteCount() > 0) {
+                    AppUtils.saveBitmapToSd(bitmap1, file.toString());
+                }
+            }
         }
 
         ModelApis.Download().uploadFile(new ModelCallback<Upload>() {

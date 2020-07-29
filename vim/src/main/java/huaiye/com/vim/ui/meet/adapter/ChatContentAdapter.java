@@ -1887,7 +1887,8 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     viewHolderLeft.left_content_voice_time.setVisibility(View.GONE);
 
                 }
-                if (data.read == 1) {viewHolderLeft.left_content_voice_state.setVisibility(View.GONE);
+                if (data.read == 1) {
+                    viewHolderLeft.left_content_voice_state.setVisibility(View.GONE);
                 } else {
                     viewHolderLeft.left_content_voice_state.setVisibility(View.VISIBLE);
                 }
@@ -3220,13 +3221,13 @@ public class ChatContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 mPopupWindowList.hide();
                 String str = dataList.get(position);
                 if (str.equals("删除")) {
-                    delZhuanFaMessage(data);
-                } else if (str.equals("转发")) {
                     if (data.bEncrypt == 1 && !data.isUnEncrypt) {
                         showToast("信息尚未解密");
                     } else {
                         deleChatRecord(data);
                     }
+                } else if (str.equals("转发")) {
+                    delZhuanFaMessage(data);
                 } else if (str.equals("传输")) {
                     if (data.bEncrypt == 1) {
                         if (!data.isUnEncrypt) {

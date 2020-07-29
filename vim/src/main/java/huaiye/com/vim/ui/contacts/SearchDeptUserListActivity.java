@@ -216,7 +216,7 @@ public class SearchDeptUserListActivity extends AppBaseActivity {
         userInfos.clear();
         if (null != VIMApp.getInstance().mDomainInfoList && VIMApp.getInstance().mDomainInfoList.size() > 0) {
             for (DomainInfoList.DomainInfo temp : VIMApp.getInstance().mDomainInfoList) {
-                ModelApis.Contacts().requestContactsByKey(temp.strDomainCode, null, new ModelCallback<ContactsBean>() {
+                ModelApis.Contacts().requestContactsByKey(temp.strDomainCode, et_key.getText().toString(), new ModelCallback<ContactsBean>() {
                     @Override
                     public void onSuccess(final ContactsBean contactsBean) {
                         if (null != contactsBean && null != contactsBean.userList && contactsBean.userList.size() > 0) {
