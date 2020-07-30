@@ -379,27 +379,15 @@ public class UserDetailActivity extends AppBaseActivity implements UserDetailUse
                     ModelApis.Contacts().requestSetGroupChatMsgMode(strGroupDomainCode, strGroupID, nMsgTop, nNoDisturb, new ModelCallback<CustomResponse>() {
                         @Override
                         public void onSuccess(final CustomResponse contactsBean) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                                        mZeusLoadView.dismiss();
-                                    showToast(AppUtils.getString(R.string.request_load_over));
-                                }
-                            });
+                            if (mZeusLoadView != null && mZeusLoadView.isShowing())
+                                mZeusLoadView.dismiss();
                         }
 
                         @Override
                         public void onFailure(HTTPResponse httpResponse) {
                             super.onFailure(httpResponse);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mZeusLoadView != null && mZeusLoadView.isShowing())
-                                        mZeusLoadView.dismiss();
-                                    showToast(AppUtils.getString(R.string.request_load_failed));
-                                }
-                            });
+                            if (mZeusLoadView != null && mZeusLoadView.isShowing())
+                                mZeusLoadView.dismiss();
                         }
                     });
                 } else {

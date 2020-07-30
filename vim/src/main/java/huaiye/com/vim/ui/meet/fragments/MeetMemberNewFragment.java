@@ -76,8 +76,6 @@ public class MeetMemberNewFragment extends AppBaseFragment {
                     }
                     break;
             }
-
-
         }
 
     }
@@ -119,7 +117,7 @@ public class MeetMemberNewFragment extends AppBaseFragment {
         isSetVisible = isVisibleToUser;
 
         if (multiPlayerHelper != null) {
-            multiPlayerHelper.changeUserPreview(isSetVisible);
+            multiPlayerHelper.changeUserPreview(isVisibleToUser);
         }
 
         refreshUser(mCGetMeetingInfoRsp, mDataList);
@@ -146,11 +144,7 @@ public class MeetMemberNewFragment extends AppBaseFragment {
         if (multiPlayerHelper == null || this.mCGetMeetingInfoRsp == null || this.mDataList == null) {
             return;
         }
-        if (isResumed && !isSetVisible) {
-            multiPlayerHelper.refreshData(mDataList, mCGetMeetingInfoRsp.strKeynoteSpeakerTokenID, !isCloseVideo);
-        }
-
-        if (isResumed && isSetVisible) {
+        if (isResumed) {
             multiPlayerHelper.refreshData(mDataList, mCGetMeetingInfoRsp.strKeynoteSpeakerTokenID, !isCloseVideo);
         }
 

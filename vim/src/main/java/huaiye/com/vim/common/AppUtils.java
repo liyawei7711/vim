@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -772,7 +773,8 @@ public final class AppUtils {
         return daoHangAppInfolist;
     }
 
-    public static Bitmap AddTimeWatermark(Bitmap mBitmap) {
+    public static Bitmap AddTimeWatermark(String file, Bitmap mBitmap) {
+        mBitmap = PhotoBitmapUtils.amendRotatePhoto(file, mBitmap);
         //获取原始图片与水印图片的宽与高
         int mBitmapWidth = mBitmap.getWidth();
         int mBitmapHeight = mBitmap.getHeight();
@@ -782,26 +784,66 @@ public final class AppUtils {
         //向位图中开始画入MBitmap原始图片
         mCanvas.drawBitmap(mBitmap, 0, 0, null);
 
-        StringBuilder sbStr = new StringBuilder(new SimpleDateFormat("hh:mm").format(new Date()) + " " + new SimpleDateFormat("yyyy-MM-dd EEEE").format(new Date()));
+        Rect rectText = getRect("你", 40);
+
+        StringBuilder sbStrTime = new StringBuilder(new SimpleDateFormat("hh:mm").format(new Date()));
+        StringBuilder sbStrDate = new StringBuilder(new SimpleDateFormat("yyyy/MM/dd EEEE").format(new Date()));
+
+        Rect rectTime = getRect(sbStrTime.toString(), 60);
+        int widthTime = rectTime.width();
+        int highTime = rectTime.height();
+
+        Rect rectDate = getRect(sbStrDate.toString(), 40);
+        int widthDate = rectDate.width();
+        int highDate = rectDate.height();
+
+        int xDate = mBitmapWidth - widthDate;
+        int xTime = (int) (mBitmapWidth - widthDate - widthTime - getScreenDens() * 20 - rectText.width());
+        int xAddress = 0;
+        int hight = (int) (mBitmapHeight - highTime - getScreenDens() * 20);
 
         BDLocation nBDLocation = VIMApp.getInstance().locationService.getCurrentBDLocation();
+        String sbStrAddress = "";
         if (null != nBDLocation) {
             //水印的位置坐标
-            sbStr.append("\n");
-            if (!TextUtils.isEmpty(nBDLocation.getAddrStr())) {
-                sbStr.append(nBDLocation.getAddrStr());
+            sbStrAddress = nBDLocation.getAddrStr();
+            Rect rectAddress = getRect(sbStrAddress, 40);
+            int widthAddress = rectAddress.width();
+            int highAddress = rectAddress.height();
+
+            if (widthAddress > 3 * (widthDate + widthTime)) {
+                hight -= 8 * highAddress;
+            } else if (widthAddress > 2 * (widthDate + widthTime)) {
+                hight -= 6 * highAddress;
+            } else if (widthAddress > 1 * (widthDate + widthTime)) {
+                hight -= 4 * highAddress;
+            } else if (widthAddress <= 1 * (widthDate + widthTime)) {
+                hight -= 3 * highAddress;
             }
         }
 
         //水印的位置坐标
         TextPaint tp = new TextPaint();
-        tp.setColor(Color.WHITE);
+        tp.setColor(Color.parseColor("#99ffffff"));
         tp.setStyle(Paint.Style.FILL);
-        tp.setTextSize(getScreenDens() * 40);
 
-        mCanvas.translate((mBitmapWidth * 1) / 2, (mBitmapHeight * 12) / 15);
-        StaticLayout myStaticLayout = new StaticLayout(sbStr, tp, (mBitmapWidth * 1) / 2, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-        myStaticLayout.draw(mCanvas);
+        tp.setTextSize(getScreenDens() * 60);
+        mCanvas.translate(xTime, hight);
+        StaticLayout myStaticLayout0 = new StaticLayout(sbStrTime, tp, widthTime * 2, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+        myStaticLayout0.draw(mCanvas);
+
+        tp.setTextSize(getScreenDens() * 40);
+        int distance = (int) ((highTime - highDate) * getScreenDens()) /2;
+        mCanvas.translate(widthTime + rectText.width(), distance);
+        StaticLayout myStaticLayout1 = new StaticLayout(sbStrDate, tp, widthDate * 2, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+        myStaticLayout1.draw(mCanvas);
+
+        if (!TextUtils.isEmpty(sbStrAddress)) {
+            tp.setTextSize(getScreenDens() * 40);
+            mCanvas.translate(-widthTime - rectText.width(), highDate + highDate);
+            StaticLayout myStaticLayout2 = new StaticLayout(sbStrAddress, tp, widthTime + widthDate + rectText.width(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+            myStaticLayout2.draw(mCanvas);
+        }
 
         mCanvas.save();
         mCanvas.restore();
@@ -833,6 +875,16 @@ public final class AppUtils {
         return true;
     }
 
+    public static Rect getRect(String str, int size) {
+        Paint paint = new Paint();
+        paint.setTextSize(getScreenDens() * size);
+        Rect rect = new Rect();
+        if (TextUtils.isEmpty(str)) {
+            return new Rect();
+        }
+        paint.getTextBounds(str, 0, str.length(), rect);
+        return rect;
+    }
 
     public static boolean isRightPwd(String str) {
         char[] c = str.toCharArray();

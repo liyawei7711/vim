@@ -798,6 +798,7 @@ public class TalkVoiceActivity extends AppBaseActivity {
     }
 
     private void startTimer() {
+        stopTime();
         timeDisposable = Observable.interval(1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Long>() {

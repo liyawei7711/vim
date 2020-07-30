@@ -1284,7 +1284,7 @@ public class ChatGroupActivityNew extends AppBaseActivity implements ChatMoreFun
         if (!TextUtils.isEmpty(type)) {
             Bitmap bitmap = BitmapFactory.decodeFile(file.toString());
             if(bitmap != null && bitmap.getByteCount() > 0) {
-                Bitmap bitmap1 = AppUtils.AddTimeWatermark(bitmap);
+                Bitmap bitmap1 = AppUtils.AddTimeWatermark(file.toString(), bitmap);
                 if(bitmap1 != null && bitmap1.getByteCount() > 0) {
                     AppUtils.saveBitmapToSd(bitmap1, file.toString());
                 }
